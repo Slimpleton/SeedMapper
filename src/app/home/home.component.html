@@ -1,0 +1,8 @@
+<!-- TODO start with displaying info about the native stuff found in the area -->
+<body class="container" id="container">
+    <article class="result-container" id="result-container" *ngIf="lastSearch$ | async as lastSearch">
+        <section *ngFor="let result of lastSearch.results; let i = index;" class="result-item" id="result-item{{i}}">
+            
+        </section>
+    </article>
+</body>
