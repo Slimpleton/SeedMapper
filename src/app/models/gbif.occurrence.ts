@@ -1,5 +1,12 @@
 import { GbifExtensions } from "./gbif.extensions";
 
+export type TaxonomicStatus = 
+    'ACCEPTED' | 'DOUBTFUL' | 'SYNONYM' | 'HETEROTYPIC_SYNONYM' | 'HOMOTYPIC_SYNONYM' | 'PROPARTE_SYNONYM' | 'MISAPPLIED';
+
+export function isAcceptedStatus(status: TaxonomicStatus) {
+  return status === 'ACCEPTED';
+}
+
 export interface GbifOccurrence {
     key: number;
     datasetKey: string;
@@ -36,7 +43,7 @@ export interface GbifOccurrence {
     genericName: string;
     specificEpithet: string;
     taxonRank: string;
-    taxonomicStatus: string;
+    taxonomicStatus: TaxonomicStatus;
     iucnRedListCategory?: string;
     dateIdentified?: string;
     decimalLatitude: number;

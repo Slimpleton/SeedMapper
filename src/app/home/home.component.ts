@@ -36,9 +36,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     // TODO on search, might be cool to scrape the web for results on most common name associated with scientific name if i cant find an official mapping 
     this._positionEmitter$.pipe(
       tap((pos) => console.log(pos)),
-      // switchMap((pos: GeolocationPosition) => this._gbifService.searchNativePlants(pos.coords.latitude, pos.coords.longitude)), TODO undo
-      switchMap((pos: GeolocationPosition) => this._gbifService.searchNativePlants(33.853007035605174, -117.93842501103482)),
-      takeUntil(this._ngDestroy$)
+      switchMap((pos: GeolocationPosition) => this._gbifService.searchNativePlants(pos.coords.latitude, pos.coords.longitude)),
+      // switchMap((pos: GeolocationPosition) => this._gbifService.searchNativePlants(36.75711952163049, -119.86352313029386)), 
     ).subscribe({
       next: (value: GBIFPageableResult<GbifOccurrence>) => {
         this._lastSearch$.next(value);

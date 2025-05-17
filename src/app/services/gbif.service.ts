@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, concatMap, filter, iif, map, mergeAll, switchMap, tap } from 'rxjs';
+import { Observable, concatMap, filter, iif, map, mergeAll, tap } from 'rxjs';
 import { GBIFPageableResult } from '../models/gbif.pageable-result';
-import { GbifOccurrence } from '../models/gbif.occurrence';
+import { GbifOccurrence, isAcceptedStatus } from '../models/gbif.occurrence';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +13,12 @@ export class GbifService {
   private _v1Url: string = `${this._url}v1/`;
   private _nativeKeyword: string = 'native';
   private _plantKingdomKey: number = 6;
-  private _uncertaintyRangeMeters: number = 5 * 1000; // 5Km
+  private _uncertaintyRangeMeters: number = 25 * 1000; // 25Km
   private _earthRadiusMeters = 6371 * 1000;
 
 
   private readonly NATURALIZED_NON_NATIVE_SPECIES: string[] = ['Agrostis stolonifera'];
-  private readonly UNFORGIVEABLE_ERRORS : string[] = ['GEODETIC_DATUM_ASSUMED_WGS84'];
+  private readonly UNFORGIVEABLE_ERRORS : string[] = [];
 
   constructor(private _client: HttpClient) { }
 
@@ -60,8 +60,8 @@ export class GbifService {
     // Close the polygon by repeating the first point
     coords.push(coords[0]);
 
-    if (this.isClockwise(coords))
-      coords.reverse();
+    // if (this.isClockwise(coords))
+    coords.reverse();
 
     const polygon: string = `POLYGON ((${coords.join(', ')}))`;
     console.log(polygon);
@@ -70,17 +70,44 @@ export class GbifService {
 
   private isNotNative(occurrence: GbifOccurrence): boolean{
     let native : boolean = true;
-    native &&= this.NATURALIZED_NON_NATIVE_SPECIES.includes(occurrence.species);
+    native &&= !this.NATURALIZED_NON_NATIVE_SPECIES.includes(occurrence.species);
+    native &&= isAcceptedStatus(occurrence.taxonomicStatus);
+    native &&= !occurrence.establishmentMeans || occurrence.establishmentMeans == this._nativeKeyword; 
     if(occurrence.issues){
-      native &&= occurrence.issues?.some(x => this.UNFORGIVEABLE_ERRORS.includes(x));
+      native &&= !occurrence.issues?.some(x => this.UNFORGIVEABLE_ERRORS.includes(x));
     }
 
     return native;
   }
 
+  // public searchNativePlantsByState(state: string): Observable<GBIFPageableResult<GbifOccurrence>>{
+  //   let params = {
+  //     country: 'US',
+  //     // geometry: this.createCirclePolygon(latitude, longitude),
+  //     limit: 300,
+  //     taxonKey: this._plantKingdomKey,
+  //     hasGeospatialIssue: 'false',
+  //     hasCoordinate: 'true',
+  //     stateProvince: state
+  //     // TODO offset: to get next page
+  //   };
+
+  //   const request = this._client.get<GBIFPageableResult<GbifOccurrence>>(`${this._v1Url}occurrence/search`, {
+  //     params: params
+  //   });
+
+  //   // TODO filter out naturalized plants 
+  //   return request.pipe(
+  //     tap(value => console.log('before manual filter', value, [...value.results])),
+  //     map((record : GBIFPageableResult<GbifOccurrence>) => {
+  //      record.results = record.results.filter(occurrence => this.isNotNative(occurrence));
+  //      return record;
+  //     }),
+  //   );
+  // }
+
   public searchNativePlants(latitude: number, longitude: number): Observable<GBIFPageableResult<GbifOccurrence>> {
     let params = {
-      establishmentMeans: this._nativeKeyword,
       country: 'US',
       geometry: this.createCirclePolygon(latitude, longitude),
       limit: 300,
@@ -96,7 +123,7 @@ export class GbifService {
 
     // TODO filter out naturalized plants 
     return request.pipe(
-      tap(value => console.log('before manual filter', value)),
+      tap(value => console.log('before manual filter', value, [...value.results])),
       map((record : GBIFPageableResult<GbifOccurrence>) => {
        record.results = record.results.filter(occurrence => this.isNotNative(occurrence));
        return record;
