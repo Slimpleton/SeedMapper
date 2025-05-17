@@ -2,7 +2,9 @@
 <body class="container" id="container">
     <article class="result-container" id="result-container" *ngIf="lastSearch$ | async as lastSearch">
         <section *ngFor="let result of lastSearch.results; let i = index;" class="result-item" id="result-item{{i}}">
-            
+            <h1 class="result-species" id="result-species">{{result.species}}</h1>
+            <h3 class="result-genus" id="result-genus">Genus: {{result.genus}}</h3>
+            <h4 class="result family family" id="result">Family: {{result.family}}</h4>
         </section>
     </article>
 </body>
