@@ -1,24 +1,31 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, concatMap, filter, iif, map, mergeAll, tap } from 'rxjs';
+import { Observable, OperatorFunction, concatMap, expand, filter, iif, map, mergeAll, reduce, takeWhile, tap } from 'rxjs';
 import { GBIFPageableResult } from '../models/gbif.pageable-result';
 import { GbifOccurrence, isAcceptedStatus } from '../models/gbif.occurrence';
+import { NativePlantSearch } from '../interfaces/native-plant-search.interface';
+import { GBIFGADMRegion } from '../models/gbif.gadm-region';
+import { GBIFPage } from '../models/gbif.page';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GbifService {
+export class GbifService implements NativePlantSearch {
   private _url: string = 'https://api.gbif.org/';
   private _v2Url: string = `${this._url}v2/`;
   private _v1Url: string = `${this._url}v1/`;
   private _nativeKeyword: string = 'native';
   private _plantKingdomKey: number = 6;
   private _uncertaintyRangeMeters: number = 25 * 1000; // 25Km
-  private _earthRadiusMeters = 6371 * 1000;
+  private _earthRadiusMeters: number = 6371 * 1000;
+  private _USA_TOP_GADM_REGION: string = 'USA';
+  private _GADMSubdivisionLimit: number = 2;
 
 
   private readonly NATURALIZED_NON_NATIVE_SPECIES: string[] = ['Agrostis stolonifera'];
   private readonly UNFORGIVEABLE_ERRORS: string[] = [];
+
+  private readonly _resultsPerPage = 300;
 
   constructor(private _client: HttpClient) { }
 
@@ -30,15 +37,59 @@ export class GbifService {
     });
   }
 
-  // Helper function to check if polygon is clockwise
-  private isClockwise(coords: string[]): boolean {
-    let sum = 0;
-    for (let i = 0; i < coords.length - 1; i++) {
-      const [x1, y1] = coords[i].split(' ').map(parseFloat);
-      const [x2, y2] = coords[i + 1].split(' ').map(parseFloat);
-      sum += (x2 - x1) * (y2 + y1);
-    }
-    return sum > 0;
+  /**
+   * Gets {@link GBIFGADMRegion  | GBIFGADMRegions} for every state in the US including DC
+   * e.g. id: USA.1_1 - USA.51_1
+   * 1_1 is alabama , its alphabetic
+   * @returns 
+   */
+  public getUSAStateRegions(): Observable<GBIFGADMRegion[]> {
+    return this.searchGADMSubregions(this._USA_TOP_GADM_REGION, '', 1);
+  }
+
+  /**
+   * 
+   * @returns 
+   */
+  public getUSAStateCounties(stateNumber: number): Observable<GBIFGADMRegion[]> {
+    this.throwIfInvalidState(stateNumber);
+    const id = `${this._USA_TOP_GADM_REGION}.${stateNumber}_1`;
+    return this.searchGADMSubregions(id);
+  }
+
+  private throwIfInvalidState(stateNumber: number): void {
+    if (stateNumber < 1)
+      throw new Error('Below possible value');
+    if (stateNumber > 51)
+      throw new Error('above possible value');
+  }
+
+  /// Not useful, county is smallest region ive observed consistently
+  // public getUSACountySubregions(stateNumber: number, countyNumber: number){
+  //   this.throwIfInvalidState(stateNumber);
+  //   const id = `${this._USA_TOP_GADM_REGION}.${stateNumber}.${countyNumber}_1`;
+  //   return this.searchGADMSubregions(id);
+  // }
+
+  private searchGADMSubregions(gadmGid: string, q: string = '', gadmLevel: number = this._GADMSubdivisionLimit): Observable<GBIFGADMRegion[]> {
+    let pageParams = this.GetMaxPageParams();
+    return this.aggregatePageableResults<GBIFGADMRegion>(
+      pageParams,
+      (_) => true,
+      (params) => this.searchGADMRegions(q, gadmGid, params, gadmLevel.toString())
+    );
+  }
+
+  private searchGADMRegions(q: string, gadmGid: string, page: GBIFPage, gadmLevel: string): Observable<GBIFPageableResult<GBIFGADMRegion>> {
+    return this._client.get<GBIFPageableResult<GBIFGADMRegion>>(`${this._v1Url}geocode/gadm/search`, {
+      params: {
+        q: q,
+        gadmGid: gadmGid,
+        gadmLevel: gadmLevel,
+        limit: page.limit,
+        offset: page.offset
+      },
+    });
   }
 
   private createCirclePolygon(lat: number, lon: number, radius: number = this._uncertaintyRangeMeters, numPoints: number = 8): string {
@@ -73,77 +124,6 @@ export class GbifService {
     native &&= !this.NATURALIZED_NON_NATIVE_SPECIES.includes(occurrence.species);
     native &&= isAcceptedStatus(occurrence.taxonomicStatus);
     // native &&= !occurrence.establishmentMeans || occurrence.establishmentMeans == this._nativeKeyword; 
-    //TODO since we arent using this at the query level, we need to doubly ensure that its native and establishmentMeans doesnt exist on GbifOccurrence
-
-    // Yes, **GBIF provides an endpoint that includes `establishmentMeans`**, but **only if the dataset or record includes it**. There’s no central endpoint that gives you a guaranteed native status **per species across regions**—but you can **infer it using the `species/{taxonKey}/distributions` endpoint**.
-
-    // ---
-
-    // ### ✅ Option 1: Use `/species/{taxonKey}/distributions`
-
-    // This endpoint provides distribution records, and **includes `establishmentMeans`** for a species across countries or regions, if available.
-
-    // **Example request:**
-
-    // ```
-    // GET https://api.gbif.org/v1/species/KEY/distributions
-    // ```
-
-    // Replace `KEY` with the species' `taxonKey`.
-
-    // **Response includes:**
-
-    // ```json
-    // {
-    //   "source": "USDA PLANTS Database",
-    //   "locality": "United States",
-    //   "establishmentMeans": "NATIVE",
-    //   "occurrenceStatus": "PRESENT"
-    // }
-    // ```
-
-    // This will tell you whether GBIF considers it **native**, **introduced**, or **endemic** in a specific location like the US.
-
-    // ---
-
-    // ### ✅ Option 2: Query occurrences with filters
-
-    // You can continue using the `/occurrence/search` endpoint, but you’d need to **aggregate over results** and filter those that do contain `establishmentMeans = native`. Many records do include it, but **coverage is spotty**.
-
-    // Example:
-
-    // ```
-    // https://api.gbif.org/v1/occurrence/search?taxonKey=3188978&country=US
-    // ```
-
-    // Check the records manually or programmatically to see if any of them have:
-
-    // ```json
-    // "establishmentMeans": "NATIVE"
-    // ```
-
-    // ---
-
-    // ### 🚧 Limitations
-
-    // * `establishmentMeans` isn't always present.
-    // * Even in the distribution data, it's **region-specific** and may only be listed for some countries.
-    // * You may need to **fallback to other sources**, such as USDA PLANTS or POWO (Plants of the World Online), for regional nativity.
-
-    // ---
-
-    // ### ✅ Practical Suggestion
-
-    // You could write a fallback method:
-
-    // 1. Try `species/{taxonKey}/distributions` for nativity by region.
-    // 2. If missing, query `/occurrence/search` and aggregate any `establishmentMeans`.
-    // 3. If still unknown, optionally use third-party data (e.g. USDA PLANTS, Calflora, POWO).
-
-    // Want help writing that logic in TypeScript or Angular?
-
-
-
     if (occurrence.issues) {
       native &&= !occurrence.issues?.some(x => this.UNFORGIVEABLE_ERRORS.includes(x));
     }
@@ -151,29 +131,80 @@ export class GbifService {
     return native;
   }
 
-  public searchNativePlants(latitude: number, longitude: number): Observable<GBIFPageableResult<GbifOccurrence>> {
-    let params = {
-      country: 'US',
-      geometry: this.createCirclePolygon(latitude, longitude),
-      limit: 300,
-      taxonKey: this._plantKingdomKey,
-      hasGeospatialIssue: 'false',
-      hasCoordinate: 'true'
-      // TODO offset: to get next page
-    };
-
-    const request = this._client.get<GBIFPageableResult<GbifOccurrence>>(`${this._v1Url}occurrence/search`, {
+  private createNativePlantSearchRequest(params: { country: string; geometry: string; limit: number; taxonKey: string; hasGeospatialIssue: boolean; hasCoordinate: boolean; offset: number; }): Observable<GBIFPageableResult<GbifOccurrence>> {
+    return this._client.get<GBIFPageableResult<GbifOccurrence>>(`${this._v1Url}occurrence/search`, {
       params: params
     });
+  }
+
+  public searchNativePlants(latitude: number, longitude: number): Observable<GbifOccurrence[]> {
+    const staticParams = {
+      country: 'US',
+      geometry: this.createCirclePolygon(latitude, longitude),
+      taxonKey: this._plantKingdomKey.toString(),
+      hasGeospatialIssue: false,
+      hasCoordinate: true,
+    };
+
+    let pageParams = this.GetMaxPageParams();
+
+    return this.aggregatePageableResults<GbifOccurrence>(
+      pageParams,
+      (item) => !this.isNotNative(item),
+      (params) => this.createNativePlantSearchRequest({ ...staticParams, ...params })
+    );
 
     // TODO filter out naturalized plants 
-    return request.pipe(
-      tap(value => console.log('before manual filter', value, [...value.results])),
-      map((record: GBIFPageableResult<GbifOccurrence>) => {
-        record.results = record.results.filter(occurrence => !this.isNotNative(occurrence));
-        return record;
+    // return this.createRecordRequest(staticParams).pipe(
+    //   expand(() => {
+    //     staticParams.offset += staticParams.limit;
+    //     return this.createRecordRequest(staticParams);
+    //   }),
+    //   takeWhile((record: GBIFPageableResult<GbifOccurrence>) => !record.endOfRecords, true),
+    //   // tap(value => console.log('before manual filter', value, [...value.results])),
+    //   tap(value => console.log('offset: ' + value.offset, 'total: ' + value.count)),
+    //   this.filterPageResults(value => !this.isNotNative(value)),
+    //   reduce((acc, record) => {
+    //     acc.push(...record.results);
+    //     return acc;
+    //   }, [] as GbifOccurrence[])
+    // );
+  }
+
+  private GetMaxPageParams(): GBIFPage {
+    return {
+      limit: this._resultsPerPage,
+      offset: 0
+    };
+  }
+
+  private aggregatePageableResults<T>(
+    params: GBIFPage,
+    filterPredicate: (item: T) => boolean,
+    requestFn: (params: GBIFPage) => Observable<GBIFPageableResult<T>>): Observable<T[]> {
+    return (requestFn(params)).pipe(
+      expand(() => {
+        params.offset += params.limit;
+        return requestFn(params);
       }),
-      // map((record: GBIFPageableResult<GbifOccurrence>) => this.removeFromResults(record, ))
-    );
+      takeWhile((record: GBIFPageableResult<T>) => !record.endOfRecords, true),
+      tap(value => console.log('offset: ' + value.offset, 'total: ' + value.count)),
+      GbifService.filterPageResults(value => filterPredicate(value)),
+      reduce((acc, record) => {
+        acc.push(...record.results);
+        return acc;
+      }, [] as T[]));
+  }
+
+  private static filterPageResults<T>(
+    predicate: (item: T) => boolean
+  ): OperatorFunction<GBIFPageableResult<T>, GBIFPageableResult<T>> {
+    return (source) =>
+      source.pipe(
+        map(page => ({
+          ...page,
+          results: page.results.filter(predicate),
+        }))
+      );
   }
 }

@@ -1,7 +1,7 @@
 <!-- TODO start with displaying info about the native stuff found in the area -->
 <body class="container" id="container">
     <article class="result-container" id="result-container" *ngIf="lastSearch$ | async as lastSearch">
-        <section *ngFor="let result of lastSearch.results; let i = index;" class="result-item" id="result-item-{{i}}">
+        <section *ngFor="let result of lastSearch; let i = index;" class="result-item" id="result-item-{{i}}">
             <h1 class="result-scientific-name" id="result-scientific-name-{{i}}">{{result.acceptedScientificName}}</h1>
             <h2 class="result-species" id="result-species-{{i}}">{{result.species}}</h2>
             <h3 class="result-genus" id="result-genus-{{i}}">Genus: {{result.genus}}</h3>
