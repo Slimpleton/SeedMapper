@@ -1,28 +1,32 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, OperatorFunction, concatMap, expand, filter, iif, map, mergeAll, reduce, takeWhile, tap } from 'rxjs';
-import { GBIFPageableResult } from '../models/gbif.pageable-result';
-import { GbifOccurrence, isAcceptedStatus } from '../models/gbif.occurrence';
+import { Observable, OperatorFunction, expand, map, reduce, takeWhile, tap } from 'rxjs';
+import { GBIFPageableResult } from '../models/gbif/gbif.pageable-result';
+import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 import { NativePlantSearch } from '../interfaces/native-plant-search.interface';
-import { GBIFGADMRegion } from '../models/gbif.gadm-region';
-import { GBIFPage } from '../models/gbif.page';
+import { GBIFGADMRegion } from '../models/gbif/gbif.gadm-region';
+import { GBIFPage } from '../models/gbif/gbif.page';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GbifService implements NativePlantSearch {
+
   private _url: string = 'https://api.gbif.org/';
   private _v2Url: string = `${this._url}v2/`;
   private _v1Url: string = `${this._url}v1/`;
   private _nativeKeyword: string = 'native';
   private _plantKingdomKey: number = 6;
-  private _uncertaintyRangeMeters: number = 25 * 1000; // 25Km
+  private _uncertaintyRangeMeters: number = 2.5 * 1000; // 25Km
   private _earthRadiusMeters: number = 6371 * 1000;
   private _USA_TOP_GADM_REGION: string = 'USA';
+  private _US_COUNTRY_ENUM: string = 'US';
   private _GADMSubdivisionLimit: number = 2;
 
 
-  private readonly NATURALIZED_NON_NATIVE_SPECIES: string[] = ['Agrostis stolonifera'];
+  private readonly NATURALIZED_NON_NATIVE_SPECIES: string[] = ['Agrostis stolonifera', 'Ricinus communis'];
+  // TODO cal-ipc can be used to filter out invasive california plants for california queries
+
   private readonly UNFORGIVEABLE_ERRORS: string[] = [];
 
   private readonly _resultsPerPage = 300;
@@ -35,6 +39,20 @@ export class GbifService implements NativePlantSearch {
         name: commonName
       }
     });
+  }
+
+  public searchLiterature(taxonKey: number): Observable<any> {
+    return this._client.get<any>(`${this._v1Url}literature/search`, {
+      params: {
+        countriesOfCoverage: this._US_COUNTRY_ENUM,
+        gbifTaxonKey: taxonKey
+      }
+    })
+  }
+
+  public isNativeSpecies(speciesKey: number): Observable<boolean> {
+
+    throw new Error('Method not implemented.');
   }
 
   /**
@@ -119,16 +137,28 @@ export class GbifService implements NativePlantSearch {
     return polygon;
   }
 
-  private isNotNative(occurrence: GbifOccurrence): boolean {
-    let native: boolean = true;
-    native &&= !this.NATURALIZED_NON_NATIVE_SPECIES.includes(occurrence.species);
-    native &&= isAcceptedStatus(occurrence.taxonomicStatus);
-    // native &&= !occurrence.establishmentMeans || occurrence.establishmentMeans == this._nativeKeyword; 
-    if (occurrence.issues) {
-      native &&= !occurrence.issues?.some(x => this.UNFORGIVEABLE_ERRORS.includes(x));
-    }
+  /**
+   * My mind cant figure this out but its working rn
+   * its native if its not on the {@link NATURALIZED_NON_NATIVE_SPECIES} 
+   * and its {@link occurrence.taxonomicStatus} is accepted
+   * and theres no unforgivable issues
+   * @param occurrence 
+   * @returns 
+   */
+  private isNative(occurrence: GbifOccurrence): boolean {
+    const species = occurrence.species?.trim();
+    const status = occurrence.taxonomicStatus;
+    const issues = occurrence.issues || [];
 
-    return native;
+    const isInNonNativeList = this.NATURALIZED_NON_NATIVE_SPECIES.includes(species);
+    const hasUnforgivableIssues = issues.some(issue =>
+      this.UNFORGIVEABLE_ERRORS.includes(issue)
+    );
+
+    const isAccepted = status === 'ACCEPTED';
+    const isNative = !isInNonNativeList && isAccepted && !hasUnforgivableIssues;
+
+    return isNative;
   }
 
   private createNativePlantSearchRequest(params: { country: string; geometry: string; limit: number; taxonKey: string; hasGeospatialIssue: boolean; hasCoordinate: boolean; offset: number; }): Observable<GBIFPageableResult<GbifOccurrence>> {
@@ -150,25 +180,11 @@ export class GbifService implements NativePlantSearch {
 
     return this.aggregatePageableResults<GbifOccurrence>(
       pageParams,
-      (item) => !this.isNotNative(item),
+      (item) => this.isNative(item),
       (params) => this.createNativePlantSearchRequest({ ...staticParams, ...params })
     );
 
     // TODO filter out naturalized plants 
-    // return this.createRecordRequest(staticParams).pipe(
-    //   expand(() => {
-    //     staticParams.offset += staticParams.limit;
-    //     return this.createRecordRequest(staticParams);
-    //   }),
-    //   takeWhile((record: GBIFPageableResult<GbifOccurrence>) => !record.endOfRecords, true),
-    //   // tap(value => console.log('before manual filter', value, [...value.results])),
-    //   tap(value => console.log('offset: ' + value.offset, 'total: ' + value.count)),
-    //   this.filterPageResults(value => !this.isNotNative(value)),
-    //   reduce((acc, record) => {
-    //     acc.push(...record.results);
-    //     return acc;
-    //   }, [] as GbifOccurrence[])
-    // );
   }
 
   private GetMaxPageParams(): GBIFPage {
@@ -178,6 +194,13 @@ export class GbifService implements NativePlantSearch {
     };
   }
 
+  /**
+   * Aggregates all pageable results possible to retrieve into a single list
+   * @param params 
+   * @param filterPredicate 
+   * @param requestFn 
+   * @returns 
+   */
   private aggregatePageableResults<T>(
     params: GBIFPage,
     filterPredicate: (item: T) => boolean,
@@ -187,7 +210,7 @@ export class GbifService implements NativePlantSearch {
         params.offset += params.limit;
         return requestFn(params);
       }),
-      takeWhile((record: GBIFPageableResult<T>) => !record.endOfRecords, true),
+      takeWhile((record: GBIFPageableResult<T>) => !record.endOfRecords && params.offset != 9900, true), // HACK
       tap(value => console.log('offset: ' + value.offset, 'total: ' + value.count)),
       GbifService.filterPageResults(value => filterPredicate(value)),
       reduce((acc, record) => {

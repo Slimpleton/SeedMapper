@@ -1,11 +1,12 @@
 <!-- TODO start with displaying info about the native stuff found in the area -->
 <body class="container" id="container">
-    <article class="result-container" id="result-container" *ngIf="lastSearch$ | async as lastSearch">
-        <section *ngFor="let result of lastSearch; let i = index;" class="result-item" id="result-item-{{i}}">
-            <h1 class="result-scientific-name" id="result-scientific-name-{{i}}">{{result.acceptedScientificName}}</h1>
-            <h2 class="result-species" id="result-species-{{i}}">{{result.species}}</h2>
-            <h3 class="result-genus" id="result-genus-{{i}}">Genus: {{result.genus}}</h3>
-            <h4 class="result-family" id="result-family-{{i}}">Family: {{result.family}}</h4>
+    <article class="result-container" id="result-container">
+        <section *ngFor="let result of lastSearch$ | async; let i = index;" class="result-item" id="result-item-{{i}}">
+            <!-- <h1 class="result-scientific-name" id="result-scientific-name-{{i}}">{{result.acceptedScientificName}}</h1> -->
+            <h2 class="result-species" id="result-species-{{i}}">Species: {{result.species}}</h2>
+            <!-- <h3 class="result-genus" id="result-genus-{{i}}">Genus: {{result.genus}}</h3>
+            <h4 class="result-family" id="result-family-{{i}}">Family: {{result.family}}</h4> -->
+            <!-- <h5 class="result-taxonomic-status" id="result-taxonomic-status-{{i}}">{{result.taxonomicStatus}}</h5> -->
         </section>
     </article>
 </body>
