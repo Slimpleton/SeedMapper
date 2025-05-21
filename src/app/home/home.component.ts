@@ -7,7 +7,7 @@ import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgIf, NgFor, AsyncPipe],
+  imports: [NgFor, AsyncPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -38,6 +38,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     //   return aggregate;
     // }, [] as GbifOccurrence[]),
     // TODO search each species to ensure its native somehow using gbif service again
+    // TODO the socal area used to belong to the tongva people. visit the tongva community garden in pomona to learn more
     shareReplay(1)
   );
   public get lastSearch$(): Observable<GbifOccurrence[]> {
@@ -47,6 +48,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   // HACK theres also a sql file if im lazy and i want to query against a db but that feels.... unnecessary
   // TODO make a json reader for the plant_list_2024012.json.gz aka zenodo.org records low prior because no occurence / nativity data
 
+  // TODO possibly use webcrawlers to gather information about local flora using more local websites?? low priority
+  // TODO go to willow springs conservatory / park and shit high priority close by
+
+  // TODO make the plant databse csv reader omg so exciting !!
 
   // TODO make a calflora service cuz their db is extensive possibly with many records
   // TODO make a reader for the gbif occurrence download records
@@ -82,17 +87,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       error: err => console.error(err)
     });
-
-
-
-    // this._gbifService.getScientificName('white oak')
-    //   .pipe(takeUntil(this._ngDestroy$))
-    //   .subscribe({
-    //     next: (scientificName: string) => {
-    //       console.log(scientificName);
-    //     },
-    //     error: err => console.error(err)
-    //   })
   }
 
   private emitPosition(position: GeolocationPosition): void {
