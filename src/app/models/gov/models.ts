@@ -7,6 +7,11 @@ export type NativityStatus = 'N' | 'I';
 export type Duration = 'Perennial' | 'Biennial' | 'Annual' | 'AN';
 export type Season = 'Winter' | 'Spring' | 'Summer' | 'Fall' | 'Year Round';
 export type Porosity = 'Dense' | 'Moderate' | 'Porous';
+export type ShadeTolerance = 'Intermediate' | 'Intolerant' | 'Tolerant';
+export type ShapeAndOrientation = 'Climbing' | 'Columnar' | 'Conical' | 'Decumbent' | 'Erect' | 'Irregular' | 'Oval' | 'Prostrate' | 'Rounded' | 'Semi-Erect' | 'Vase';
+export type Lifespan = 'Long' | 'Moderate' | 'Short';
+export type Toxicity = 'Severe' | 'Moderate' | 'None' | 'Slight';
+export type Texture = 'Coarse' | 'Fine' | 'Medium';
 // TOOD hardest part is native status type mapping idk what they stand for
 
 // State and Province column is {COUNTRY_CODE}([ST,ST,ST,...]) OR USA+([PR, VI]) for puerto rico or virgin island or both
