@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { from, map, Observable, reduce, shareReplay, Subject, switchMap, tap } from 'rxjs';
+import { from, map, Observable, reduce, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
+import { PlantData } from '../models/gov/models';
+import { GovPlantsDataService } from '../services/PLANTS_data.service';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +16,15 @@ import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 export class HomeComponent implements OnInit, OnDestroy {
 
   private _ngDestroy$: Subject<void> = new Subject<void>();
+  private allPlants$: Observable<ReadonlyArray<PlantData>> = this.plantService.loadPlantData()
+    .pipe(
+      shareReplay(1),
+      takeUntil(this._ngDestroy$)
+    );
+
+  // Initialize filtered plants to show all plants
+  public filteredPlants$: Observable<ReadonlyArray<PlantData>> = this.allPlants$;
+
   private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
   private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
@@ -56,14 +67,21 @@ export class HomeComponent implements OnInit, OnDestroy {
   // TODO make a calflora service cuz their db is extensive possibly with many records
   // TODO make a reader for the gbif occurrence download records
 
-  public constructor(private readonly _gbifService: GbifService) { }
+  public constructor(private readonly _gbifService: GbifService, private readonly plantService: GovPlantsDataService) { }
 
   ngOnDestroy(): void {
     this._ngDestroy$.next();
     this._ngDestroy$.complete();
   }
 
+
+
   ngOnInit(): void {
+    // Load plant data and share the result to avoid multiple HTTP requests
+    this.allPlants$.subscribe({
+      error: err => console.error(err)
+    });
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => this.emitPosition(position), (err) => { console.error(err) });
     }
@@ -88,6 +106,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       error: err => console.error(err)
     });
   }
+
+
 
   private emitPosition(position: GeolocationPosition): void {
     this._positionEmitter$.next(position);

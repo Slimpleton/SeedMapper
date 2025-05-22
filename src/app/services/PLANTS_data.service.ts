@@ -7,6 +7,9 @@ import { PlantData } from "../models/gov/models";
     providedIn: 'root'
 })
 export class GovPlantsDataService implements NativePlantSearch {
+    public loadPlantData(): Observable<ReadonlyArray<PlantData>> {
+        throw new Error('Method not implemented.');
+    }
     private readonly _headerMapping: Record<string, keyof PlantData> = {
         "Accepted Symbol": "acceptedSymbol",
         "Synonym Symbol": "synonymSymbol",
