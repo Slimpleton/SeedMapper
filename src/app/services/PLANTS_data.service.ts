@@ -1,15 +1,14 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
-import { Observable } from "rxjs";
+import { catchError, map, Observable, of } from "rxjs";
 import { PlantData } from "../models/gov/models";
+import { HttpClient } from "@angular/common/http";
 
 @Injectable({
     providedIn: 'root'
 })
 export class GovPlantsDataService implements NativePlantSearch {
-    public loadPlantData(): Observable<ReadonlyArray<PlantData>> {
-        throw new Error('Method not implemented.');
-    }
+
     private readonly _headerMapping: Record<string, keyof PlantData> = {
         "Accepted Symbol": "acceptedSymbol",
         "Synonym Symbol": "synonymSymbol",
@@ -108,10 +107,102 @@ export class GovPlantsDataService implements NativePlantSearch {
         "Veneer Product": "veneerProduct"
     };
 
+    private readonly dataUrl = 'assets/PLANTS_Characteristics_Plus_Data.csv';
+
+    public constructor(private readonly http: HttpClient) { }
+
     public searchNativePlants(latitude: number, longitude: number): Observable<PlantData[]> {
         throw new Error("Method not implemented.");
     }
 
+    public loadPlantData(): Observable<ReadonlyArray<PlantData>> {
+        return this.http.get(this.dataUrl, { responseType: 'text' })
+            .pipe(
+                map(csvText => this.parseCsv(csvText)),
+                map(csvData => {
+                    // Convert each row to PlantData object
+                    const plantData = csvData.map(row => this.convertCsvRowToPlantData(row));
+                    // Return as a deeply immutable array
+                    return Object.freeze(plantData);
+                }),
+                catchError(error => {
+                    console.error('Error loading plant data:', error);
+                    return of([] as ReadonlyArray<PlantData>);
+                })
+            );
+    }
+
+
+    private parseCsv(csvText: string): Record<string, string>[] {
+        // Simple CSV parser (you might want to use a library like papaparse in a real app)
+        const lines = csvText.split('\n');
+        const headers = lines[0].split(',').map(header => header.trim());
+
+        return lines.slice(1)
+            .filter(line => line.trim() !== '') // Skip empty lines
+            .map(line => {
+                const values = this.parseCsvLine(line);
+                const row: Record<string, string> = {};
+
+                headers.forEach((header, index) => {
+                    row[header] = values[index] || '';
+                });
+
+                return row;
+            });
+    }
+
+    // Helper to handle quoted values and commas within fields
+    private parseCsvLine(line: string): string[] {
+        const result: string[] = [];
+        let current = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+
+        // Add the last field
+        result.push(current.trim());
+        return result;
+    }
+
+    private convertCsvRowToPlantData(csvRow: Record<string, string>): PlantData {
+        const result: Record<string, any> = {};
+
+        // Map each property using our predefined mapping
+        Object.entries(csvRow).forEach(([key, value]) => {
+            if (key in this._headerMapping) {
+                const camelKey = this._headerMapping[key] as keyof PlantData;
+
+                // Handle different data types
+                if (value === 'true' || value === 'yes' || value === 'y') {
+                    result[camelKey] = true;
+                } else if (value === 'false' || value === 'no' || value === 'n') {
+                    result[camelKey] = false;
+                } else if (!isNaN(Number(value)) && value !== '') {
+                    result[camelKey] = Number(value);
+                } else if (value.includes(',')) {
+                    // Handle array values (comma-separated strings)
+                    // Make the array immutable using Object.freeze
+                    result[camelKey] = Object.freeze(value.split(',').map(v => v.trim()));
+                } else {
+                    result[camelKey] = value;
+                }
+            }
+        });
+        // Return as a deeply immutable object
+        return Object.freeze(result) as PlantData;
+    }
 
     // For simplicity, we'll use the Readonly version as our main type
     // If you prefer the Record version, replace PlantData with PlantDataAsRecord throughout the code
