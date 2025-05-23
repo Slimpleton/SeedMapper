@@ -17,7 +17,7 @@ export class GbifService implements NativePlantSearch {
   private _v1Url: string = `${this._url}v1/`;
   private _nativeKeyword: string = 'native';
   private _plantKingdomKey: number = 6;
-  private _uncertaintyRangeMeters: number = 2.5 * 1000; // 25Km
+  private _uncertaintyRangeMeters: number = 1 * 1000; // 1Km
   private _earthRadiusMeters: number = 6371 * 1000;
   private _USA_TOP_GADM_REGION: string = 'USA';
   private _US_COUNTRY_ENUM: string = 'US';

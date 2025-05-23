@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
-import { catchError, map, Observable, of } from "rxjs";
+import { catchError, map, Observable, of, shareReplay } from "rxjs";
 import { PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
@@ -125,6 +125,7 @@ export class GovPlantsDataService implements NativePlantSearch {
                     // Return as a deeply immutable array
                     return Object.freeze(plantData);
                 }),
+                shareReplay(1),
                 catchError(error => {
                     console.error('Error loading plant data:', error);
                     return of([] as ReadonlyArray<PlantData>);
@@ -202,20 +203,5 @@ export class GovPlantsDataService implements NativePlantSearch {
         });
         // Return as a deeply immutable object
         return Object.freeze(result) as PlantData;
-    }
-
-    // For simplicity, we'll use the Readonly version as our main type
-    // If you prefer the Record version, replace PlantData with PlantDataAsRecord throughout the code
-
-    // Function to convert keys from original format to camelCase
-    private toCamelCase(str: string): string {
-        return str
-            .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
-                return index === 0 ? word.toLowerCase() : word.toUpperCase();
-            })
-            .replace(/\s+/g, '')
-            .replace(/[^\w\s]/g, '')
-            .replace(/SUB/g, '') // Remove the SUB tag from CaCO<SUB>3</SUB>
-            .replace(/^(.+)(Tolerance|Potential|Rate|Conspicuous|Ability|Period|Color|Form|Vigor)$/, '$1$2');
     }
 }
