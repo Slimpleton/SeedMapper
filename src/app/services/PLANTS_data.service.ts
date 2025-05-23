@@ -204,4 +204,14 @@ export class GovPlantsDataService implements NativePlantSearch {
         // Return as a deeply immutable object
         return Object.freeze(result) as PlantData;
     }
+
+    /**
+     * Likely State/Province Code Format:
+     * Based on standard USDA practices, the PLANTS database most likely uses:
+     * Uses stuff like NA (L48) for north america lower 48 states and other bs
+     * 
+     * US States: Standard 2-letter postal codes (AL, AK, AR, AZ, CA, CO, CT, DE, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY)
+     * US Territories: DC, PR (Puerto Rico), VI (Virgin Islands), GU (Guam), AS (American Samoa), MP (Northern Mariana Islands)
+     * Canadian Provinces: Likely standard 2-letter codes (AB, BC, MB, NB, NL, NT, NS, NU, ON, PE, QC, SK, YT)
+     */
 }

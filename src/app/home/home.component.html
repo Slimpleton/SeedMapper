@@ -1,4 +1,5 @@
 <!-- TODO start with displaying info about the native stuff found in the area -->
+
 <body class="container" id="container">
     <article class="result-container" id="result-container">
         <section *ngFor="let result of lastSearch$ | async; let i = index;" class="result-item" id="result-item-{{i}}">
@@ -11,6 +12,6 @@
     </article>
     <br>
     <article class="gov-container" id="gov-container">
-        
+
     </article>
 </body>
