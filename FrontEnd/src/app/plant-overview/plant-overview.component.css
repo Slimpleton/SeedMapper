@@ -19,3 +19,21 @@ h1 {
 .key-value-list {
   list-style: none;
 }
+
+.mini-map .county.present {
+    fill: #4caf50;
+}
+
+.mini-map .mesh, .mini-map .nation-border {
+    fill: none;
+}
+
+.mini-map .county.present, .mini-map .mesh{
+    stroke: var(--wood-brown);
+    stroke-width: 0.2;
+}
+
+.mini-map .nation-border {
+    stroke: var(--wood-dark-brown);
+    stroke-width: .6;
+}

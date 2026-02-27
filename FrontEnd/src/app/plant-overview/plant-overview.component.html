@@ -7,6 +7,23 @@
     </h1>
 
     <!-- TODO zoomable county map -->
+    @if(isBrowser){
+    <svg width="0" height="0" style="position:absolute; pointer-events:none;">
+        <!-- individual counties -->
+        @for(c of countiesPaths$ | async; track c){
+        <path [attr.id]="'county-' + c.id" [attr.name]="c.name" [attr.d]="c.d" />
+        }
+
+        <!-- base county mesh -->
+        <path id="county-mesh"
+            [attr.d]="mapService.countyMeshPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async" />
+
+        <!-- nation border -->
+        <path id="nation-border"
+            [attr.d]="(mapService.nationBorderPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async) ?? ''" />
+
+    </svg>
+    }
 
 
     <ul class="key-value-list">
