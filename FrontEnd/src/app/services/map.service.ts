@@ -18,7 +18,7 @@ export class MapService {
   public static readonly PLANT_TILE_MAP_WIDTH: number = 400;
   public static readonly PLANT_TILE_MAP_HEIGHT: number = 140;
   public static readonly PLANT_OVERVIEW_MAP_WIDTH: number = 1200;
-  public static readonly PLANT_OVERVIEW_MAP_HEIGHT: number = 400;
+  public static readonly PLANT_OVERVIEW_MAP_HEIGHT: number = 420;
 
   private _topo$: Observable<Topology> = this._http
     .get<Topology>('/assets/counties-10m.json')

@@ -1,16 +1,17 @@
 import { ChangeDetectionStrategy, Component, Inject, input, PLATFORM_ID } from '@angular/core';
 import { PlantData } from '../models/gov/models';
-import { AsyncPipe, isPlatformBrowser, KeyValuePipe, TitleCasePipe } from '@angular/common';
+import { AsyncPipe, isPlatformBrowser, KeyValuePipe, TitleCasePipe, NgClass } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { CamelSplitPipe } from "../pipes/camel-split.pipe";
 import { MapPath, MapService } from '../services/map.service';
 import { Observable, of } from 'rxjs';
+import { TooltipDirective } from "../directives/tooltip.directive";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-plant-overview',
-  imports: [TranslocoPipe, TitleCasePipe, KeyValuePipe, CamelSplitPipe, AsyncPipe],
+  imports: [TranslocoPipe, TitleCasePipe, KeyValuePipe, CamelSplitPipe, AsyncPipe, NgClass, TooltipDirective],
   templateUrl: './plant-overview.component.html',
   styleUrl: './plant-overview.component.css'
 })

@@ -16,24 +16,35 @@ h1 {
   text-align: center;
 }
 
+.subheader{
+  text-align: center;
+}
+
 .key-value-list {
   list-style: none;
 }
 
-.mini-map .county.present {
-    fill: #4caf50;
+.mini-map{
+  width:100%; height:auto; fill:none;
 }
 
-.mini-map .mesh, .mini-map .nation-border {
-    fill: none;
+.mini-map .mesh,
+.mini-map .nation-border .county {
+  fill: none;
 }
 
-.mini-map .county.present, .mini-map .mesh{
-    stroke: var(--wood-brown);
-    stroke-width: 0.2;
+.county.present {
+  fill: #4caf50;
+}
+
+
+.mini-map .county.present,
+.mini-map .mesh {
+  stroke: var(--wood-brown);
+  stroke-width: 0.5;
 }
 
 .mini-map .nation-border {
-    stroke: var(--wood-dark-brown);
-    stroke-width: .6;
+  stroke: var(--wood-dark-brown);
+  stroke-width: 1;
 }

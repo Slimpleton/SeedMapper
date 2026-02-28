@@ -8,23 +8,27 @@
 
     <!-- TODO zoomable county map -->
     @if(isBrowser){
-    <svg width="0" height="0" style="position:absolute; pointer-events:none;">
+    <h2 class="subheader">{{'PLANT_OVERVIEW_NATIVE_REGION_HEADER' | transloco}}</h2>
+    <svg class="mini-map" [attr.viewBox]="'0 0 ' + PLANT_MAP_WIDTH + ' ' + PLANT_MAP_HEIGHT"
+        preserveAspectRatio="xMidYMid meet">
         <!-- individual counties -->
         @for(c of countiesPaths$ | async; track c){
-        <path [attr.id]="'county-' + c.id" [attr.name]="c.name" [attr.d]="c.d" />
+        <path [attr.id]="'county-' + c.id" [attr.name]="c.name" [attr.d]="c.d" class="county" [tooltip]="c.name"
+            [ngClass]="c.id != undefined && plant().combinedCountyFIPs.includes(c.id.toString()) ? 'present' : ''" />
         }
 
         <!-- base county mesh -->
-        <path id="county-mesh"
-            [attr.d]="mapService.countyMeshPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async" />
+        <path id="county-mesh" [attr.d]="mapService.countyMeshPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async"
+            class="mesh" />
 
         <!-- nation border -->
         <path id="nation-border"
-            [attr.d]="(mapService.nationBorderPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async) ?? ''" />
-
+            [attr.d]="(mapService.nationBorderPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async) ?? ''"
+            class="nation-border" />
     </svg>
     }
 
+    <!-- TODO make collapsible component with header for reuse in separating the overview stuff -->
 
     <ul class="key-value-list">
         @for(item of plant() | keyvalue; track item.key){

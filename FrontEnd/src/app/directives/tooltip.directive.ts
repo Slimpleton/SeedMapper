@@ -138,7 +138,7 @@ export class TooltipDirective implements OnInit, OnDestroy {
 
     this._mouseEnter$
       .pipe(
-        switchMap(() => timer(this.tooltipDelay)),
+        switchMap(() => timer(this.tooltipDelay).pipe(takeUntil(this._mouseLeave$))),
         takeUntil(this._destroy$)
       )
       .subscribe(() => this._showTooltip());
