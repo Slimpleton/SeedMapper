@@ -86,5 +86,5 @@ h4 {
 .state-mesh,
 .mini-map .nation-border {
     stroke: var(--wood-dark-brown);
-    stroke-width: .4;
+    stroke-width: .45;
 }
