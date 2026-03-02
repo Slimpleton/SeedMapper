@@ -12,14 +12,19 @@
     <svg class="mini-map" [attr.viewBox]="'0 0 ' + PLANT_MAP_WIDTH + ' ' + PLANT_MAP_HEIGHT"
         preserveAspectRatio="xMidYMid meet">
         <!-- individual counties -->
-        @for(c of countiesPaths$ | async; track c){
+        @for(c of countiesPaths$ | async; track c.id){
         <path [attr.id]="'county-' + c.id" [attr.name]="c.name" [attr.d]="c.d" class="county" [tooltip]="c.name"
-            [ngClass]="c.id != undefined && plant().combinedCountyFIPs.includes(c.id.toString()) ? 'present' : ''" />
+            [ngClass]="c.id !== undefined && plant().combinedCountyFIPs.includes(c.id.toString()) ? 'present' : ''" />
         }
 
         <!-- base county mesh -->
         <path id="county-mesh" [attr.d]="mapService.countyMeshPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async"
             class="mesh" />
+
+        <!-- TODO this might be wrong, i might need the mesh?  -->
+        <!-- TODO state path for thicker boundary lines? -->
+        <path id="state-mesh" [attr.d]="mapService.stateMeshPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async"
+            class="state-mesh"></path>
 
         <!-- nation border -->
         <path id="nation-border"

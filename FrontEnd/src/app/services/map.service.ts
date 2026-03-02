@@ -65,6 +65,13 @@ export class MapService {
     );
   }
 
+  public stateMeshPath$(w: number, h: number) {
+    return this._stateMesh$.pipe(
+      map(mesh => this.getPath(w, h)(mesh)!),
+      shareReplay(1)
+    );
+  }
+
   public nationBorderPath$(w: number, h: number) {
     return this._nationBorder$.pipe(
       map(border => this.getPath(w, h)(border)!),
@@ -89,9 +96,32 @@ export class MapService {
     );
   }
 
+  public statesPaths$(w: number, h: number): Observable<MapPath[]> {
+    return this._topo$.pipe(
+      map(topo =>
+        feature(
+          topo,
+          topo.objects['states'] as GeometryCollection<Properties>
+        )),
+      map(fc =>
+        fc.features.map(f => ({
+          id: f.id,
+          d: this.getPath(w, h)(f)!,
+          name: f.properties!['name'],
+        }))),
+      shareReplay(1)
+    );
+  }
+
   private _countyMesh$: Observable<GeoJSON.MultiLineString> =
     this._topo$.pipe(
       map(topo => mesh(topo, topo.objects['counties'] as GeometryCollection, (a, b) => a !== b)),
+      shareReplay(1)
+    );
+
+  private _stateMesh$: Observable<GeoJSON.MultiLineString> =
+    this._topo$.pipe(
+      map(topo => mesh(topo, topo.objects['states'] as GeometryCollection, (a, b) => a !== b)),
       shareReplay(1)
     );
 

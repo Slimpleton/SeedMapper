@@ -16,7 +16,7 @@ h1 {
   text-align: center;
 }
 
-.subheader{
+.subheader {
   text-align: center;
 }
 
@@ -24,8 +24,10 @@ h1 {
   list-style: none;
 }
 
-.mini-map{
-  width:100%; height:auto; fill:none;
+.mini-map {
+  width: 100%;
+  height: auto;
+  fill: none;
 }
 
 .mini-map .mesh,
@@ -44,7 +46,8 @@ h1 {
   stroke-width: 0.5;
 }
 
-.mini-map .nation-border {
+.mini-map .nation-border,
+.state-mesh {
   stroke: var(--wood-dark-brown);
   stroke-width: 1;
 }

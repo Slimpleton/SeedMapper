@@ -3,7 +3,7 @@
 <svg width="0" height="0" style="position:absolute; pointer-events:none;">
     <defs>
         <!-- individual counties -->
-        @for(c of countiesPaths$ | async; track c){
+        @for(c of countiesPaths$ | async; track c.id){
         <path [attr.id]="'county-' + c.id" [attr.name]="c.name" [attr.d]="c.d" />
         }
 

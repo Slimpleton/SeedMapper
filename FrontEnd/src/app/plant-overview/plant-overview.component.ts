@@ -22,8 +22,8 @@ export class PlantOverviewComponent {
   public get usdaGovPlantProfileUrl(): string { return GovPlantsDataService.usdaGovPlantProfileUrl; }
   public plant = input.required<PlantData>();
   public readonly countiesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.countiesPaths$(this.PLANT_MAP_WIDTH, this.PLANT_MAP_HEIGHT) : of([]);
-  
-  public constructor(public readonly mapService: MapService, @Inject(PLATFORM_ID) private readonly _platformId: Object) { }
+  public readonly statesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.statesPaths$(this.PLANT_MAP_WIDTH, this.PLANT_MAP_HEIGHT) : of([]);
+  public constructor(public readonly mapService: MapService, @Inject(PLATFORM_ID) private readonly _platformId: object) { }
 
   public isIterableNotString(value: unknown): value is Iterable<unknown> {
     return value != null && typeof (value as Iterable<unknown>)[Symbol.iterator] === 'function' && typeof value !== 'string';
