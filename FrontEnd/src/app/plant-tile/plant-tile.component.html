@@ -53,6 +53,8 @@
         <!-- base mesh -->
         <use href="#county-mesh" class="mesh" />
 
+        <use href="#state-mesh" class="state-mesh" />
+
         <!-- highlight counties for this plant -->
         @for(countyFip of combinedCountyFips; track countyFip){
         <use [attr.href]="'#county-' + countyFip" class="county present" />

@@ -8,12 +8,15 @@
         }
 
         <!-- base county mesh -->
-        <path id="county-mesh"
+        <path id="county-mesh" class="mesh county-mesh"
             [attr.d]="mapService.countyMeshPath$(PLANT_TILE_MAP_WIDTH, PLANT_TILE_MAP_HEIGHT) | async" />
+
+        <path id="state-mesh" class="state-mesh"
+            [attr.d]="mapService.stateMeshPath$(PLANT_TILE_MAP_WIDTH, PLANT_TILE_MAP_HEIGHT) | async" />
 
         <!-- nation border -->
         <path id="nation-border"
-            [attr.d]="(mapService.nationBorderPath$(PLANT_TILE_MAP_WIDTH, PLANT_TILE_MAP_HEIGHT) | async) ?? ''" />
+            [attr.d]="mapService.nationBorderPath$(PLANT_TILE_MAP_WIDTH, PLANT_TILE_MAP_HEIGHT) | async" />
 
     </defs>
 </svg>

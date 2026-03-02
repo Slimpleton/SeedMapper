@@ -21,14 +21,11 @@
         <path id="county-mesh" [attr.d]="mapService.countyMeshPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async"
             class="mesh" />
 
-        <!-- TODO this might be wrong, i might need the mesh?  -->
-        <!-- TODO state path for thicker boundary lines? -->
         <path id="state-mesh" [attr.d]="mapService.stateMeshPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async"
-            class="state-mesh"></path>
+            class="state-mesh" />
 
         <!-- nation border -->
-        <path id="nation-border"
-            [attr.d]="(mapService.nationBorderPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async) ?? ''"
+        <path id="nation-border" [attr.d]="mapService.nationBorderPath$(PLANT_MAP_WIDTH, PLANT_MAP_HEIGHT) | async"
             class="nation-border" />
     </svg>
     }
