@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { GrowthHabit, PlantData } from "../models/gov/models";
+import { Duration, GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { map, switchMap } from "rxjs/operators";
 import { fromFetch } from 'rxjs/fetch';
@@ -29,9 +29,21 @@ export class GovPlantsDataService {
     // TODO add batch index param 
     // TODO store url, batch index, and batch in map for in-memory cache
 
-    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
+    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, duration: Duration, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
         if (batchSize < GovPlantsDataService.MIN_BATCH_SIZE) batchSize = GovPlantsDataService.MIN_BATCH_SIZE;
-        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}&batchSize=${batchSize}`;
+
+        const params = new URLSearchParams({
+            searchString,
+            combinedFIP,
+            growthHabit: growthHabit.toString(),
+            duration: duration.toString(),
+            sortOption: sortOption.toString(),
+            ascending: isSortAlphabeticOrder.toString(),
+            batchSize: batchSize.toString()
+        });
+
+        const apiUrl = `${this._dataUrl}/search?${params}`;
+
         return fromFetch(apiUrl).pipe(
             switchMap(response => {
                 if (!response.ok)

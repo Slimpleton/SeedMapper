@@ -254,7 +254,7 @@ namespace Backend.Models
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Duration
     {
-        Perennial, Biennial, Annual, AN
+        Perennial, Biennial, Annual, AN, Any
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

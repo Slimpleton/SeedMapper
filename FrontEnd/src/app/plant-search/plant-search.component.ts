@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
-import { combineCountyFIP, CountyCSVItem, GrowthHabit, PlantData } from '../models/gov/models';
+import { combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
@@ -22,6 +22,9 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
 export class PlantSearchComponent implements OnDestroy {
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
   private readonly _growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
+
+  public durations: Duration[] = ['Any', 'Annual', 'Perennial', 'Biennial'];
+  private readonly _durationEmitter$: BehaviorSubject<Duration> = new BehaviorSubject<Duration>('Any');
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
@@ -54,7 +57,7 @@ export class PlantSearchComponent implements OnDestroy {
     return combineCountyFIP(county);
   }
 
-  public geolocationCountyName : string = '';
+  public geolocationCountyName: string = '';
 
   private readonly _countyLookup$: Observable<Map<string, CountyCSVItem>> = this.counties$.pipe(
     take(1),
@@ -82,14 +85,15 @@ export class PlantSearchComponent implements OnDestroy {
   // TODO pass in batch size at some point?
   private readonly _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
     this._growthHabitEmitter$,
+    this._durationEmitter$,
     this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
     this._search$,
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
-    switchMap(([growthHabit, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, string, string, SortOption, boolean]) => {
+    switchMap(([growthHabit, duration, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, Duration, string, string, SortOption, boolean]) => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, sortOption, isSortAlphabeticOrder);
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder);
     }),
     tap((plants: Readonly<PlantData>[]) => {
       this.filteredDataBatch.emit(plants);
@@ -136,6 +140,10 @@ export class PlantSearchComponent implements OnDestroy {
 
   public changeGrowthHabit(habit: string) {
     this._growthHabitEmitter$.next(habit as GrowthHabit);
+  }
+
+  public changeDuration(duration: string) {
+    this._durationEmitter$.next(duration as Duration);
   }
 
   public handleNameInput(name: string | null): void {

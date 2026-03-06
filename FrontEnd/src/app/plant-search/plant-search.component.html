@@ -7,8 +7,14 @@
             <div class="search-container row">
                 <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector"
                     class="selector" id="growthHabitSelector" #growthHabitSelector>
-                    @for (growthHabit of growthHabits; track $index) {
+                    @for (growthHabit of growthHabits; track growthHabit) {
                     <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>
+                    }
+                </select>
+                <select (change)="changeDuration(durationSelector.value)" name="durationSelector" id="durationSelector"
+                    class="selector" #durationSelector>
+                    @for(duration of durations; track duration){
+                    <option [value]="duration">{{'DURATIONS.' + duration| uppercase | transloco}}</option>
                     }
                 </select>
             </div>

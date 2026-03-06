@@ -21,6 +21,13 @@
         "FORB/HERB": "Forb/Herb",
         "FORBHERB": "Forb/Herb"
     },
+    "DURATIONS": {
+        "ANY": "Select Duration",
+        "AN": "Annual",
+        "ANNUAL": "Annual",
+        "PERENNIAL": "Perennial",
+        "BIENNIAL": "Biennial"
+    },
     "COUNTY_MAP": {
         "CHOOSE_COUNTY": "Choose a county!",
         "COUNTY_SELECTED": "County Selected:"
@@ -31,7 +38,7 @@
     "BACK": "Back",
     "NATIVE_REGION_MAP": "Native Region Map",
     "PLANT_OVERVIEW_HEADER": "{{plantCommonName}} aka {{plantScientificName}}",
-    "PLANT_OVERVIEW_NATIVE_REGION_HEADER":"Native Regions",
+    "PLANT_OVERVIEW_NATIVE_REGION_HEADER": "Native Regions",
     "ABOUT_COMPONENT": {
         "HEADER": "Why \"What Grows Native Here\"",
         "GARDEN_HEADER": "Garden Photos",
