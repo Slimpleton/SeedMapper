@@ -12,7 +12,7 @@ namespace Backend.Controllers
     public class FileDataController : ControllerBase
     {
         private const string newLine = "\n";
-        private static JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private static readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
         [HttpGet("plantdata")]
         public async Task GetPlantDataAsync([FromQuery] int batchSize, CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ namespace Backend.Controllers
                 batch.Add(item);
                 if (batch.Count == batchSize)
                 {
-                    await JsonSerializer.SerializeAsync(Response.Body, batch, options: new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }, cancellationToken: cancellationToken);
+                    await JsonSerializer.SerializeAsync(Response.Body, batch, options:_options, cancellationToken: cancellationToken);
                     await Response.WriteAsync(newLine, cancellationToken: cancellationToken);
                     await Response.Body.FlushAsync(cancellationToken: cancellationToken);
                     batch.Clear();
@@ -32,7 +32,7 @@ namespace Backend.Controllers
 
             if (batch.Count > 0)
             {
-                await JsonSerializer.SerializeAsync(Response.Body, batch, options: new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }, cancellationToken: cancellationToken);
+                await JsonSerializer.SerializeAsync(Response.Body, batch, options:_options, cancellationToken: cancellationToken);
                 await Response.WriteAsync(newLine, cancellationToken: cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken: cancellationToken);
             }
