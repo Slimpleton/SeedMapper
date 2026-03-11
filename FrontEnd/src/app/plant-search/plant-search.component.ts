@@ -9,6 +9,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, combineLatestWith } from 'rxjs/operators';
 import { combineLatest, merge, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
@@ -108,7 +109,9 @@ export class PlantSearchComponent implements OnDestroy {
   public constructor(
     private readonly _plantService: GovPlantsDataService,
     private readonly _positionService: PositionService,
-    private readonly _http: HttpClient) {
+    private readonly _http: HttpClient,
+    private readonly _title: Title,
+    private readonly _meta: Meta) {
     this._fullyFilteredNativePlants.subscribe();
 
     this._positionService.countyEmitter$
@@ -121,6 +124,13 @@ export class PlantSearchComponent implements OnDestroy {
       .subscribe(([county]) => {
         this.geolocationCountyName = this.getCountyAndStateAbbrev(county);
       });
+
+      this._title.setTitle('Native Plants in the US | What Grows Native Here');
+      const tag = <MetaDefinition>{
+          name: 'description',
+          content:'Find native plants for any county in the US. See each plant\'s native range and filter on characteristics. Native regions gathered from USDA Plants website.'
+      };
+      this._meta.updateTag(tag);
   }
 
   ngOnDestroy(): void {

@@ -1,9 +1,10 @@
 import { Inject, Injectable, OnDestroy, PLATFORM_ID } from '@angular/core';
-import { merge, Observable, Subject } from 'rxjs';
-import { filter, map, switchMap, takeUntil, shareReplay } from 'rxjs/operators';
-import { County, StateInfo } from '../models/gov/models';
+import { merge, Observable, of, Subject } from 'rxjs';
+import { filter, map, switchMap, takeUntil, shareReplay, tap, catchError } from 'rxjs/operators';
+import { County, CountyCSVItem, StateInfo } from '../models/gov/models';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
+import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
 
 @Injectable({
     providedIn: 'root'
@@ -32,6 +33,13 @@ export class PositionService implements OnDestroy {
         takeUntil(this._ngDestroy$));
 
     public readonly stateEmitter$: Observable<StateInfo> = merge(this._manualStateSetter$, this._stateEmitter$).pipe(
+        tap(() => {
+            // TODO get state name here
+            // TODO add title and meta tag changes here 
+            if (isPlatformBrowser(this._platformId)) {
+
+            }
+        }),
         shareReplay(1),
         takeUntil(this._ngDestroy$));
 
@@ -42,11 +50,23 @@ export class PositionService implements OnDestroy {
         takeUntil(this._ngDestroy$));
 
     public readonly countyEmitter$: Observable<County> = merge(this._manualCountySetter$, this._countyEmitter$).pipe(
+        tap((county: County) => {
+            if (isPlatformBrowser(this._platformId)) {
+                this._http.get<CountyCSVItem>(`/api/counties/${county.stateFip}/${county.countyFip}`).pipe(
+                    catchError((err) => { console.error(err); return of(null); })
+                ).subscribe({
+                    next: (countyCSV: CountyCSVItem | null) => {
+                        this._title.setTitle(`Native plants in ${countyCSV?.countyName}, ${countyCSV?.stateAbbrev} | What Grows Native Here`);
+                    }
+                })
+            }
+        }),
         shareReplay(1),
         takeUntil(this._ngDestroy$));
 
     constructor(private readonly _http: HttpClient,
-        @Inject(PLATFORM_ID) private readonly _platformId: object
+        @Inject(PLATFORM_ID) private readonly _platformId: object,
+        private readonly _title: Title,
     ) {
         if (isPlatformBrowser(this._platformId) && "geolocation" in navigator)
             navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => this.emitPosition(position), (err) => { console.error(err) });

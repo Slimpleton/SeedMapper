@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
@@ -8,5 +9,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
   styleUrl: './about.component.css',
 })
 export class AboutComponent {
-
+  constructor(private readonly _title: Title){
+    this._title.setTitle('About | What Grows Native Here');
+  }
 }

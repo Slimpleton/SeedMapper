@@ -2,6 +2,6 @@
   "name": "what-grows-native-here-dev-tools",
   "private": true,
   "scripts": {
-	  "dev:reload":"docker-compose -f docker-compose.dev.yml down && docker-compose -f docker-compose.dev.yml up --build"
+	  "dev:reload":"docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up --build"
   }
 }

@@ -7,6 +7,7 @@ import { GovPlantsDataService } from './services/PLANTS_data.service';
 export enum Route {
     mapRoute = 'map',
     searchRoute = '',
+    searchRouteAlt='search',
     plantRawRoute = 'plant/raw/:id',
     aboutRoute = 'about',
 };
@@ -36,19 +37,18 @@ export type PlantOverviewRouteData = {
     plant: PlantData
 };
 
+// TODO search resolver with params for county & state names / county & state fips,
+
+
 export const routes: Routes = [
     {
         path: Route.searchRoute,
         loadComponent: () => import('./home/home.component').then(x => x.HomeComponent),
-        canMatch: [() => {
-            const hasGeo = typeof navigator !== 'undefined' && navigator.geolocation;
-            return hasGeo ? true : Route.mapRoute;
-        }]
     },
-    // {
-    //     path: Route.mapRoute,
-    //     loadComponent: () => import('./county-map/county-map.component').then(x => x.CountyMapComponent),
-    // },
+    {
+        path: Route.searchRouteAlt,
+        loadComponent: () => import('./home/home.component').then(x => x.HomeComponent),
+    },
     {
         path: Route.plantRawRoute,
         loadComponent: () => import('./plant-overview/plant-overview.component').then(x => x.PlantOverviewComponent),

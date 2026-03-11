@@ -22,6 +22,7 @@ h2 {
 .filter-title {
     font-weight: 600;
     font-size: clamp(1rem, 2cqi, 3rem);
+    align-content: center;
 }
 
 
