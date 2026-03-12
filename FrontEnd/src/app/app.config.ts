@@ -8,18 +8,9 @@ import { provideClientHydration, withIncrementalHydration } from '@angular/platf
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes, withComponentInputBinding()), provideHttpClient(withFetch()), provideTransloco({
-      config: {
-        availableLangs: ['en'],
-        defaultLang: 'en',
-        // Remove this option if your application doesn't support changing language in runtime.
-        reRenderOnLangChange: true,
-        prodMode: !isDevMode(),
-      },
-      loader: TranslocoHttpLoader,
-    }),
+    provideRouter(routes, withComponentInputBinding()), provideHttpClient(withFetch()),
     provideClientHydration(withIncrementalHydration()),
-    provideZonelessChangeDetection(), provideHttpClient(), provideTransloco({
+    provideZonelessChangeDetection(), provideTransloco({
         config: { 
           availableLangs: ['en'],
           defaultLang: 'en',
