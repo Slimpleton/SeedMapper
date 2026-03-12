@@ -1,5 +1,5 @@
-import { ActivatedRouteSnapshot, RedirectCommand, ResolveData, ResolveFn, Router, Routes } from '@angular/router';
-import { PlantData } from './models/gov/models';
+import { ActivatedRouteSnapshot, Params, RedirectCommand, ResolveData, ResolveFn, Router, Routes } from '@angular/router';
+import { Duration, GrowthHabit, PlantData } from './models/gov/models';
 import { of } from 'rxjs';
 import { inject } from '@angular/core';
 import { GovPlantsDataService } from './services/PLANTS_data.service';
@@ -36,6 +36,14 @@ export interface PlantOverviewResolveData extends ResolveData {
 export type PlantOverviewRouteData = {
     plant: PlantData
 };
+
+export interface SearchParams extends Params{
+    countyName: string | null;
+    stateAbbrev: string | null;
+    // duration: Duration | null;
+    // growthHabit: GrowthHabit | null;
+    // TODO add more / implement
+}
 
 // TODO search resolver with params for county & state names / county & state fips,
 

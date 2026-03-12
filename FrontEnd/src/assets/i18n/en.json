@@ -12,7 +12,7 @@
     },
     "GROWTH_HABITS": {
         "":"Growth Habits",
-        "ANY": "Select Growth Habit",
+        "ANY": "-- Growth Habits -- ",
         "GRAMINOID": "Grasslike",
         "SHRUB": "Shrub",
         "SUBSHRUB": "Subshrub",
@@ -28,7 +28,7 @@
     "ACTIVE_GROWTH_PERIOD": "Active Growth Seasons",
     "SHAPE_AND_ORIENTATION":"Shape & Orientation",
     "DURATIONS": {
-        "ANY": "Select Duration",
+        "ANY": "-- Durations --",
         "AN": "Annual",
         "ANNUAL": "Annual",
         "PERENNIAL": "Perennial",

@@ -6,10 +6,12 @@ import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, combineLatestWith } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, combineLatestWith, withLatestFrom } from 'rxjs/operators';
 import { combineLatest, merge, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Route, SearchParams } from '../app.routes';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
@@ -29,6 +31,8 @@ export class PlantSearchComponent implements OnDestroy {
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
+
+  private static readonly _countyNameStateSeparator: string = ' - ';
 
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
@@ -72,10 +76,25 @@ export class PlantSearchComponent implements OnDestroy {
       }
       return map;
     }),
-    shareReplay({ bufferSize: 1, refCount: true })
+    shareReplay({ bufferSize: 1, refCount: false })
   );
 
-  private readonly _searchStarter$: Subject<string> = new BehaviorSubject<string>('');
+  private readonly _countyRenavigate$ = new Subject<string>();
+  private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
+    this._countyRenavigate$.pipe(
+      withLatestFrom(this._countyLookup$),
+      map(([countyKey, map]) => [countyKey, map.get(countyKey)] as [string, CountyCSVItem | undefined]),
+      filter((pair): pair is [string, CountyCSVItem] => pair[1] !== undefined),
+      tap(([countyKey]) => {
+        const [countyName, stateAbbrev] = countyKey.split(PlantSearchComponent._countyNameStateSeparator);
+        this._router.navigate([Route.searchRoute], {
+          queryParams: <SearchParams>{ countyName, stateAbbrev },
+          queryParamsHandling: 'merge'
+        });
+      }),
+      map(([, county]) => county)
+    );
+  private readonly _searchStarter$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   private readonly _userSearchStarter$: Subject<string> = new Subject<string>();
   private get userSearchStarter$(): Observable<string> {
     return this._userSearchStarter$.pipe(debounceTime(this._searchDebounceTimeMs));
@@ -100,7 +119,6 @@ export class PlantSearchComponent implements OnDestroy {
       this.filteredDataBatch.emit(plants);
       this.filterInProgress$.next(false);
     }),
-    // shareReplay({bufferSize: 1, refCount: true}),
     takeUntil(this._destroy$)
   );
 
@@ -111,26 +129,50 @@ export class PlantSearchComponent implements OnDestroy {
     private readonly _positionService: PositionService,
     private readonly _http: HttpClient,
     private readonly _title: Title,
-    private readonly _meta: Meta) {
+    private readonly _meta: Meta,
+    private readonly _activatedRoute: ActivatedRoute,
+    private readonly _router: Router) {
     this._fullyFilteredNativePlants.subscribe();
 
     this._positionService.countyEmitter$
       .pipe(
         filter(Boolean),
         switchMap((x) => this._http.get<CountyCSVItem>(`/api/counties/${x.stateFip}/${x.countyFip}`)),
-        combineLatestWith(this.counties$),
-        takeUntil(this._destroy$)
-      )
-      .subscribe(([county]) => {
-        this.geolocationCountyName = this.getCountyAndStateAbbrev(county);
+        takeUntil(this._destroy$))
+      .subscribe((county) => {
+        const combinedName = this.getCountyAndStateAbbrev(county);
+        this.geolocationCountyName = combinedName;
+        this._countyRenavigate$.next(combinedName);
       });
 
-      this._title.setTitle('Native Plants in the US | What Grows Native Here');
-      const tag = <MetaDefinition>{
-          name: 'description',
-          content:'Find native plants for any county in the US. See each plant\'s native range and filter on characteristics. Native regions gathered from USDA Plants website.'
-      };
-      this._meta.updateTag(tag);
+    this._activatedRoute.queryParams.pipe(map((params) => params as SearchParams),
+      withLatestFrom(this._countyLookup$),
+      takeUntil(this._destroy$)
+    ).subscribe({
+      next: ([params, map]: [SearchParams, Map<string, CountyCSVItem>]) => {
+        if (params.countyName != null && params.countyName.length > 0 && params.stateAbbrev != null && params.stateAbbrev.length == 2) {
+          const key: string = this.formatCountyAndStateAbbrev(params.countyName, params.stateAbbrev);
+          const county: CountyCSVItem | undefined = map.get(key);
+          if (!county) return;
+
+          this._positionService.manualCounty = county;
+          // TODO react to query filters here possibly with query params instead to allow for routing to a filtered / sorted view
+          // TODO dont use user's position if they come in with valid query params for a location
+        }
+      }
+
+    });
+
+    this._validCountyRenavigate$.pipe(
+      takeUntil(this._destroy$)
+    ).subscribe();
+
+    this._title.setTitle('Native Plants in the US | What Grows Native Here');
+    const tag = <MetaDefinition>{
+      name: 'description',
+      content: 'Find native plants for any county in the US. See each plant\'s native range and filter on characteristics. Native regions gathered from USDA Plants website.'
+    };
+    this._meta.updateTag(tag);
   }
 
   ngOnDestroy(): void {
@@ -157,22 +199,16 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   public handleNameInput(name: string | null): void {
-    if (!name) return;
-
-    this._countyLookup$
-      .pipe(
-        take(1),
-        takeUntil(this._destroy$))
-      .subscribe(map => {
-        const county = map.get(name);
-        if (!county) return; // TODO get all
-
-        this._positionService.manualCounty = county;
-      });
+    if (name)
+      this._countyRenavigate$.next(name);
   }
 
   public getCountyAndStateAbbrev(c: CountyCSVItem): string {
-    return `${c.countyName} - ${c.stateAbbrev}`;
+    return this.formatCountyAndStateAbbrev(c.countyName, c.stateAbbrev);
+  }
+
+  private formatCountyAndStateAbbrev(countyName: string, stateAbbrev: string) {
+    return countyName + PlantSearchComponent._countyNameStateSeparator + stateAbbrev;
   }
 }
 
