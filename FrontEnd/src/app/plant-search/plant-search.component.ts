@@ -137,6 +137,9 @@ export class PlantSearchComponent implements OnDestroy {
     this._positionService.countyEmitter$
       .pipe(
         filter(Boolean),
+        withLatestFrom(this._activatedRoute.queryParams.pipe(map(p => p as SearchParams))),
+        filter(([, params]) => !params.countyName || params.stateAbbrev?.length !== 2),
+        map(([county]) => county),
         switchMap((x) => this._http.get<CountyCSVItem>(`/api/counties/${x.stateFip}/${x.countyFip}`)),
         takeUntil(this._destroy$))
       .subscribe((county) => {
@@ -145,22 +148,22 @@ export class PlantSearchComponent implements OnDestroy {
         this._countyRenavigate$.next(combinedName);
       });
 
-    this._activatedRoute.queryParams.pipe(map((params) => params as SearchParams),
-      withLatestFrom(this._countyLookup$),
+    this._activatedRoute.queryParams.pipe(
+      map((params) => params as SearchParams),
+      filter((params) => !!params.countyName && params.stateAbbrev?.length === 2),
+      switchMap((params) =>
+        this._countyLookup$.pipe(
+          take(1),
+          map((countyMap) => countyMap.get(
+            this.formatCountyAndStateAbbrev(params.countyName!, params.stateAbbrev!)
+          ))
+        )
+      ),
+      filter((county): county is CountyCSVItem => !!county),
       takeUntil(this._destroy$)
-    ).subscribe({
-      next: ([params, map]: [SearchParams, Map<string, CountyCSVItem>]) => {
-        if (params.countyName != null && params.countyName.length > 0 && params.stateAbbrev != null && params.stateAbbrev.length == 2) {
-          const key: string = this.formatCountyAndStateAbbrev(params.countyName, params.stateAbbrev);
-          const county: CountyCSVItem | undefined = map.get(key);
-          if (!county) return;
-
-          this._positionService.manualCounty = county;
-          // TODO react to query filters here possibly with query params instead to allow for routing to a filtered / sorted view
-          // TODO dont use user's position if they come in with valid query params for a location
-        }
-      }
-
+    ).subscribe((county) => {
+      this.geolocationCountyName = this.getCountyAndStateAbbrev(county);
+      this._positionService.manualCounty = county;
     });
 
     this._validCountyRenavigate$.pipe(

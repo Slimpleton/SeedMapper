@@ -40,9 +40,6 @@ export type PlantOverviewRouteData = {
 export interface SearchParams extends Params{
     countyName: string | null;
     stateAbbrev: string | null;
-    // duration: Duration | null;
-    // growthHabit: GrowthHabit | null;
-    // TODO add more / implement
 }
 
 // TODO search resolver with params for county & state names / county & state fips,

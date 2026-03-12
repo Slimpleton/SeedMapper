@@ -4,7 +4,7 @@ import { filter, map, switchMap, takeUntil, shareReplay, tap, catchError } from 
 import { County, CountyCSVItem, StateInfo } from '../models/gov/models';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
-import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
+import { Title } from '@angular/platform-browser';
 
 @Injectable({
     providedIn: 'root'
@@ -33,13 +33,6 @@ export class PositionService implements OnDestroy {
         takeUntil(this._ngDestroy$));
 
     public readonly stateEmitter$: Observable<StateInfo> = merge(this._manualStateSetter$, this._stateEmitter$).pipe(
-        tap(() => {
-            // TODO get state name here
-            // TODO add title and meta tag changes here 
-            if (isPlatformBrowser(this._platformId)) {
-
-            }
-        }),
         shareReplay(1),
         takeUntil(this._ngDestroy$));
 
