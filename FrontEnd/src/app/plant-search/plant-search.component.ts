@@ -137,9 +137,14 @@ export class PlantSearchComponent implements OnDestroy {
     this._positionService.countyEmitter$
       .pipe(
         filter(Boolean),
-        withLatestFrom(this._activatedRoute.queryParams.pipe(map(p => p as SearchParams))),
-        filter(([, params]) => !params.countyName || params.stateAbbrev?.length !== 2),
-        map(([county]) => county),
+        switchMap((county) =>
+          this._activatedRoute.queryParams.pipe(
+            take(1),
+            map((p) => p as SearchParams),
+            filter((params) => !params.countyName || params.stateAbbrev?.length !== 2),
+            map(() => county)
+          )
+        ),
         switchMap((x) => this._http.get<CountyCSVItem>(`/api/counties/${x.stateFip}/${x.countyFip}`)),
         takeUntil(this._destroy$))
       .subscribe((county) => {
