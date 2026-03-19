@@ -22,9 +22,19 @@ export class PositionService implements OnDestroy {
     }
 
     private readonly _manualCountySetter$: Subject<County> = new Subject<County>();
+    private _manualCountySet: boolean = false;
+
     public set manualCounty(value: County) {
+        this._manualCountySet = true;
         this._manualCountySetter$.next(value);
     }
+
+    private readonly _countyEmitter$: Observable<County> = this.positionEmitter$.pipe(
+        switchMap((position: GeolocationPosition) => this._http.post<County | undefined>('/api/geolocation/county', position.coords)),
+        filter((county: County | undefined): county is County => county != undefined),
+        filter(() => !this._manualCountySet), // skip if manual already set
+        takeUntil(this._ngDestroy$));
+
 
     private readonly _stateEmitter$: Observable<StateInfo> = this.positionEmitter$.pipe(
         switchMap((position: GeolocationPosition) =>
@@ -34,12 +44,6 @@ export class PositionService implements OnDestroy {
 
     public readonly stateEmitter$: Observable<StateInfo> = merge(this._manualStateSetter$, this._stateEmitter$).pipe(
         shareReplay(1),
-        takeUntil(this._ngDestroy$));
-
-    private readonly _countyEmitter$: Observable<County> = this.positionEmitter$.pipe(
-        switchMap((position: GeolocationPosition) => this._http.post<County | undefined>('/api/geolocation/county', position.coords)),
-        filter((county: County | undefined): county is County => county != undefined),
-        // TODO do i let it emit undefined and search all counties if undefined? idk man
         takeUntil(this._ngDestroy$));
 
     public readonly countyEmitter$: Observable<County> = merge(this._manualCountySetter$, this._countyEmitter$).pipe(
