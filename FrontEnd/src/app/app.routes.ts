@@ -1,16 +1,44 @@
 import { ActivatedRouteSnapshot, Params, RedirectCommand, ResolveData, ResolveFn, Router, Routes } from '@angular/router';
-import { Duration, GrowthHabit, PlantData } from './models/gov/models';
+import { PlantData } from './models/gov/models';
 import { of } from 'rxjs';
 import { inject } from '@angular/core';
 import { GovPlantsDataService } from './services/PLANTS_data.service';
 
 export enum Route {
+    searchRoute = ':stateAbbrev/:countyName',
+    searchRouteState = ':stateAbbrev',
+    searchRouteAlt = 'search/:stateAbbrev/:countyName',
+    searchRouteAltState = 'search/:stateAbbrev',
+    searchRouteAltBase = 'search',
     mapRoute = 'map',
-    searchRoute = '',
-    searchRouteAlt='search',
     plantRawRoute = 'plant/raw/:id',
     aboutRoute = 'about',
-};
+}
+
+export type SearchRouteParam = 'stateAbbrev' | 'countyName';
+type PlantRouteParam = 'id';
+
+// Map each route to its expected params
+interface RouteParams {
+    [Route.searchRoute]: Partial<Record<SearchRouteParam, string>>;
+    [Route.searchRouteAlt]: Partial<Record<SearchRouteParam, string>>;
+    [Route.searchRouteAltBase]: Partial<Record<SearchRouteParam, string>>;
+    [Route.searchRouteState]:Partial<Record<SearchRouteParam, string>>;
+    [Route.searchRouteAltState]:Partial<Record<SearchRouteParam, string>>;
+    [Route.plantRawRoute]: Record<PlantRouteParam, string>;
+    [Route.mapRoute]: never;
+    [Route.aboutRoute]: never;
+}
+
+// Overloads: routes with no params don't need a second argument
+export function buildRoute(route: Route.mapRoute | Route.aboutRoute): string;
+export function buildRoute<R extends keyof RouteParams>(
+    route: R,
+    params: RouteParams[R]
+): string;
+export function buildRoute(route: Route, params?: Record<string, string>): string {
+    return route.replace(/:(\w+)\??/g, (_, key) => params?.[key] ?? '').replace(/\/+$/, '').replace(/\/{2,}/g, '/');
+}
 
 const plantOverviewResolver: ResolveFn<Readonly<PlantData> | RedirectCommand> = (route: ActivatedRouteSnapshot) => {
     const acceptedSymbol: string | null = route.paramMap.get('id');
@@ -37,23 +65,16 @@ export type PlantOverviewRouteData = {
     plant: PlantData
 };
 
-export interface SearchParams extends Params{
-    countyName: string | null;
-    stateAbbrev: string | null;
-}
-
 // TODO search resolver with params for county & state names / county & state fips,
 
 
 export const routes: Routes = [
-    {
-        path: Route.searchRoute,
-        loadComponent: () => import('./home/home.component').then(x => x.HomeComponent),
-    },
-    {
-        path: Route.searchRouteAlt,
-        loadComponent: () => import('./home/home.component').then(x => x.HomeComponent),
-    },
+    { path: Route.searchRoute, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: Route.searchRouteState, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: Route.searchRouteAlt, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: Route.searchRouteAltState, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: Route.searchRouteAltBase, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: '', loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
     {
         path: Route.plantRawRoute,
         loadComponent: () => import('./plant-overview/plant-overview.component').then(x => x.PlantOverviewComponent),
