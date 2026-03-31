@@ -138,6 +138,7 @@ export class PlantSearchComponent implements OnDestroy {
         filter(Boolean),
         switchMap((county) =>
           this._activatedRoute.params.pipe(
+            take(1),
             map((p) => p as Partial<Record<SearchRouteParam, string>>),
             filter((params) => !params.countyName || params.stateAbbrev?.length !== 2),
             map(() => county)
