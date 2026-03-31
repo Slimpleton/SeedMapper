@@ -23,8 +23,8 @@ interface RouteParams {
     [Route.searchRoute]: Partial<Record<SearchRouteParam, string>>;
     [Route.searchRouteAlt]: Partial<Record<SearchRouteParam, string>>;
     [Route.searchRouteAltBase]: Partial<Record<SearchRouteParam, string>>;
-    [Route.searchRouteState]:Partial<Record<SearchRouteParam, string>>;
-    [Route.searchRouteAltState]:Partial<Record<SearchRouteParam, string>>;
+    [Route.searchRouteState]: Partial<Record<SearchRouteParam, string>>;
+    [Route.searchRouteAltState]: Partial<Record<SearchRouteParam, string>>;
     [Route.plantRawRoute]: Record<PlantRouteParam, string>;
     [Route.mapRoute]: never;
     [Route.aboutRoute]: never;
