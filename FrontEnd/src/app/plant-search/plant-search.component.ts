@@ -6,12 +6,12 @@ import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, combineLatestWith, withLatestFrom } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, withLatestFrom } from 'rxjs/operators';
 import { combineLatest, merge, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Route, SearchParams } from '../app.routes';
+import { ActivatedRoute, Router } from '@angular/router';
+import { buildRoute, Route, SearchRouteParam } from '../app.routes';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
@@ -87,8 +87,7 @@ export class PlantSearchComponent implements OnDestroy {
       filter((pair): pair is [string, CountyCSVItem] => pair[1] !== undefined),
       tap(([countyKey]) => {
         const [countyName, stateAbbrev] = countyKey.split(PlantSearchComponent._countyNameStateSeparator);
-        this._router.navigate([Route.searchRoute], {
-          queryParams: <SearchParams>{ countyName, stateAbbrev },
+        this._router.navigate([buildRoute(Route.searchRoute, { countyName, stateAbbrev })], {
           queryParamsHandling: 'merge'
         });
       }),
@@ -138,9 +137,8 @@ export class PlantSearchComponent implements OnDestroy {
       .pipe(
         filter(Boolean),
         switchMap((county) =>
-          this._activatedRoute.queryParams.pipe(
-            take(1),
-            map((p) => p as SearchParams),
+          this._activatedRoute.params.pipe(
+            map((p) => p as Partial<Record<SearchRouteParam, string>>),
             filter((params) => !params.countyName || params.stateAbbrev?.length !== 2),
             map(() => county)
           )
@@ -153,8 +151,8 @@ export class PlantSearchComponent implements OnDestroy {
         this._countyRenavigate$.next(combinedName);
       });
 
-    this._activatedRoute.queryParams.pipe(
-      map((params) => params as SearchParams),
+    this._activatedRoute.params.pipe(
+      map((p) => p as Partial<Record<SearchRouteParam, string>>),
       filter((params) => !!params.countyName && params.stateAbbrev?.length === 2),
       switchMap((params) =>
         this._countyLookup$.pipe(

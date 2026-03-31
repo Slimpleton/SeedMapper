@@ -254,7 +254,7 @@ app.post<County | undefined>('/api/geolocation/county', async (req, res) => {
 
 app.get('/sitemap.xml', async (_, res) => {
   const countyUrls = countiesCSVCache.map(c =>
-    `  <url><loc>https://whatgrowsnativehere.us.com/?stateAbbrev=${c.stateAbbrev}&amp;countyName=${encodeURIComponent(c.countyName)}</loc><priority>0.8</priority></url>`
+    `  <url><loc>https://whatgrowsnativehere.us.com/${c.stateAbbrev}/${encodeURIComponent(c.countyName)}</loc><priority>0.8</priority></url>`
   ).join('\n');
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
