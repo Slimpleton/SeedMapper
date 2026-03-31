@@ -69,12 +69,6 @@ export type PlantOverviewRouteData = {
 
 
 export const routes: Routes = [
-    { path: Route.searchRoute, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
-    { path: Route.searchRouteState, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
-    { path: Route.searchRouteAlt, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
-    { path: Route.searchRouteAltState, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
-    { path: Route.searchRouteAltBase, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
-    { path: '', loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
     {
         path: Route.plantRawRoute,
         loadComponent: () => import('./plant-overview/plant-overview.component').then(x => x.PlantOverviewComponent),
@@ -86,4 +80,10 @@ export const routes: Routes = [
         path: Route.aboutRoute,
         loadComponent: () => import('./about/about.component').then(x => x.AboutComponent)
     },
+    { path: Route.searchRoute, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: Route.searchRouteState, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: Route.searchRouteAlt, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: Route.searchRouteAltState, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: Route.searchRouteAltBase, loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
+    { path: '', loadComponent: () => import('./home/home.component').then(x => x.HomeComponent) },
 ];
