@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
-import { combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData } from '../models/gov/models';
+import { combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData, StateCSVItem } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
@@ -62,6 +62,11 @@ export class PlantSearchComponent implements OnDestroy {
     return combineCountyFIP(county);
   }
 
+  public readonly states$: Observable<StateCSVItem[]> = this._http.get<StateCSVItem[]>('api/states').pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this._destroy$));
+  public trackStateByFip(state: StateCSVItem): number {
+    return state.fip;
+  }
+
   public geolocationCountyName: string = '';
 
   private readonly _countyLookup$: Observable<Map<string, CountyCSVItem>> = this.counties$.pipe(
@@ -105,7 +110,10 @@ export class PlantSearchComponent implements OnDestroy {
   private readonly _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
     this._growthHabitEmitter$,
     this._durationEmitter$,
-    this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
+    merge(
+      this._positionService.stateEmitter$.pipe(map((val) => val.fip as string)),
+      this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
+    ),
     this._search$,
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
