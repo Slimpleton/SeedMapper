@@ -8,7 +8,6 @@ export class INaturalistService {
   // TODO pull images from the amazon bucket for freesies
   // profit
 
-  //s3://inaturalist-open-data/photos/[photo_id]/medium.[extension]
   //https://inaturalist-open-data.s3.amazonaws.com/photos/[photo_id]/medium.[extension]
 
   /**
@@ -35,4 +34,22 @@ export class INaturalistService {
    *  or observer login], some rights reserved ([license abbreviation])". For example "© Name, 
    * some rights reserved (CC-BY)", or "© Login, some rights reserved (CC-BY-NC)"
    */
+  // TODO turn plant acceptedSymbol to photoId 
+  // acceptedSymbol => plantId within inaturalist => observation => photo => photoid
+
+  private static readonly _SIZES = [
+    { name: 'small', width: 240 },
+    { name: 'medium', width: 500 },
+    { name: 'large', width: 1024 },
+    { name: 'original', width: 2048 },
+  ];
+
+  private iNatSrcset(photoId: string, ext = 'jpg'): {src: string, srcset: string} {
+    const base = `https://inaturalist-open-data.s3.amazonaws.com/photos/${photoId}`;
+    return {
+      src: `${base}/medium.${ext}`,
+      srcset: INaturalistService._SIZES.map(s => `${base}/${s.name}.${ext} ${s.width}w`).join(', ')
+    };
+  }
+
 }
