@@ -69,6 +69,7 @@ namespace Backend.Controllers
             List<PlantDataDTO> batch = new(batchSize);
             foreach (var item in filtered)
             {
+                var photos = FileService.GetPhotosForSymbol(item.AcceptedSymbol)?.ToList() ?? []; 
                 var dto = new PlantDataDTO
                 {
                     AcceptedSymbol = item.AcceptedSymbol,
@@ -168,7 +169,7 @@ namespace Backend.Controllers
                     VeneerProduct = item.VeneerProduct,
                     CommonName = item.CommonName,
                     CombinedCountyFIPs = item.CombinedCountyFIPs,
-                    Photos =[ .. FileService.GetPhotosForSymbol(item.AcceptedSymbol) ?? []],
+                    Photos =[..photos],
                 };
 
                 batch.Add(dto);

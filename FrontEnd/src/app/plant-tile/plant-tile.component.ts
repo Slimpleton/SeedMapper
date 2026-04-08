@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, Input, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -18,7 +18,7 @@ import { INaturalistService } from '../services/inaturalist.service';
   styleUrl: './plant-tile.component.css',
   standalone: true
 })
-export class PlantTileComponent implements OnInit {
+export class PlantTileComponent  {
   public get usdaGovPlantProfileUrl(): string { return GovPlantsDataService.usdaGovPlantProfileUrl; }
   @Input({ required: true }) public plant!: PlantData;
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
@@ -28,16 +28,19 @@ export class PlantTileComponent implements OnInit {
     return `0 0 ${MapService.PLANT_TILE_MAP_WIDTH} ${MapService.PLANT_TILE_MAP_HEIGHT}`
   }
 
-  private _src: string = '';
-  private _srcset: string = '';
+public get src(): string {
+  const firstPhoto = this.plant.photos?.at(0);
+  return firstPhoto
+    ? this._iNaturalistService.getSrcSet(firstPhoto.photoId, firstPhoto.extension).src
+    : '';
+}
 
-  public get src(): string {
-    return this._src;
-  }
-
-  public get srcset(): string {
-    return this._srcset;
-  }
+public get srcset(): string {
+  const firstPhoto = this.plant.photos?.at(0);
+  return firstPhoto
+    ? this._iNaturalistService.getSrcSet(firstPhoto.photoId, firstPhoto.extension).srcset
+    : '';
+}
 
   public showMap: boolean = false;
   private readonly _router = inject(Router);
@@ -54,14 +57,7 @@ export class PlantTileComponent implements OnInit {
     // });
 
   }
-  ngOnInit(): void {
-    const firstPhoto = this.plant.photos?.at(0);
-    if (firstPhoto) {
-      const x = this._iNaturalistService.iNatSrcset(firstPhoto.photoId, firstPhoto.extension)
-      this._src = x.src;
-      this._srcset = x.srcset;
-    }
-  }
+
 
   public get growthHabitKeys(): string[] {
     if (!this.plant?.growthHabit || this.plant.growthHabit.size === 0) {

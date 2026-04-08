@@ -111,12 +111,12 @@ namespace Backend.Services
         static FileService()
         {
             string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-            
+
             ParseSymbolOffsets(dirName);
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
             Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
 
-            PlantDataRow[] filteredRows =  [
+            PlantDataRow[] filteredRows = [
                     .. rows.Where(p =>
                         {
                             string[]? words = p.ScientificName?
@@ -149,8 +149,8 @@ namespace Backend.Services
             PlantData = new PlantData[data.Length];
             data.CopyTo(PlantData);
 
-            
-            foreach(PlantData datum in data)
+
+            foreach (PlantData datum in data)
             {
                 foreach (string fip in datum.CombinedCountyFIPs)
                 {
@@ -210,10 +210,25 @@ namespace Backend.Services
             long offset = 0;
             string? currentSymbol = null;
             long symbolStartOffset = 0;
+            int lineEndingBytes = 1; // default \n
+            using (var sr = new StreamReader(photosPath))
+            {
+                sr.ReadLine(); // read past first line
+                if (sr.BaseStream.Position > 0)
+                {
+                    sr.BaseStream.Seek(0, SeekOrigin.Begin);
+                    int b;
+                    while ((b = sr.BaseStream.ReadByte()) != -1)
+                    {
+                        if (b == '\n') { lineEndingBytes = 1; break; }
+                        if (b == '\r') { lineEndingBytes = 2; break; }
+                    }
+                }
+            }
 
             foreach (string line in File.ReadLines(photosPath))
             {
-                long lineBytes = Encoding.UTF8.GetByteCount(line) + 2; // +2 for \r\n
+                long lineBytes = Encoding.UTF8.GetByteCount(line) + lineEndingBytes; // +2 for \r\n
                 if (offset > 0) // skip header
                 {
                     string symbol = line.Split(',')[1].Trim('"');

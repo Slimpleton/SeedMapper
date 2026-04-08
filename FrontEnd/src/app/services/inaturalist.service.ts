@@ -44,12 +44,19 @@ export class INaturalistService {
     { name: 'original', width: 2048 },
   ];
 
-  public iNatSrcset(photoId: number | string, ext = 'jpg'): { src: string, srcset: string } {
-    const base = `https://inaturalist-open-data.s3.amazonaws.com/photos/${photoId}`;
+  private static readonly _baseImgUrl = `https://inaturalist-open-data.s3.amazonaws.com/photos/`;
+
+  public getSrcSet(photoId: number | string, ext = 'jpg'): { src: string, srcset: string } {
+    const base = INaturalistService._baseImgUrl + photoId;
     return {
       src: `${base}/medium.${ext}`,
       srcset: INaturalistService._SIZES.map(s => `${base}/${s.name}.${ext} ${s.width}w`).join(', ')
     };
+  }
+
+  public getSquare(photoId: number | string, ext: string = 'jpg'): string {
+    const base = INaturalistService._baseImgUrl + photoId;
+    return base + '/square.' + ext;
   }
 
 }

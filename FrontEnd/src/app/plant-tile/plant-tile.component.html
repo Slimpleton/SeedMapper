@@ -7,8 +7,9 @@
     @if(!showMap){
     <!-- TODO replace it all with picture??  -->
     <!-- TODO sizing and lazy load -->
-    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" alt="" [srcset]="srcset"
-        sizes="(max-width: 300px) 100vw, 250px">
+    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [srcset]="srcset"
+    sizes="(width < 400px) 240px, 500px"
+    [src]="src" alt="" >
     <!-- TODO replace with button link for usda page at bottom? or move to bottom of card? -->
     <span class="symbolAndShadeRow">
         <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
