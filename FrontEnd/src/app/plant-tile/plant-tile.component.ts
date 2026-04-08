@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, Input, OnInit, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -8,6 +8,7 @@ import { PlantOverviewRouteData } from '../app.routes';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { MapService } from '../services/map.service';
 import { TooltipDirective } from "../directives/tooltip.directive";
+import { INaturalistService } from '../services/inaturalist.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,7 +18,7 @@ import { TooltipDirective } from "../directives/tooltip.directive";
   styleUrl: './plant-tile.component.css',
   standalone: true
 })
-export class PlantTileComponent {
+export class PlantTileComponent implements OnInit {
   public get usdaGovPlantProfileUrl(): string { return GovPlantsDataService.usdaGovPlantProfileUrl; }
   @Input({ required: true }) public plant!: PlantData;
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
@@ -27,20 +28,39 @@ export class PlantTileComponent {
     return `0 0 ${MapService.PLANT_TILE_MAP_WIDTH} ${MapService.PLANT_TILE_MAP_HEIGHT}`
   }
 
+  private _src: string = '';
+  private _srcset: string = '';
+
+  public get src(): string {
+    return this._src;
+  }
+
+  public get srcset(): string {
+    return this._srcset;
+  }
+
   public showMap: boolean = false;
   private readonly _router = inject(Router);
 
+  public constructor(private readonly _mapService: MapService, private readonly _iNaturalistService: INaturalistService) {
+    // afterNextRender({
+    //   write: () => {
 
-  public constructor(private readonly _mapService: MapService) {
-    afterNextRender({
-      write: () => {
+    //     // TODO create path and projection that fits the svg element here
 
-        // TODO create path and projection that fits the svg element here
+    //     // TODO add occurrences in the overview of the plant maybe with the same base native map
+    //     // todo load occurrences in reverse chronological order and stream the new svgs onto the map idk man animated? 
+    //   }
+    // });
 
-        // TODO add occurrences in the overview of the plant maybe with the same base native map
-        // todo load occurrences in reverse chronological order and stream the new svgs onto the map idk man animated? 
-      }
-    });
+  }
+  ngOnInit(): void {
+    const firstPhoto = this.plant.photos?.at(0);
+    if (firstPhoto) {
+      const x = this._iNaturalistService.iNatSrcset(firstPhoto.photoId, firstPhoto.extension)
+      this._src = x.src;
+      this._srcset = x.srcset;
+    }
   }
 
   public get growthHabitKeys(): string[] {

@@ -168,7 +168,7 @@ namespace Backend.Controllers
                     VeneerProduct = item.VeneerProduct,
                     CommonName = item.CommonName,
                     CombinedCountyFIPs = item.CombinedCountyFIPs,
-                    Photos = [.. FileService.GetPhotosForSymbol(item.AcceptedSymbol)]
+                    Photos =[ .. FileService.GetPhotosForSymbol(item.AcceptedSymbol) ?? []],
                 };
 
                 batch.Add(dto);

@@ -44,7 +44,7 @@ export class INaturalistService {
     { name: 'original', width: 2048 },
   ];
 
-  private iNatSrcset(photoId: string, ext = 'jpg'): {src: string, srcset: string} {
+  public iNatSrcset(photoId: number | string, ext = 'jpg'): { src: string, srcset: string } {
     const base = `https://inaturalist-open-data.s3.amazonaws.com/photos/${photoId}`;
     return {
       src: `${base}/medium.${ext}`,

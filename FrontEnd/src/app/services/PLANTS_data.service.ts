@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Duration, GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { map, switchMap, tap } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
 import { Observable } from "rxjs";
@@ -132,6 +132,7 @@ export class GovPlantsDataService {
             growthHabit: new Set(raw.growthHabit ?? []),
             duration: new Set(raw.duration ?? []),
             stateAndProvince: new Set(raw.stateAndProvince ?? []),
+            photos: (raw.photos ?? [])
         })
     }
 }

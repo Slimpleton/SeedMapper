@@ -5,6 +5,11 @@
         |titlecase}}</h2>
 
     @if(!showMap){
+    <!-- TODO replace it all with picture??  -->
+    <!-- TODO sizing and lazy load -->
+    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" alt="" [srcset]="srcset"
+        sizes="(max-width: 300px) 100vw, 250px">
+    <!-- TODO replace with button link for usda page at bottom? or move to bottom of card? -->
     <span class="symbolAndShadeRow">
         <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
             id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
@@ -44,6 +49,7 @@
     <!-- TODO figure out how to ensure the guides actually exist -->
     <!-- <a href="https://plants.usda.gov/DocumentLibrary/plantguide/pdf/pg_{{plant.acceptedSymbol}}.pdf">PDF</a> -->
     <!-- </div> -->
+
 
     }
     @else {

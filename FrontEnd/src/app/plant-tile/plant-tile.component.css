@@ -1,5 +1,5 @@
 :root {
-    --item-size: 5em;
+    --item-size: 6em;
 }
 
 .plant-holder {
@@ -87,4 +87,12 @@ h4 {
 .mini-map .nation-border {
     stroke: var(--wood-dark-brown);
     stroke-width: .45;
+}
+
+.img {
+    display: block;
+    max-width: calc(var(--item-size) - 1em);
+    width: 100%;
+    height: auto;
+    /* maintain aspect ratio */
 }

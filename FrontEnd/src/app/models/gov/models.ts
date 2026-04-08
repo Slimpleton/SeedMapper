@@ -291,7 +291,7 @@ export type PlantData = Readonly<{
     pulpwoodProduct: boolean;
     veneerProduct: boolean;
     commonName: string;
-    photos: Photo[];
+    photos: Photo[] | undefined;
 }>;
 
 export type County = Omit<CountyCSVItem, 'countyName' | 'stateAbbrev'>

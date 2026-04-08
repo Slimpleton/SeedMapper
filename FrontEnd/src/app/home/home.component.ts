@@ -66,8 +66,8 @@ export class HomeComponent {
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
 
   // TODO group the plant items into column rows based on the generated column number / result size
-  public readonly itemSize: number = 248;
-  public readonly itemWidth: number = this.itemSize * 1.5;
+  public readonly itemSize: number = 400;
+  public readonly itemWidth: number = this.itemSize * 1.25;
   public readonly gutterSize: number = 4;
 
   public columns: number = 1;
