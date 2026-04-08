@@ -1,4 +1,4 @@
-import { ActivatedRouteSnapshot, Params, RedirectCommand, ResolveData, ResolveFn, Router, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, RedirectCommand, ResolveData, ResolveFn, Router, Routes } from '@angular/router';
 import { PlantData } from './models/gov/models';
 import { of } from 'rxjs';
 import { inject } from '@angular/core';
@@ -36,7 +36,7 @@ export function buildRoute<R extends keyof RouteParams>(
     route: R,
     params: RouteParams[R]
 ): string;
-export function buildRoute(route: Route, params?: Record<string, string>): string {
+export function buildRoute(route: Route, params?: Record<string, string | undefined>): string {
     return route.replace(/:(\w+)\??/g, (_, key) => params?.[key] ?? '').replace(/\/+$/, '').replace(/\/{2,}/g, '/');
 }
 

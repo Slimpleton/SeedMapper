@@ -48,13 +48,13 @@ namespace Backend.Controllers
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption, [FromQuery] bool ascending, [FromQuery] int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, CancellationToken cancellationToken)
         {
             // Get county plants as a HashSet for O(1) lookups
-            HashSet<PlantData>? countyPlants = FileService.GetCountyPlants(combinedFIP);
-            if (countyPlants == null)
+            HashSet<PlantData>? plantsByLocation = FileService.GetPlantsByLocation(combinedFIP);
+            if (plantsByLocation == null)
                 return;  // County not found, return empty
 
 
             IEnumerable<PlantData> filtered = FileService.GetSortedPlants(sortOption, ascending);
-            filtered = filtered.Where(countyPlants.Contains);
+            filtered = filtered.Where(plantsByLocation.Contains);
             if (growthHabit != null && growthHabit != GrowthHabit.Any)
                 filtered = filtered.Where(x => x.GrowthHabit.Contains((GrowthHabit)growthHabit));
 

@@ -87,12 +87,13 @@ export class PlantSearchComponent implements OnDestroy {
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
     this._countyRenavigate$.pipe(
+      // TODO handle a state lookup instead of county lookup
       withLatestFrom(this._countyLookup$),
       map(([countyKey, map]) => [countyKey, map.get(countyKey)] as [string, CountyCSVItem | undefined]),
       filter((pair): pair is [string, CountyCSVItem] => pair[1] !== undefined),
       tap(([countyKey]) => {
-        const [countyName, stateAbbrev] = countyKey.split(PlantSearchComponent._countyNameStateSeparator);
-        this._router.navigate([buildRoute(Route.searchRoute, { countyName, stateAbbrev })], {
+        const routeParams: string[] = countyKey.split(PlantSearchComponent._countyNameStateSeparator);
+        this._router.navigate([buildRoute(Route.searchRoute, { stateAbbrev: routeParams[0], countyName: routeParams.length > 1 ? routeParams[1] : undefined })], {
           queryParamsHandling: 'merge'
         });
       }),
@@ -141,6 +142,8 @@ export class PlantSearchComponent implements OnDestroy {
     private readonly _router: Router) {
     this._fullyFilteredNativePlants.subscribe();
 
+    // TODO we need to add a stateEmitter just in case or something
+
     this._positionService.countyEmitter$
       .pipe(
         filter(Boolean),
@@ -160,6 +163,7 @@ export class PlantSearchComponent implements OnDestroy {
         this._countyRenavigate$.next(combinedName);
       });
 
+    // TODO support states too 
     this._activatedRoute.params.pipe(
       map((p) => p as Partial<Record<SearchRouteParam, string>>),
       filter((params) => !!params.countyName && params.stateAbbrev?.length === 2),
@@ -178,14 +182,17 @@ export class PlantSearchComponent implements OnDestroy {
       this._positionService.manualCounty = county;
     });
 
+    // TODO support states too 
+
     this._validCountyRenavigate$.pipe(
       takeUntil(this._destroy$)
     ).subscribe();
 
+    // TODO support states too 
     this._title.setTitle('Native Plants in the US | What Grows Native Here');
     const tag = <MetaDefinition>{
       name: 'description',
-      content: 'Find native plants for any county in the US. See each plant\'s native range and filter on characteristics. Native regions gathered from USDA Plants website.'
+      content: 'Find native plants for any county or state in the US. See each plant\'s native range and filter on characteristics. Native regions gathered from USDA Plants website.'
     };
     this._meta.updateTag(tag);
   }
@@ -193,6 +200,12 @@ export class PlantSearchComponent implements OnDestroy {
   ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
+    this._growthHabitEmitter$.complete();
+    this._durationEmitter$.complete();
+    this._sortOptionsEmitter$.complete();
+    this._isSortOptionAlphabeticOrderEmitter$.complete();
+    this.filterInProgress$.complete();
+
   }
 
   // TODO figure out use case when the plant is native to state but has no county data? do i just include all or none for now
