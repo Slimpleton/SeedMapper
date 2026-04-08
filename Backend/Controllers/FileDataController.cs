@@ -48,7 +48,7 @@ namespace Backend.Controllers
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption, [FromQuery] bool ascending, [FromQuery] int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, CancellationToken cancellationToken)
         {
             // Get county plants as a HashSet for O(1) lookups
-            HashSet<PlantData>? countyPlants = FileService.GetCountyPlants(combinedFIP);
+            HashSet<PlantData>? countyPlants = FileService.GetPlantsByLocation(combinedFIP);
             if (countyPlants == null)
                 return;  // County not found, return empty
 
