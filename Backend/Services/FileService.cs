@@ -1,8 +1,10 @@
 ﻿
 using Backend.Models;
 using Microsoft.VisualBasic.FileIO;
+using Microsoft.Win32.SafeHandles;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Backend.Services
@@ -11,6 +13,10 @@ namespace Backend.Services
     {
         private static Dictionary<string, HashSet<PlantData>> PlantsByLocation { get; } = [];
         public static PlantData[] PlantData { get; }
+        private static SafeFileHandle? _photoFileHandle;
+        // TODO fill
+        public static Dictionary<string, int> AcceptedSymbolToTaxonId { get; } = [];
+        public static Dictionary<string, (long FirstOffset, long TotalBytes)> PhotoOffsetsBySymbol { get; } = [];
 
         private const int MinimumSpeciesNameWords = 2;
 
@@ -105,6 +111,8 @@ namespace Backend.Services
         static FileService()
         {
             string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+            
+            ParseSymbolOffsets(dirName);
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
             Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
 
@@ -154,6 +162,7 @@ namespace Backend.Services
                 }
             }
         }
+
         public static PlantData[] GetSortedPlants(SortOption sortOption, bool ascending)
         {
             Func<PlantData, string?> keySelector = sortOption switch
@@ -193,6 +202,54 @@ namespace Backend.Services
             }
 
             return data;
+        }
+        private static void ParseSymbolOffsets(string dirName)
+        {
+            string photosPath = Path.Combine(dirName, "sorted_photos.csv");
+            _photoFileHandle = File.OpenHandle(photosPath, FileMode.Open, FileAccess.Read, FileShare.Read, options: FileOptions.RandomAccess);
+            long offset = 0;
+            string? currentSymbol = null;
+            long symbolStartOffset = 0;
+
+            foreach (string line in File.ReadLines(photosPath))
+            {
+                long lineBytes = Encoding.UTF8.GetByteCount(line) + 2; // +2 for \r\n
+                if (offset > 0) // skip header
+                {
+                    string symbol = line.Split(',')[1].Trim('"');
+                    if (symbol != currentSymbol)
+                    {
+                        if (currentSymbol != null)
+                            PhotoOffsetsBySymbol[currentSymbol] = (symbolStartOffset, offset - symbolStartOffset);
+                        currentSymbol = symbol;
+                        symbolStartOffset = offset;
+                    }
+                }
+                offset += lineBytes;
+            }
+            // finalize last symbol
+            if (currentSymbol != null)
+                PhotoOffsetsBySymbol[currentSymbol] = (symbolStartOffset, offset - symbolStartOffset);
+        }
+
+        public static IEnumerable<Photo> GetPhotosForSymbol(string symbol)
+        {
+            if (_photoFileHandle is null || !PhotoOffsetsBySymbol.TryGetValue(symbol, out var entry))
+                yield break;
+
+            byte[] buffer = new byte[entry.TotalBytes];
+            RandomAccess.Read(_photoFileHandle, buffer, entry.FirstOffset);
+            foreach (string line in Encoding.UTF8.GetString(buffer).Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            {
+                string[] fields = line.Split(',');
+                yield return new Photo(
+                    PhotoId: int.Parse(fields[0].Trim('"')),
+                    AcceptedSymbol: fields[1].Trim('"'),
+                    License: fields[2].Trim('"'),
+                    Extension: fields[3].Trim('"'),
+                    ObserverId: int.Parse(fields[4].Trim('"', '\r'))
+                );
+            }
         }
 
         private static PlantDataRow GetPlantDataRow(TextFieldParser parser)
