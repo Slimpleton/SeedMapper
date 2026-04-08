@@ -9,10 +9,7 @@ namespace Backend.Services
 {
     public static partial class FileService
     {
-        // Pre-sorted collections for each sort option + direction
         private static Dictionary<string, HashSet<PlantData>> PlantsByLocation { get; } = [];
-
-        //TODO expose these with channels for parallel reads from apis
         public static PlantData[] PlantData { get; }
 
         private const int MinimumSpeciesNameWords = 2;
