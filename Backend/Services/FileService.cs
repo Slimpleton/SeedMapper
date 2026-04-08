@@ -10,15 +10,9 @@ namespace Backend.Services
     public static partial class FileService
     {
         // Pre-sorted collections for each sort option + direction
+        private static Dictionary<string, HashSet<PlantData>> PlantsByLocation { get; } = [];
 
         //TODO expose these with channels for parallel reads from apis
-        public static PlantData[] PlantsByCommonNameAsc { get; }
-        public static PlantData[] PlantsByCommonNameDesc { get; }
-        public static PlantData[] PlantsByScientificNameAsc {get;}
-        public static PlantData[] PlantsByScientificNameDesc {get;}
-        public static PlantData[] PlantsBySymbolAsc {get;}
-        public static PlantData[] PlantsBySymbolDesc {get;}
-        private static Dictionary<string, HashSet<PlantData>> PlantsByCounty { get; } = [];
         public static PlantData[] PlantData { get; }
 
         private const int MinimumSpeciesNameWords = 2;
@@ -150,45 +144,36 @@ namespace Backend.Services
             PlantData = new PlantData[data.Length];
             data.CopyTo(PlantData);
 
-            // Convert arrays to IAsyncEnumerable
-            PlantsByCommonNameAsc = [.. data.OrderBy(p => p.CommonName)];
-            PlantsByCommonNameDesc = [.. data.OrderByDescending(p => p.CommonName)];
-
-            PlantsByScientificNameAsc = [.. data.OrderBy(p => p.ScientificName)];
-            PlantsByScientificNameDesc = [.. data.OrderByDescending(p => p.ScientificName)];
-
-            PlantsBySymbolAsc = [.. data.OrderBy(p => p.Symbol)];
-            PlantsBySymbolDesc = [.. data.OrderByDescending(p => p.Symbol)];
             
             foreach(PlantData datum in data)
             {
                 foreach (string fip in datum.CombinedCountyFIPs)
                 {
-                    if (!PlantsByCounty.ContainsKey(fip))
-                        PlantsByCounty[fip] = [];
-                    PlantsByCounty[fip].Add(datum);
+                    if (!PlantsByLocation.ContainsKey(fip))
+                        PlantsByLocation[fip] = [];
+                    PlantsByLocation[fip].Add(datum);
+                    // Add state fip
+                    //PlantsByLocation[fip[..2]].Add(datum);
                 }
-
             }
         }
-
         public static PlantData[] GetSortedPlants(SortOption sortOption, bool ascending)
         {
-            return (sortOption, ascending) switch
+            Func<PlantData, string?> keySelector = sortOption switch
             {
-                (SortOption.CommonName, true) => PlantsByCommonNameAsc,
-                (SortOption.CommonName, false) =>PlantsByCommonNameDesc,
-                (SortOption.ScientificName, true) => PlantsByScientificNameAsc,
-                (SortOption.ScientificName, false) => PlantsByScientificNameDesc,
-                (SortOption.Symbol, true) => PlantsBySymbolAsc,
-                (SortOption.Symbol, false) => PlantsBySymbolDesc,
-                _ => PlantsByScientificNameAsc
+                SortOption.CommonName => p => p.CommonName,
+                SortOption.ScientificName => p => p.ScientificName,
+                SortOption.Symbol => p => p.Symbol,
+                _ => p => p.ScientificName
             };
+            return ascending
+                ? [.. PlantData.OrderBy(keySelector)]
+                : [.. PlantData.OrderByDescending(keySelector)];
         }
 
-        public static HashSet<PlantData>? GetCountyPlants(string combinedFIP)
+        public static HashSet<PlantData>? GetPlantsByLocation(string combinedFIP)
         {
-            return PlantsByCounty.GetValueOrDefault(combinedFIP);
+            return PlantsByLocation.GetValueOrDefault(combinedFIP);
         }
 
         private static List<PlantDataRow> ParsePlantDataRow(string dirName)
