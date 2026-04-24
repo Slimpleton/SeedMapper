@@ -12,7 +12,8 @@
     @if(!showMap){
     @if(src !=='' && src !== null && src !== undefined){
 
-    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" alt="" [srcset]="srcset"
+    <!-- // TODO alt message -->
+    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" alt="" [srcset]="srcset" loading="lazy"
         sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img>
     }
     @else{
