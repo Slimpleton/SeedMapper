@@ -3,7 +3,7 @@ import { CdkVirtualForOf, CdkVirtualScrollViewport, } from '@angular/cdk/scrolli
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
-import { AsyncPipe, isPlatformBrowser, NgStyle, } from '@angular/common';
+import { AsyncPipe, isPlatformBrowser } from '@angular/common';
 import { MapPath, MapService } from '../services/map.service';
 import { Observable, of } from 'rxjs';
 import { GridVirtualScrollDirective } from '../directives/grid-virtual-scroll.directive';
@@ -12,7 +12,7 @@ import { GridVirtualScrollDirective } from '../directives/grid-virtual-scroll.di
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [GridVirtualScrollDirective, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe, NgStyle],
+  imports: [GridVirtualScrollDirective, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

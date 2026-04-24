@@ -1,5 +1,6 @@
 <section id="plant-search-container">
     <div class="col">
+        <!-- TODO angular multiselect for this kinda filtering -->
         <label class="label" for="search-container">{{'FILTERS' | transloco}}</label>
         <div id="search-container" name="search-container" class="search-container col">
             <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"

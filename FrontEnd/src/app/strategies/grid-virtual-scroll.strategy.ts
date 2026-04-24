@@ -19,7 +19,7 @@ export class GridVirtualScrollStrategy implements VirtualScrollStrategy {
         this.scrolledIndexChange = this._scrolledIndexChange$.pipe(distinctUntilChanged());
     }
 
-    configure(rowHeight: number, columns: number, buffer = 3) {
+    public configure(rowHeight: number, columns: number, buffer = 3) {
         this._rowHeight = rowHeight;
         this._columns = columns;
         this._buffer = buffer;
@@ -27,7 +27,7 @@ export class GridVirtualScrollStrategy implements VirtualScrollStrategy {
         this._updateRenderedRange();
     }
 
-    attach(viewport: CdkVirtualScrollViewport) {
+    public attach(viewport: CdkVirtualScrollViewport) {
         this._viewport = viewport;
         this._dataLength = viewport.getDataLength();
 
@@ -35,21 +35,21 @@ export class GridVirtualScrollStrategy implements VirtualScrollStrategy {
         this._updateRenderedRange();
     }
 
-    detach() {
+    public detach() {
         this._scrolledIndexChange$.complete();
         this._viewport = null;
     }
 
-    onContentScrolled() { this._updateRenderedRange(); }
-    onDataLengthChanged() {
+    public onContentScrolled() { this._updateRenderedRange(); }
+    public onDataLengthChanged() {
         this._dataLength = this._viewport?.getDataLength() ?? 0;
         this._updateTotalSize();
         this._updateRenderedRange();
     }
-    onContentRendered() { }
-    onRenderedOffsetChanged() { }
+    public onContentRendered() { }
+    public onRenderedOffsetChanged() { }
 
-    scrollToIndex(index: number, behavior: ScrollBehavior) {
+    public scrollToIndex(index: number, behavior: ScrollBehavior) {
         const row = Math.floor(index / this._columns);
         this._viewport?.scrollToOffset(row * this._rowHeight, behavior);
     }

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Inject, input, OnInit, PLATFORM_ID } from '@angular/core';
 import { PlantData } from '../models/gov/models';
-import { AsyncPipe, isPlatformBrowser, KeyValuePipe, TitleCasePipe, NgClass } from '@angular/common';
+import { AsyncPipe, isPlatformBrowser, KeyValuePipe, TitleCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { CamelSplitPipe } from "../pipes/camel-split.pipe";
@@ -12,12 +12,12 @@ import { Meta, Title } from '@angular/platform-browser';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-plant-overview',
-  imports: [TranslocoPipe, TitleCasePipe, KeyValuePipe, CamelSplitPipe, AsyncPipe, NgClass, TooltipDirective],
+  imports: [TranslocoPipe, TitleCasePipe, KeyValuePipe, CamelSplitPipe, AsyncPipe, TooltipDirective],
   providers: [TitleCasePipe],
   templateUrl: './plant-overview.component.html',
   styleUrl: './plant-overview.component.css'
 })
-export class PlantOverviewComponent implements OnInit{
+export class PlantOverviewComponent implements OnInit {
 
   public get PLANT_MAP_WIDTH(): number { return MapService.PLANT_OVERVIEW_MAP_WIDTH; }
   public get PLANT_MAP_HEIGHT(): number { return MapService.PLANT_OVERVIEW_MAP_HEIGHT; }
@@ -25,10 +25,10 @@ export class PlantOverviewComponent implements OnInit{
   public plant = input.required<PlantData>();
   public readonly countiesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.countiesPaths$(this.PLANT_MAP_WIDTH, this.PLANT_MAP_HEIGHT) : of([]);
   public readonly statesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.statesPaths$(this.PLANT_MAP_WIDTH, this.PLANT_MAP_HEIGHT) : of([]);
-  public constructor(public readonly mapService: MapService, 
+  public constructor(public readonly mapService: MapService,
     @Inject(PLATFORM_ID) private readonly _platformId: object,
-     private readonly _title: Title, private readonly _meta: Meta,
-    private readonly _titleCasePipe: TitleCasePipe) { 
+    private readonly _title: Title, private readonly _meta: Meta,
+    private readonly _titleCasePipe: TitleCasePipe) {
   }
   ngOnInit(): void {
     let commonName = this.plant().commonName;
@@ -36,7 +36,7 @@ export class PlantOverviewComponent implements OnInit{
     this._title.setTitle(`${commonName} aka ${this.plant().scientificName} | What Grows Native Here`);
     this._meta.updateTag({
       name: 'description',
-      content:`Plant overview for ${commonName} that contains native region maps and more detailed characteristic data`
+      content: `Plant overview for ${commonName} that contains native region maps and more detailed characteristic data`
     });
   }
 

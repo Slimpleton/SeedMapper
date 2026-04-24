@@ -16,7 +16,7 @@
         <!-- individual counties -->
         @for(c of countiesPaths$ | async; track c.id){
         <path [attr.id]="'county-' + c.id" [attr.name]="c.name" [attr.d]="c.d" class="county" [tooltip]="c.name"
-            [ngClass]="c.id !== undefined && plant().combinedCountyFIPs.includes(c.id.toString()) ? 'present' : ''" />
+            [class]="c.id !== undefined && plant().combinedCountyFIPs.includes(c.id.toString()) ? 'present' : ''" />
         }
 
         <!-- base county mesh -->
@@ -33,6 +33,8 @@
     }
 
     <!-- TODO make collapsible component with header for reuse in separating the overview stuff -->
+    <!-- TODO make images -->
+    <!-- TODO figure something out for swiping thru imgs or something  -->
 
     <ul class="key-value-list">
         @for(item of plant() | keyvalue; track item.key){
