@@ -1,55 +1,36 @@
 import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
-import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport, } from '@angular/cdk/scrolling';
+import { CdkVirtualForOf, CdkVirtualScrollViewport, } from '@angular/cdk/scrolling';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
-import { AsyncPipe, isPlatformBrowser, } from '@angular/common';
+import { AsyncPipe, isPlatformBrowser, NgStyle, } from '@angular/common';
 import { MapPath, MapService } from '../services/map.service';
 import { Observable, of } from 'rxjs';
+import { GridVirtualScrollDirective } from '../directives/grid-virtual-scroll.directive';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe],
+  imports: [GridVirtualScrollDirective, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe, NgStyle],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
   public plantData: Readonly<PlantData>[] = [];
+  public readonly itemSize = 360;
+  public readonly gutterSize = 4;
+  public columns = 1;
+  public readonly itemWidth: number = this.itemSize * 1.25;
+  public readonly Math = Math;
+
+  public get rowHeight(): number {
+    return this.itemSize + this.gutterSize;
+  }
+
   public get PLANT_TILE_MAP_WIDTH(): number { return MapService.PLANT_TILE_MAP_WIDTH; }
   public get PLANT_TILE_MAP_HEIGHT(): number { return MapService.PLANT_TILE_MAP_HEIGHT; }
   public readonly countiesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.countiesPaths$(this.PLANT_TILE_MAP_WIDTH, this.PLANT_TILE_MAP_HEIGHT) : of([]);
-
-  // private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
-  // private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
-  //   //HACK gets all the non copies of plants
-  //   map((values) => {
-  //     const plantMap: Map<string, GbifOccurrence> = new Map<string, GbifOccurrence>()
-  //     values?.map((value: GbifOccurrence) => plantMap.set(value.species, value));
-  //     return ([...plantMap.values()] as GbifOccurrence[]);
-  //   }),
-  //   map((values) => values.sort((x, y) => x.acceptedScientificName.localeCompare(y.acceptedScientificName))),
-  // tap((values) => console.log('without duplicates', values)),
-  // switchMap((values) => from(values)),
-  // // tap((occurrence) => {
-  // //   this._gbifService.searchLiterature(occurrence.speciesKey).subscribe((value) => console.log(value));
-  // // }),
-  // // switchMap((occurrence: GbifOccurrence) => forkJoin([of(occurrence), this._gbifService.isNativeSpecies(occurrence.speciesKey)])),
-  // // filter((value: [GbifOccurrence, boolean]) => value[1]),
-  // // map((value: [GbifOccurrence, boolean]) => value[0]),
-  // reduce((aggregate: GbifOccurrence[], current: GbifOccurrence) => {
-  //   aggregate.push(current);
-  //   return aggregate;
-  // }, [] as GbifOccurrence[]),
-
-  // TODO the socal area used to belong to the tongva people. visit the tongva community garden in pomona to learn more
-  // shareReplay(1)
-  // );
-
-  // public get lastSearch$(): Observable<GbifOccurrence[]> {
-  //   return this._lastSearch$;
-  // }
 
   // PRIORITIES 
   // MEDIUM 
@@ -66,11 +47,8 @@ export class HomeComponent {
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
 
   // TODO group the plant items into column rows based on the generated column number / result size
-  public readonly itemSize: number = 400;
-  public readonly itemWidth: number = this.itemSize * 1.25;
-  public readonly gutterSize: number = 4;
 
-  public columns: number = 1;
+
   public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _cdr: ChangeDetectorRef, public readonly mapService: MapService) {
     afterNextRender({ write: () => this.calculateColumns() });
   }
@@ -79,12 +57,10 @@ export class HomeComponent {
     return isPlatformBrowser(this._platformId);
   }
 
-  private calculateColumns() {
-    if (this.isBrowser) {
-      const windowWidth = window.innerWidth;
-      this.columns = Math.max(1, Math.floor(windowWidth / (this.itemWidth)));
-      this._cdr.markForCheck();
-    }
+  private calculateColumns(): void {
+    if (!this.isBrowser) return;
+    this.columns = Math.max(1, Math.floor(window.innerWidth / (this.itemWidth)));
+    this._cdr.markForCheck();
   }
 
   @HostListener('screen.orientation.change', ['$event'])
@@ -102,7 +78,7 @@ export class HomeComponent {
 
   }
 
-  public updatePlantData(receivedPlantData: ReadonlyArray<Readonly<PlantData>>) {
+  public updatePlantData(receivedPlantData: ReadonlyArray<Readonly<PlantData>>): void {
     // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page with a min
     // HACK recommended way to fill this arr
     this.plantData = [...this.plantData, ...receivedPlantData];
