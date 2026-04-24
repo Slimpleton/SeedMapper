@@ -12,7 +12,6 @@
     @if(!showMap){
     @if(src !=='' && src !== null && src !== undefined){
 
-    <!-- // TODO alt message -->
     <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" [srcset]="srcset"
         [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
         sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img
@@ -69,7 +68,8 @@
     </svg>
     }
 
-    <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
+    <div class="last-row" [style.margin-top]="src !=='' && src !== null && src !== undefined ? '.1em' : 'auto'"
+        id="last-row-{{plant.acceptedSymbol}}">
         <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()"
             [tooltip]="'PLANT_OVERVIEW' | transloco">
             <app-icon class="info-icon" name="help"></app-icon>
