@@ -14,9 +14,11 @@ namespace Backend.Services
         private static Dictionary<string, HashSet<PlantData>> PlantsByLocation { get; } = [];
         public static PlantData[] PlantData { get; }
         private static SafeFileHandle? _photoFileHandle;
+        private static SafeFileHandle _observerFileHandle;
         // TODO fill
         public static Dictionary<string, int> AcceptedSymbolToTaxonId { get; } = [];
         public static Dictionary<string, (long FirstOffset, long TotalBytes)> PhotoOffsetsBySymbol { get; } = [];
+        public static Dictionary<long, long> OffsetsByObserverId { get; } = [];
 
         private const int MinimumSpeciesNameWords = 2;
 
@@ -256,13 +258,15 @@ namespace Backend.Services
             RandomAccess.Read(_photoFileHandle, buffer, entry.FirstOffset);
             foreach (string line in Encoding.UTF8.GetString(buffer).Split('\n', StringSplitOptions.RemoveEmptyEntries))
             {
+                // TODO get observer info from "tabbed-csv"
+                //TODO create proper license attribute caption
                 string[] fields = line.Split(',');
                 yield return new Photo(
-                    PhotoId: int.Parse(fields[0].Trim('"')),
+                    PhotoId: long.Parse(fields[0].Trim('"')),
                     AcceptedSymbol: fields[1].Trim('"'),
                     License: fields[2].Trim('"'),
                     Extension: fields[3].Trim('"'),
-                    ObserverId: int.Parse(fields[4].Trim('"', '\r'))
+                    ObserverId: long.Parse(fields[4].Trim('"', '\r'))
                 );
             }
         }

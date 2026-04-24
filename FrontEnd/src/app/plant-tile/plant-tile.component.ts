@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Inject, inject, Input, PLATFORM_ID, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
-import { TitleCasePipe } from '@angular/common';
+import { isPlatformBrowser, TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Router } from '@angular/router';
@@ -18,11 +18,35 @@ import { INaturalistService } from '../services/inaturalist.service';
   styleUrl: './plant-tile.component.css',
   standalone: true
 })
-export class PlantTileComponent implements AfterViewInit {
+export class PlantTileComponent {
   public get usdaGovPlantProfileUrl(): string { return GovPlantsDataService.usdaGovPlantProfileUrl; }
-  @Input({ required: true }) public plant!: PlantData;
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
-  @ViewChild('plantImg') plantImg!: ElementRef<HTMLImageElement>;
+
+  @Input({ required: true }) set plant(value: PlantData) {
+    this._plant = value;
+    this._loadImage(value);
+  }
+
+  @Input() public isPriority: boolean = false;
+
+  get plant(): PlantData {
+    return this._plant;
+  }
+
+  private _plant!: PlantData;
+
+  private _loadImage(plant: PlantData) {
+    const firstPhoto = plant.photos?.at(0);
+    if (firstPhoto) {
+      const x = this._iNaturalistService.iNatSrcset(firstPhoto.photoId, firstPhoto.extension);
+      this._src = x.src;
+      this._srcset = x.srcset;
+    } else {
+      this._src = '';
+      this._srcset = '';
+    }
+  }
+
 
   public get viewBox(): string {
     return `0 0 ${MapService.PLANT_TILE_MAP_WIDTH} ${MapService.PLANT_TILE_MAP_HEIGHT}`
@@ -52,30 +76,11 @@ export class PlantTileComponent implements AfterViewInit {
   public showMap: boolean = false;
   private readonly _router = inject(Router);
 
-  public constructor(private readonly _mapService: MapService, private readonly _iNaturalistService: INaturalistService) {
-    // afterNextRender({
-    //   write: () => {
-
-    //     // TODO create path and projection that fits the svg element here
-
-    //     // TODO add occurrences in the overview of the plant maybe with the same base native map
-    //     // todo load occurrences in reverse chronological order and stream the new svgs onto the map idk man animated? 
-    //   }
-    // });
-
+  public constructor(private readonly _iNaturalistService: INaturalistService,
+    @Inject(PLATFORM_ID) private readonly _platformId: object
+  ) {
   }
 
-
-  public ngAfterViewInit() {
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement === this.plantImg.nativeElement) {
-        this.plantImg.nativeElement.sizes = '2048px';
-      } else {
-        this.plantImg.nativeElement.sizes = '(max-width: 400px) 240px, (max-width: 768px) 500px, (max-width: 1400px) 1024px, 2048px';
-      }
-      this.plantImg.nativeElement.src = this.src;
-    });
-  }
 
   public get growthHabitKeys(): string[] {
     if (!this.plant?.growthHabit || this.plant.growthHabit.size === 0) {
@@ -107,7 +112,35 @@ export class PlantTileComponent implements AfterViewInit {
     return this.plant.combinedCountyFIPs;
   }
 
-  public onImageClick(img: HTMLImageElement) {
-    img.requestFullscreen();
+  // TODO lazy load the better img here
+  public async openFullscreen(img: HTMLImageElement): Promise<void> {
+    if (!isPlatformBrowser(this._platformId)) return;
+
+    const fsOptions = <FullscreenOptions>{
+      navigationUI: 'show'
+    };
+    await img.requestFullscreen(fsOptions);
+    const firstPhoto = this.plant.photos!.at(0);
+    const fullRes = this._iNaturalistService.iNatBest(
+      firstPhoto!.photoId,
+      this.getBestFullscreenSize()
+    );
+
+    const preload = new Image();
+    preload.src = fullRes;
+
+    preload.onload = () => {
+      img.src = fullRes;
+    };
+  }
+
+
+  private getBestFullscreenSize(): 'large' | 'original' {
+    if (!isPlatformBrowser(this._platformId)) {
+      return 'large';
+    }
+
+    const width = window.innerWidth * window.devicePixelRatio;
+    return width <= 1024 ? 'large' : 'original';
   }
 }

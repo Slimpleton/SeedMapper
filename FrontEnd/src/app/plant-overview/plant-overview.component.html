@@ -1,3 +1,5 @@
+<!-- TODO swap to using angular aria accordion pattern for better organization -->
+<!-- https://angular.dev/guide/aria/accordion#lazy-content-rendering -->
 <section class="container">
     @if(plant() !== null){
     <h1 class="header">{{'PLANT_OVERVIEW_HEADER' | transloco: {plantCommonName: plant().commonName | titlecase,
