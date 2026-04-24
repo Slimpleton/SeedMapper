@@ -29,6 +29,16 @@ export class PlantTileComponent {
 
   @Input() public isPriority: boolean = false;
 
+  private _src: string = '';
+  private _srcset : string = '';
+
+  public get src(){
+    return this._src;
+  }
+  public get srcset(){
+    return this._srcset;
+  }
+
   get plant(): PlantData {
     return this._plant;
   }
@@ -47,30 +57,8 @@ export class PlantTileComponent {
     }
   }
 
-
   public get viewBox(): string {
     return `0 0 ${MapService.PLANT_TILE_MAP_WIDTH} ${MapService.PLANT_TILE_MAP_HEIGHT}`
-  }
-
-  public get src(): string {
-    const firstPhoto = this.plant.photos?.at(0);
-    return firstPhoto
-      ? this._iNaturalistService.getSrcSet(firstPhoto.photoId, firstPhoto.extension).src
-      : '';
-  }
-
-  public get srcset(): string {
-    const firstPhoto = this.plant.photos?.at(0);
-    return firstPhoto
-      ? this._iNaturalistService.getSrcSet(firstPhoto.photoId, firstPhoto.extension).srcset
-      : '';
-  }
-
-  public get originalSrc(): string {
-    const firstPhoto = this.plant.photos?.at(0);
-    return firstPhoto
-      ? this._iNaturalistService.getOriginal(firstPhoto.photoId, firstPhoto.extension)
-      : '';
   }
 
   public showMap: boolean = false;
@@ -95,17 +83,6 @@ export class PlantTileComponent {
 
   public openInfoPage() {
     this._router.navigate(['plant/raw/' + this.plant.acceptedSymbol], { state: <PlantOverviewRouteData>{ plant: this.plant } });
-  }
-
-  public get iconName(): IconName {
-    switch (this.plant.shadeTolerance) {
-      case 'Intermediate':
-        return 'partly-cloudy';
-      case 'Intolerant':
-        return 'sunny';
-      case 'Tolerant':
-        return 'cloud';
-    }
   }
 
   public get combinedCountyFips(): string[] {
