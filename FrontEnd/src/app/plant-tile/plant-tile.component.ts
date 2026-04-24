@@ -27,6 +27,8 @@ export class PlantTileComponent {
     this._loadImage(value);
   }
 
+  @Input() public isPriority: boolean = false;
+
   get plant(): PlantData {
     return this._plant;
   }

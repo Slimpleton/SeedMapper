@@ -35,8 +35,8 @@
     <cdk-virtual-scroll-viewport gridScroll #gridScroll="gridScroll" [rowHeight]="rowHeight" [columns]="columns"
         [gutterSize]="gutterSize" [buffer]="3" class="gov-container-scrollport">
         <div class="plant-grid" [ngStyle]="gridScroll.gridStyles">
-            <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant" class="plant-holder"
-                [plant]="plant">
+            <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant; let i = index"
+                class="plant-holder" [plant]="plant" [isPriority]="i < 15">
             </plant-tile>
         </div>
     </cdk-virtual-scroll-viewport>

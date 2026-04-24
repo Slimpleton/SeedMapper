@@ -13,7 +13,8 @@
     @if(src !=='' && src !== null && src !== undefined){
 
     <!-- // TODO alt message -->
-    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" alt="" [srcset]="srcset" loading="lazy"
+    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" alt="" [srcset]="srcset"
+        [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
         sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img>
     }
     @else{
@@ -68,14 +69,13 @@
     }
 
     <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
-        <!-- <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" class="search-icon"
-            (click)="openImageSearch(plant)"></pic-search-icon> -->
         <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()"
             [tooltip]="'PLANT_OVERVIEW' | transloco">
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
 
         <!-- TODO put citation / license / cc info here for img -->
+
 
         @if(!showMap){
         <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = true"

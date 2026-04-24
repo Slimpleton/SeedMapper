@@ -77,6 +77,12 @@ h4 {
     fill: #4caf50;
 }
 
+.mini-map {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+}
+
 .state-mesh,
 .mini-map .mesh,
 .mini-map .nation-border {
