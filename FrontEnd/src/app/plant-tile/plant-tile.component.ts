@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Inject, inject, Input, PLATFORM_ID, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
-import { TitleCasePipe } from '@angular/common';
+import { isPlatformBrowser, TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Router } from '@angular/router';
@@ -66,7 +66,9 @@ export class PlantTileComponent {
   public showMap: boolean = false;
   private readonly _router = inject(Router);
 
-  public constructor(private readonly _iNaturalistService: INaturalistService) {
+  public constructor(private readonly _iNaturalistService: INaturalistService,
+    @Inject(PLATFORM_ID) private readonly _platformId: object
+  ) {
   }
 
 
@@ -101,10 +103,34 @@ export class PlantTileComponent {
   }
 
   // TODO lazy load the better img here
-  public openFullscreen(img: HTMLImageElement): Promise<void> {
+  public async openFullscreen(img: HTMLImageElement): Promise<void> {
+    if (!isPlatformBrowser(this._platformId)) return;
+
     const fsOptions = <FullscreenOptions>{
       navigationUI: 'show'
     };
-    return img.requestFullscreen(fsOptions);
+    await img.requestFullscreen(fsOptions);
+    const firstPhoto = this.plant.photos!.at(0);
+    const fullRes = this._iNaturalistService.iNatBest(
+      firstPhoto!.photoId,
+      this.getBestFullscreenSize()
+    );
+
+    const preload = new Image();
+    preload.src = fullRes;
+
+    preload.onload = () => {
+      img.src = fullRes;
+    };
+  }
+
+
+  private getBestFullscreenSize(): 'large' | 'original' {
+    if (!isPlatformBrowser(this._platformId)) {
+      return 'large';
+    }
+
+    const width = window.innerWidth * window.devicePixelRatio;
+    return width <= 1024 ? 'large' : 'original';
   }
 }

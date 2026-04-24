@@ -1,9 +1,9 @@
-// grid-virtual-scroll.strategy.ts — unchanged
 import { CdkVirtualScrollViewport, VirtualScrollStrategy } from '@angular/cdk/scrolling';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
+// TODO fix bug that occurs with index position when column count changes
 @Injectable()
 export class GridVirtualScrollStrategy implements VirtualScrollStrategy {
     private _viewport: CdkVirtualScrollViewport | null = null;
