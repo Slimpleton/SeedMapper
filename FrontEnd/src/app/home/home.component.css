@@ -1,6 +1,6 @@
 :host {
-  --item-height: 248px;
-  --container-height: 6em;
+  --item-height: 360px;
+  --container-height: 8em;
 }
 
 .gov-container-scrollport {

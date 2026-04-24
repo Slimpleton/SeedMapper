@@ -1,24 +1,21 @@
 <section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
 
-    <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}</h1>
+    <span class="splitter">
+        <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
+        </h1>
+        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
+            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
+    </span>
     <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName
         |titlecase}}</h2>
 
     @if(!showMap){
-    <!-- TODO replace it all with picture??  -->
-    <!-- TODO sizing and lazy load -->
+    @if(src !=='' && src !== null && src !== undefined){
+
     <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" alt="" [srcset]="srcset"
-        sizes="(max-width: 300px) 100vw, 250px">
-    <!-- TODO replace with button link for usda page at bottom? or move to bottom of card? -->
-    <span class="symbolAndShadeRow">
-        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
-            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
-
-        @if (plant.shadeTolerance !== null) {
-        <app-icon class="shade-tolerance" [name]="iconName"></app-icon>
-        }
-
-    </span>
+        sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img>
+    }
+    @else{
     @if(plant.growthHabit.size > 0)
     {
 
@@ -43,6 +40,7 @@
     <h4 class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
         {{plant.shapeAndOrientation}}
     </h4>
+    }
     }
 
     <!-- <div class="plant-guide-container" id="plant-guide-container-{{plant.acceptedSymbol}}"> -->
@@ -75,6 +73,8 @@
             [tooltip]="'PLANT_OVERVIEW' | transloco">
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
+
+        <!-- TODO put citation / license / cc info here for img -->
 
         @if(!showMap){
         <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = true"

@@ -26,6 +26,11 @@ h4 {
     all: unset;
 }
 
+.splitter {
+    display: inline-flex;
+    justify-content: space-between;
+}
+
 .result-scientific-name {
     font-style: italic;
 }
@@ -60,6 +65,7 @@ h4 {
     display: inline-flex;
     margin-top: auto;
     align-content: center;
+    align-items: center;
     justify-content: space-between;
 }
 
@@ -91,8 +97,12 @@ h4 {
 
 .img {
     display: block;
-    max-width: calc(var(--item-size) - 1em);
+    max-height: calc(var(--item-height) - 4em);
     width: 100%;
-    height: auto;
+    flex: 1;
+    /* fills remaining space after name/scientific name */
+    min-height: 0;
+    /* prevents flex blowout */
+    object-fit: contain;
     /* maintain aspect ratio */
 }

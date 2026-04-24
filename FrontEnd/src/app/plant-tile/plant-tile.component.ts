@@ -43,16 +43,6 @@ export class PlantTileComponent implements OnInit {
   private readonly _router = inject(Router);
 
   public constructor(private readonly _mapService: MapService, private readonly _iNaturalistService: INaturalistService) {
-    // afterNextRender({
-    //   write: () => {
-
-    //     // TODO create path and projection that fits the svg element here
-
-    //     // TODO add occurrences in the overview of the plant maybe with the same base native map
-    //     // todo load occurrences in reverse chronological order and stream the new svgs onto the map idk man animated? 
-    //   }
-    // });
-
   }
   ngOnInit(): void {
     const firstPhoto = this.plant.photos?.at(0);
@@ -91,5 +81,13 @@ export class PlantTileComponent implements OnInit {
 
   public get combinedCountyFips(): string[] {
     return this.plant.combinedCountyFIPs;
+  }
+
+  // TODO lazy load the better img here
+  public openFullscreen(img: HTMLImageElement): Promise<void> {
+    const fsOptions = <FullscreenOptions>{
+      navigationUI: 'show'
+    };
+    return img.requestFullscreen(fsOptions);
   }
 }
