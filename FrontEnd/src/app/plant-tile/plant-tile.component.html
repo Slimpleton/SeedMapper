@@ -13,9 +13,11 @@
     @if(src !=='' && src !== null && src !== undefined){
 
     <!-- // TODO alt message -->
-    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" alt="" [srcset]="srcset"
+    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" [srcset]="srcset"
         [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
-        sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img>
+        sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img
+        [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}">
+    >
     }
     @else{
     @if(plant.growthHabit.size > 0)
