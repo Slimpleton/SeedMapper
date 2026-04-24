@@ -5,15 +5,25 @@
         |titlecase}}</h2>
 
     @if(!showMap){
-    <!-- TODO replace it all with picture??  -->
-    <!-- TODO sizing and lazy load -->
-    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [srcset]="srcset"
-    sizes="(width < 400px) 240px, 500px"
-    [src]="src" alt="" >
-    <!-- TODO replace with button link for usda page at bottom? or move to bottom of card? -->
+    @if(src != ''){
+
+    <figure>
+        <img #plantImg class="img" id="plant-img-{{plant.acceptedSymbol}}" 
+        [srcset]="srcset"
+         sizes="(max-width: 400px) 240px, (max-width: 768px) 500px, (max-width: 1200px) 1024px, 2048px"
+            [src]="src"
+            (click)="onImageClick(plantImg)"
+            [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}">
+        <figcaption>
+            <!-- TODO click to full screen pic -->
+            <!-- TODO cc, caption -->
+        </figcaption>
+    </figure>
+    }
+
+    @if(src == ''){
     <span class="symbolAndShadeRow">
-        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
-            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
+
 
         @if (plant.shadeTolerance !== null) {
         <app-icon class="shade-tolerance" [name]="iconName"></app-icon>
@@ -45,7 +55,7 @@
         {{plant.shapeAndOrientation}}
     </h4>
     }
-
+    }
     <!-- <div class="plant-guide-container" id="plant-guide-container-{{plant.acceptedSymbol}}"> -->
     <!-- TODO figure out how to ensure the guides actually exist -->
     <!-- <a href="https://plants.usda.gov/DocumentLibrary/plantguide/pdf/pg_{{plant.acceptedSymbol}}.pdf">PDF</a> -->
@@ -76,6 +86,11 @@
             [tooltip]="'PLANT_OVERVIEW' | transloco">
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
+
+        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
+            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
+
+        <!-- TODO inaturalist link button -->
 
         @if(!showMap){
         <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = true"

@@ -41,7 +41,7 @@ export class INaturalistService {
     { name: 'small', width: 240 },
     { name: 'medium', width: 500 },
     { name: 'large', width: 1024 },
-    { name: 'original', width: 2048 },
+    { name: 'original', width: 2048 },  
   ];
 
   private static readonly _baseImgUrl = `https://inaturalist-open-data.s3.amazonaws.com/photos/`;
@@ -53,6 +53,12 @@ export class INaturalistService {
       srcset: INaturalistService._SIZES.map(s => `${base}/${s.name}.${ext} ${s.width}w`).join(', ')
     };
   }
+
+  public getOriginal(photoId: number | string, ext: string = 'jpg') : string{
+    const base = INaturalistService._baseImgUrl + photoId;
+    return base + '/original.' + ext;
+  }
+  
 
   public getSquare(photoId: number | string, ext: string = 'jpg'): string {
     const base = INaturalistService._baseImgUrl + photoId;

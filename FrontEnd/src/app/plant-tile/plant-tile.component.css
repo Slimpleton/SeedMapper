@@ -1,5 +1,11 @@
 :root {
     --item-size: 6em;
+
+}
+
+figure {
+    margin: none;
+    padding: none;
 }
 
 .plant-holder {
@@ -61,6 +67,7 @@ h4 {
     margin-top: auto;
     align-content: center;
     justify-content: space-between;
+    align-items: center;
 }
 
 .search-icon {

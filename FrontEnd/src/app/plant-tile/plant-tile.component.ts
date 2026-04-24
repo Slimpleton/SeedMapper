@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -18,29 +18,36 @@ import { INaturalistService } from '../services/inaturalist.service';
   styleUrl: './plant-tile.component.css',
   standalone: true
 })
-export class PlantTileComponent  {
+export class PlantTileComponent implements AfterViewInit {
   public get usdaGovPlantProfileUrl(): string { return GovPlantsDataService.usdaGovPlantProfileUrl; }
   @Input({ required: true }) public plant!: PlantData;
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
-
+  @ViewChild('plantImg') plantImg!: ElementRef<HTMLImageElement>;
 
   public get viewBox(): string {
     return `0 0 ${MapService.PLANT_TILE_MAP_WIDTH} ${MapService.PLANT_TILE_MAP_HEIGHT}`
   }
 
-public get src(): string {
-  const firstPhoto = this.plant.photos?.at(0);
-  return firstPhoto
-    ? this._iNaturalistService.getSrcSet(firstPhoto.photoId, firstPhoto.extension).src
-    : '';
-}
+  public get src(): string {
+    const firstPhoto = this.plant.photos?.at(0);
+    return firstPhoto
+      ? this._iNaturalistService.getSrcSet(firstPhoto.photoId, firstPhoto.extension).src
+      : '';
+  }
 
-public get srcset(): string {
-  const firstPhoto = this.plant.photos?.at(0);
-  return firstPhoto
-    ? this._iNaturalistService.getSrcSet(firstPhoto.photoId, firstPhoto.extension).srcset
-    : '';
-}
+  public get srcset(): string {
+    const firstPhoto = this.plant.photos?.at(0);
+    return firstPhoto
+      ? this._iNaturalistService.getSrcSet(firstPhoto.photoId, firstPhoto.extension).srcset
+      : '';
+  }
+
+  public get originalSrc(): string {
+    const firstPhoto = this.plant.photos?.at(0);
+    return firstPhoto
+      ? this._iNaturalistService.getOriginal(firstPhoto.photoId, firstPhoto.extension)
+      : '';
+  }
 
   public showMap: boolean = false;
   private readonly _router = inject(Router);
@@ -58,6 +65,17 @@ public get srcset(): string {
 
   }
 
+
+  public ngAfterViewInit() {
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement === this.plantImg.nativeElement) {
+        this.plantImg.nativeElement.sizes = '2048px';
+      } else {
+        this.plantImg.nativeElement.sizes = '(max-width: 400px) 240px, (max-width: 768px) 500px, (max-width: 1400px) 1024px, 2048px';
+      }
+      this.plantImg.nativeElement.src = this.src;
+    });
+  }
 
   public get growthHabitKeys(): string[] {
     if (!this.plant?.growthHabit || this.plant.growthHabit.size === 0) {
@@ -87,5 +105,9 @@ public get srcset(): string {
 
   public get combinedCountyFips(): string[] {
     return this.plant.combinedCountyFIPs;
+  }
+
+  public onImageClick(img: HTMLImageElement) {
+    img.requestFullscreen();
   }
 }
