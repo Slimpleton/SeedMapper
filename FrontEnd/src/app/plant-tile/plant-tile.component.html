@@ -17,7 +17,6 @@
         [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
         sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img
         [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}">
-    >
     }
     @else{
     @if(plant.growthHabit.size > 0)

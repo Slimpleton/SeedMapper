@@ -5,7 +5,7 @@ import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
-import { IconComponent, IconName } from '../icon/icon.component';
+import { IconComponent } from '../icon/icon.component';
 import { MapService } from '../services/map.service';
 import { TooltipDirective } from "../directives/tooltip.directive";
 import { INaturalistService } from '../services/inaturalist.service';
@@ -25,17 +25,18 @@ export class PlantTileComponent {
   @Input({ required: true }) set plant(value: PlantData) {
     this._plant = value;
     this._loadImage(value);
+    this.showMap = false;
   }
 
   @Input() public isPriority: boolean = false;
 
   private _src: string = '';
-  private _srcset : string = '';
+  private _srcset: string = '';
 
-  public get src(){
+  public get src() {
     return this._src;
   }
-  public get srcset(){
+  public get srcset() {
     return this._srcset;
   }
 
@@ -89,7 +90,6 @@ export class PlantTileComponent {
     return this.plant.combinedCountyFIPs;
   }
 
-  // TODO lazy load the better img here
   public async openFullscreen(img: HTMLImageElement): Promise<void> {
     if (!isPlatformBrowser(this._platformId)) return;
 
