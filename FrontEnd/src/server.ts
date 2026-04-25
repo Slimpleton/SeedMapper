@@ -147,7 +147,12 @@ const apiLimiter = rateLimit({
 });
 
 const app = express();
-app.use(compression(), express.json());
+app.use(compression({
+  filter: (req, res) => {
+    if (req.path === '/sitemap.xml') return false;
+    return compression.filter(req, res);
+  }
+}), express.json());
 
 const angularApp = new AngularNodeAppEngine();
 
