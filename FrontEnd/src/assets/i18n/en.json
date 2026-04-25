@@ -11,7 +11,6 @@
         "GROWTHHABIT": "Growth Habit"
     },
     "GROWTH_HABITS": {
-        "":"Growth Habits",
         "ANY": "-- Growth Habits -- ",
         "GRAMINOID": "Grasslike",
         "SHRUB": "Shrub",
@@ -22,11 +21,13 @@
         "FORB/HERB": "Forb/Herb",
         "FORBHERB": "Forb/Herb"
     },
-    "GROWTH_HABIT":"Growth Habits",
+    "COUNTY_SEARCH_HINT": "Type to search counties...",
+    "COUNTY_NO_RESULTS": "No counties found",
+    "GROWTH_HABIT": "Growth Habits",
     "SHADE_TOLERANCE": "Shade Tolerance",
-    "DURATION":"Duration",
+    "DURATION": "Duration",
     "ACTIVE_GROWTH_PERIOD": "Active Growth Seasons",
-    "SHAPE_AND_ORIENTATION":"Shape & Orientation",
+    "SHAPE_AND_ORIENTATION": "Shape & Orientation",
     "DURATIONS": {
         "ANY": "-- Durations --",
         "AN": "Annual",
@@ -45,9 +46,9 @@
     "NATIVE_REGION_MAP": "Native Region Map",
     "PLANT_OVERVIEW_HEADER": "{{plantCommonName}} aka {{plantScientificName}}",
     "PLANT_OVERVIEW_NATIVE_REGION_HEADER": "Native Regions",
-    "PLANT_TILE_COMPONENT":{
-        "PICTURE_ALT_TEXT":"A picture of {{commonName}} ({{scientificName}}), family {{family}}",
-        "PICTURE_CAPTION":""
+    "PLANT_TILE_COMPONENT": {
+        "PICTURE_ALT_TEXT": "A picture of {{commonName}} ({{scientificName}}), family {{family}}",
+        "PICTURE_CAPTION": ""
     },
     "ABOUT_COMPONENT": {
         "HEADER": "Why \"What Grows Native Here\"",

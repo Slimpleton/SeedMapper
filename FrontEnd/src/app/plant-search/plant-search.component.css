@@ -91,3 +91,58 @@ h2 {
     margin-left: .3em;
     font-size: clamp(1rem, 2cqi, 3rem);
 }
+
+.county-combobox {
+    display: inline-flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.county-input-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.county-popup {
+    background: white;
+    border: 1px solid var(--wood-dark-brown);
+    border-radius: 4px;
+    max-height: calc(48px * 6);
+    /* 6 visible rows max */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* smooth momentum scroll on iOS */
+    overscroll-behavior: contain;
+    /* prevent page scroll bleed-through */
+}
+
+.county-listbox {
+    display: flex;
+    flex-direction: column;
+}
+
+.county-option {
+    min-height: 48px;
+    /* minimum tap target */
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-sizing: border-box;
+    color: var(--wood-dark-brown);
+}
+
+.county-option:hover,
+[ngOption][aria-selected="true"] {
+    background: var(--grass-light-green);
+}
+
+.county-hint {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    opacity: 0.6;
+    font-style: italic;
+}

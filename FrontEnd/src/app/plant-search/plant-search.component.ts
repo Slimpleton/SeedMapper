@@ -150,6 +150,7 @@ export class PlantSearchComponent implements OnDestroy {
         const combinedName = this.getCountyAndStateAbbrev(county);
         this.geolocationCountyName = combinedName;
         this._countyRenavigate$.next(combinedName);
+        // countyQuery.set(geolocationCountyName)
       });
 
     this._activatedRoute.params.pipe(

@@ -38,8 +38,8 @@
     <div class="filter-title-container">
         <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} </h2>
         <input (input)="handleNameInput(countyNameInput.value)" [value]="geolocationCountyName" #countyNameInput
-            [placeholder]="'COUNTY_PLACEHOLDER' | transloco" type="text" id="county-choice" class="input-counties"
-            list="counties" />
+            [placeholder]="'COUNTY_PLACEHOLDER' | transloco" [placeholder]="'COUNTY_PLACEHOLDER' | transloco"
+            type="text" id="county-choice" class="input-counties" list="counties" />
     </div>
     <datalist id="counties" #countiesDataList>
         @for(county of counties$ | async; track trackCountyByCombinedFIP(county)){
