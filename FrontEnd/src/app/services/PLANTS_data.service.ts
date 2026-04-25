@@ -132,6 +132,7 @@ export class GovPlantsDataService {
             growthHabit: new Set(raw.growthHabit ?? []),
             duration: new Set(raw.duration ?? []),
             stateAndProvince: new Set(raw.stateAndProvince ?? []),
+            photos: (raw.photos ?? [])
         })
     }
 }

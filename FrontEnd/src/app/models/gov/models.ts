@@ -291,6 +291,7 @@ export type PlantData = Readonly<{
     pulpwoodProduct: boolean;
     veneerProduct: boolean;
     commonName: string;
+    photos: Photo[] | undefined;
 }>;
 
 export type County = Omit<CountyCSVItem, 'countyName' | 'stateAbbrev'>
@@ -320,7 +321,7 @@ export interface CountyCSVItem {
 }
 
 export interface StateInfo {
-    fip: number | string,
+    fip: number | string;
     abbreviation: string;
     name: string;
     properties?: unknown;
@@ -328,6 +329,12 @@ export interface StateInfo {
     gnisid?: string;
 }
 
+export interface Photo {
+    photoId: number;
+    acceptedSymbol: string;
+    fullCredits: string;
+    extension: string;
+}
 
 export type StateToCounties = Map<State, Set<County>>;
 

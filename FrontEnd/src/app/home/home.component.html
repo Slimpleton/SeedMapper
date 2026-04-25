@@ -32,12 +32,12 @@
 
 @defer(when plantData.length > 0){
 <section class="container" id="container">
-    <cdk-virtual-scroll-viewport id="gov-container-scrollport" [itemSize]="itemSize / columns"
-        [maxBufferPx]="itemSize * 10" [minBufferPx]="itemSize * 3" class="gov-container-scrollport">
-        <div class="plant-grid" [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
-            [style.gap.px]="gutterSize">
-            <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant" class="plant-holder"
-                [plant]="plant"></plant-tile>
+    <cdk-virtual-scroll-viewport gridScroll #gridScroll="gridScroll" [rowHeight]="rowHeight" [columns]="columns"
+        [gutterSize]="gutterSize" [buffer]="3" class="gov-container-scrollport">
+        <div class="plant-grid" [style]="gridScroll.gridStyles">
+            <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant; let i = index"
+                class="plant-holder" [plant]="plant" [isPriority]="i < 15">
+            </plant-tile>
         </div>
     </cdk-virtual-scroll-viewport>
 </section>

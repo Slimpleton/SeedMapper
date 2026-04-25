@@ -23,7 +23,7 @@ namespace Backend.Controllers
                 batch.Add(item);
                 if (batch.Count == batchSize)
                 {
-                    await JsonSerializer.SerializeAsync(Response.Body, batch, options:_options, cancellationToken: cancellationToken);
+                    await JsonSerializer.SerializeAsync(Response.Body, batch, options: _options, cancellationToken: cancellationToken);
                     await Response.WriteAsync(newLine, cancellationToken: cancellationToken);
                     await Response.Body.FlushAsync(cancellationToken: cancellationToken);
                     batch.Clear();
@@ -32,7 +32,7 @@ namespace Backend.Controllers
 
             if (batch.Count > 0)
             {
-                await JsonSerializer.SerializeAsync(Response.Body, batch, options:_options, cancellationToken: cancellationToken);
+                await JsonSerializer.SerializeAsync(Response.Body, batch, options: _options, cancellationToken: cancellationToken);
                 await Response.WriteAsync(newLine, cancellationToken: cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken: cancellationToken);
             }
@@ -66,10 +66,113 @@ namespace Backend.Controllers
             if (!String.IsNullOrWhiteSpace(searchString))
                 filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
 
-            List<PlantData> batch = new(batchSize);
+            List<PlantDataDTO> batch = new(batchSize);
             foreach (var item in filtered)
             {
-                batch.Add(item);
+                var photos = FileService.GetPhotosForSymbol(item.AcceptedSymbol)?.ToList() ?? []; 
+                var dto = new PlantDataDTO
+                {
+                    AcceptedSymbol = item.AcceptedSymbol,
+                    SynonymSymbol = item.SynonymSymbol,
+                    Symbol = item.Symbol,
+                    ScientificName = item.ScientificName,
+                    PlantsFlorisiticArea = item.PlantsFlorisiticArea,
+                    StateAndProvince = item.StateAndProvince,
+                    Category = item.Category,
+                    Family = item.Family,
+                    Duration = item.Duration,
+                    GrowthHabit = item.GrowthHabit,
+                    NativeStateAndProvinceCodes = item.NativeStateAndProvinceCodes,
+                    CharacteristicsData = item.CharacteristicsData,
+                    ActiveGrowthPeriod = item.ActiveGrowthPeriod,
+                    AfterHarvestRegrowthRate = item.AfterHarvestRegrowthRate,
+                    Bloat = item.Bloat,
+                    CNRatio = item.CNRatio,
+                    CoppicePotential = item.CoppicePotential,
+                    FallConspicuous = item.FallConspicuous,
+                    FireResistance = item.FireResistance,
+                    FlowerColor = item.FlowerColor,
+                    FlowerConspicuous = item.FlowerConspicuous,
+                    FoliageColor = item.FoliageColor,
+                    FoliagePorosityWinter = item.FoliagePorosityWinter,
+                    FoliagePorositySummer = item.FoliagePorositySummer,
+                    FoliageTexture = item.FoliageTexture,
+                    FruitColor = item.FruitColor,
+                    FruitConspicuous = item.FruitConspicuous,
+                    GrowthForm = item.GrowthForm,
+                    GrowthRate = item.GrowthRate,
+                    HeightAtBaseAgeMaximumFeet = item.HeightAtBaseAgeMaximumFeet,
+                    HeightMatureFeet = item.HeightMatureFeet,
+                    KnownAllelopath = item.KnownAllelopath,
+                    LeafRetention = item.LeafRetention,
+                    Lifespan = item.Lifespan,
+                    LowGrowingGrass = item.LowGrowingGrass,
+                    NitrogenFixation = item.NitrogenFixation,
+                    Resproutability = item.Resproutability,
+                    ShapeAndOrientation = item.ShapeAndOrientation,
+                    Toxicity = item.Toxicity,
+                    AdaptedToCoarseTexturedSoils = item.AdaptedToCoarseTexturedSoils,
+                    AdaptedToMediumTexturedSoils = item.AdaptedToMediumTexturedSoils,
+                    AdaptedToFineTexturedSoils = item.AdaptedToFineTexturedSoils,
+                    AnaerobicTolerance = item.AnaerobicTolerance,
+                    Caco3Tolerance = item.Caco3Tolerance,
+                    ColdStratificationRequired = item.ColdStratificationRequired,
+                    DroughtTolerance = item.DroughtTolerance,
+                    FertilityRequirement = item.FertilityRequirement,
+                    FireTolerance = item.FireTolerance,
+                    FrostFreeDaysMinimum = item.FrostFreeDaysMinimum,
+                    HedgeTolerance = item.HedgeTolerance,
+                    MoistureUse = item.MoistureUse,
+                    PhMinimum = item.PhMinimum,
+                    PhMaximum = item.PhMaximum,
+                    PlantingDensityPerAcreMinimum = item.PlantingDensityPerAcreMinimum,
+                    PlantingDensityPerAcreMaximum = item.PlantingDensityPerAcreMaximum,
+                    PrecipitationMinimum = item.PrecipitationMinimum,
+                    PrecipitationMaximum = item.PrecipitationMaximum,
+                    RootDepthMinimumInches = item.RootDepthMinimumInches,
+                    SalinityTolerance = item.SalinityTolerance,
+                    ShadeTolerance = item.ShadeTolerance,
+                    TemperatureMinimumF = item.TemperatureMinimumF,
+                    BloomPeriod = item.BloomPeriod,
+                    CommercialAvailability = item.CommercialAvailability,
+                    FruitSeedAbundance = item.FruitSeedAbundance,
+                    FruitSeedPeriodBegin = item.FruitSeedPeriodBegin,
+                    FruitSeedPeriodEnd = item.FruitSeedPeriodEnd,
+                    FruitSeedPersistence = item.FruitSeedPersistence,
+                    PropogatedByBareRoot = item.PropogatedByBareRoot,
+                    PropogatedByBulbs = item.PropogatedByBulbs,
+                    PropogatedByContainer = item.PropogatedByContainer,
+                    PropogatedByCorms = item.PropogatedByCorms,
+                    PropogatedByCuttings = item.PropogatedByCuttings,
+                    PropogatedBySeed = item.PropogatedBySeed,
+                    PropogatedBySod = item.PropogatedBySod,
+                    PropogatedBySprigs = item.PropogatedBySprigs,
+                    PropogatedByTubers = item.PropogatedByTubers,
+                    SeedsPerPound = item.SeedsPerPound,
+                    SeedSpreadRate = item.SeedSpreadRate,
+                    SeedlingVigor = item.SeedlingVigor,
+                    SmallGrain = item.SmallGrain,
+                    VegetativeSpreadRate = item.VegetativeSpreadRate,
+                    BerryNutSeedProduct = item.BerryNutSeedProduct,
+                    ChristmasTreeProduct = item.ChristmasTreeProduct,
+                    FodderProduct = item.FodderProduct,
+                    FuelwoodProduct = item.FuelwoodProduct,
+                    LumberProduct = item.LumberProduct,
+                    NavalStoreProduct = item.NavalStoreProduct,
+                    NurseryStockProduct = item.NurseryStockProduct,
+                    PalatableBrowseAnimal = item.PalatableBrowseAnimal,
+                    PalatableGrazeAnimal = item.PalatableGrazeAnimal,
+                    PalatableHuman = item.PalatableHuman,
+                    PostProduct = item.PostProduct,
+                    ProteinPotential = item.ProteinPotential,
+                    PulpwoodProduct = item.PulpwoodProduct,
+                    VeneerProduct = item.VeneerProduct,
+                    CommonName = item.CommonName,
+                    CombinedCountyFIPs = item.CombinedCountyFIPs,
+                    Photos =[..photos],
+                };
+
+                batch.Add(dto);
                 if (batch.Count == batchSize)
                 {
                     await JsonSerializer.SerializeAsync(Response.Body, batch, options: _options, cancellationToken: cancellationToken);

@@ -1,5 +1,11 @@
 :root {
-    --item-size: 5em;
+    --item-size: 6em;
+
+}
+
+figure {
+    margin: none;
+    padding: none;
 }
 
 .plant-holder {
@@ -24,6 +30,11 @@ h2,
 h3,
 h4 {
     all: unset;
+}
+
+.splitter {
+    display: inline-flex;
+    justify-content: space-between;
 }
 
 .result-scientific-name {
@@ -58,9 +69,11 @@ h4 {
 
 .last-row {
     display: inline-flex;
-    margin-top: auto;
+    margin-top: .1em;
     align-content: center;
+    align-items: center;
     justify-content: space-between;
+    align-items: center;
 }
 
 .search-icon {
@@ -69,6 +82,12 @@ h4 {
 
 .mini-map .county.present {
     fill: #4caf50;
+}
+
+.mini-map {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
 }
 
 .state-mesh,
@@ -87,4 +106,16 @@ h4 {
 .mini-map .nation-border {
     stroke: var(--wood-dark-brown);
     stroke-width: .45;
+}
+
+.img {
+    display: block;
+    max-height: calc(var(--item-height) - 4em);
+    width: 100%;
+    flex: 1;
+    /* fills remaining space after name/scientific name */
+    min-height: 0;
+    /* prevents flex blowout */
+    object-fit: contain;
+    /* maintain aspect ratio */
 }

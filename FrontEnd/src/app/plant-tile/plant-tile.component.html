@@ -1,19 +1,24 @@
 <section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
 
-    <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}</h1>
+    <span class="splitter">
+        <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
+        </h1>
+        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
+            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
+    </span>
     <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName
         |titlecase}}</h2>
 
     @if(!showMap){
-    <span class="symbolAndShadeRow">
-        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
-            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
+    <!-- TODO add license check -->
+    @if(src !=='' && src !== null && src !== undefined && this.validCredits){
 
-        @if (plant.shadeTolerance !== null) {
-        <app-icon class="shade-tolerance" [name]="iconName"></app-icon>
-        }
-
-    </span>
+    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" [srcset]="srcset"
+        [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
+        sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img
+        [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}">
+    }
+    @else{
     @if(plant.growthHabit.size > 0)
     {
 
@@ -39,11 +44,13 @@
         {{plant.shapeAndOrientation}}
     </h4>
     }
+    }
 
     <!-- <div class="plant-guide-container" id="plant-guide-container-{{plant.acceptedSymbol}}"> -->
     <!-- TODO figure out how to ensure the guides actually exist -->
     <!-- <a href="https://plants.usda.gov/DocumentLibrary/plantguide/pdf/pg_{{plant.acceptedSymbol}}.pdf">PDF</a> -->
     <!-- </div> -->
+
 
     }
     @else {
@@ -62,13 +69,18 @@
     </svg>
     }
 
-    <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
-        <!-- <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" class="search-icon"
-            (click)="openImageSearch(plant)"></pic-search-icon> -->
+    <div class="last-row" [style.margin-top]="src !=='' && src !== null && src !== undefined ? '.1em' : 'auto'"
+        id="last-row-{{plant.acceptedSymbol}}">
         <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()"
             [tooltip]="'PLANT_OVERVIEW' | transloco">
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
+
+        @if(this.validCredits){
+        <span class="credits" id="credits-{{plant.acceptedSymbol}}">
+            {{this.fullImageCredits}}
+        </span>
+        }
 
         @if(!showMap){
         <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = true"

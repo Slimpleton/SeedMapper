@@ -45,6 +45,10 @@
     "NATIVE_REGION_MAP": "Native Region Map",
     "PLANT_OVERVIEW_HEADER": "{{plantCommonName}} aka {{plantScientificName}}",
     "PLANT_OVERVIEW_NATIVE_REGION_HEADER": "Native Regions",
+    "PLANT_TILE_COMPONENT":{
+        "PICTURE_ALT_TEXT":"A picture of {{commonName}} ({{scientificName}}), family {{family}}",
+        "PICTURE_CAPTION":""
+    },
     "ABOUT_COMPONENT": {
         "HEADER": "Why \"What Grows Native Here\"",
         "GARDEN_HEADER": "Garden Photos",
