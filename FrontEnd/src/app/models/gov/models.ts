@@ -333,6 +333,7 @@ export interface Photo {
     photoId: number;
     acceptedSymbol: string;
     fullCredits: string;
+    observerId: number;
     extension: string;
 }
 

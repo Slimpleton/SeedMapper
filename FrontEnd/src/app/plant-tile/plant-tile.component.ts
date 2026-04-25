@@ -44,6 +44,10 @@ export class PlantTileComponent {
     return this.plant.photos?.at(0)?.fullCredits ?? '';
   }
 
+  public get observerId() {
+    return this.plant.photos?.at(0)?.observerId ?? NaN;
+  }
+
   public get validCredits(): boolean {
     return this.fullImageCredits !== null && this.fullImageCredits !== undefined && this.fullImageCredits !== ''
   }

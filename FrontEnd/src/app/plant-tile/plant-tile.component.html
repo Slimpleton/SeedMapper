@@ -77,9 +77,10 @@
         </button>
 
         @if(this.validCredits){
-        <span class="credits" id="credits-{{plant.acceptedSymbol}}">
+        <a class="credits" id="credits-{{plant.acceptedSymbol}}" target="_blank" rel="noopener noreferrer"
+            [href]="'https://www.inaturalist.org/people/' + observerId">
             {{this.fullImageCredits}}
-        </span>
+        </a>
         }
 
         @if(!showMap){

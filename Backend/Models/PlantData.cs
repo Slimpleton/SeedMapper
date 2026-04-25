@@ -230,7 +230,7 @@ namespace Backend.Models
         }
     }
 
-    public record Photo(long PhotoId, string AcceptedSymbol, string FullCredits, string Extension);
+    public record Photo(long PhotoId, string AcceptedSymbol, string FullCredits, string Extension, long ObserverId);
 
     public sealed record PlantDataDTO
     {

@@ -288,7 +288,8 @@ namespace Backend.Services
                     PhotoId: long.Parse(fields[0].Trim('"')),
                     AcceptedSymbol: fields[1].Trim('"'),
                     FullCredits: BuildFullCredits(observer, fields[2].Trim('"')),
-                    Extension: fields[3].Trim('"')
+                    Extension: fields[3].Trim('"'),
+                    ObserverId: observerId
                 );
             }
         }
