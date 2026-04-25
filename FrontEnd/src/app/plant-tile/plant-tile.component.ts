@@ -40,6 +40,14 @@ export class PlantTileComponent {
     return this._srcset;
   }
 
+  public get fullImageCredits() {
+    return this.plant.photos?.at(0)?.fullCredits ?? '';
+  }
+
+  public get validCredits(): boolean {
+    return this.fullImageCredits !== null && this.fullImageCredits !== undefined && this.fullImageCredits !== ''
+  }
+
   get plant(): PlantData {
     return this._plant;
   }

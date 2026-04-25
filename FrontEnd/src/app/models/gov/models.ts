@@ -332,9 +332,8 @@ export interface StateInfo {
 export interface Photo {
     photoId: number;
     acceptedSymbol: string;
-    license: string;
+    fullCredits: string;
     extension: string;
-    observerId: number;
 }
 
 export type StateToCounties = Map<State, Set<County>>;

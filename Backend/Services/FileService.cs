@@ -13,12 +13,11 @@ namespace Backend.Services
     {
         private static Dictionary<string, HashSet<PlantData>> PlantsByLocation { get; } = [];
         public static PlantData[] PlantData { get; }
-        private static SafeFileHandle? _photoFileHandle;
-        private static SafeFileHandle _observerFileHandle;
-        // TODO fill
+        private static readonly SafeFileHandle? _photoFileHandle;
+        private static readonly SafeFileHandle? _observerFileHandle;
         public static Dictionary<string, int> AcceptedSymbolToTaxonId { get; } = [];
         public static Dictionary<string, (long FirstOffset, long TotalBytes)> PhotoOffsetsBySymbol { get; } = [];
-        public static Dictionary<long, long> OffsetsByObserverId { get; } = [];
+        public static Dictionary<long, Observer> ObserversById { get; } = [];
 
         private const int MinimumSpeciesNameWords = 2;
 
@@ -113,8 +112,12 @@ namespace Backend.Services
         static FileService()
         {
             string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-
-            ParseSymbolOffsets(dirName);
+            string photosPath = Path.Combine(dirName, "sorted_photos.csv");
+            _photoFileHandle = File.OpenHandle(photosPath, FileMode.Open, FileAccess.Read, FileShare.Read, options: FileOptions.RandomAccess);
+            string observersPath = Path.Combine(dirName, "observers.csv");
+            _observerFileHandle = File.OpenHandle(observersPath, FileMode.Open, FileAccess.Read, FileShare.Read, options: FileOptions.RandomAccess);
+            ParseSymbolOffsets(photosPath);
+            ParseObservers(observersPath);
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
             Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
 
@@ -165,6 +168,7 @@ namespace Backend.Services
             }
         }
 
+
         public static PlantData[] GetSortedPlants(SortOption sortOption, bool ascending)
         {
             Func<PlantData, string?> keySelector = sortOption switch
@@ -205,28 +209,29 @@ namespace Backend.Services
 
             return data;
         }
-        private static void ParseSymbolOffsets(string dirName)
+
+        private static void ParseObservers(string observersPath)
         {
-            string photosPath = Path.Combine(dirName, "sorted_photos.csv");
-            _photoFileHandle = File.OpenHandle(photosPath, FileMode.Open, FileAccess.Read, FileShare.Read, options: FileOptions.RandomAccess);
+            foreach (string line in File.ReadLines(observersPath).Skip(1))
+            {
+                string[] fields = line.Split('\t');
+                if (fields.Length >= 1 && long.TryParse(fields[0], out long observerId))
+                {
+                    ObserversById[observerId] = new Observer(
+                    fields.Length >= 2 ? fields[1] : "",
+                    fields.Length >= 3 ? fields[2] : ""
+                );
+                }
+            }
+        }
+
+        private static void ParseSymbolOffsets(string photosPath)
+        {
+
             long offset = 0;
             string? currentSymbol = null;
             long symbolStartOffset = 0;
-            int lineEndingBytes = 1; // default \n
-            using (var sr = new StreamReader(photosPath))
-            {
-                sr.ReadLine(); // read past first line
-                if (sr.BaseStream.Position > 0)
-                {
-                    sr.BaseStream.Seek(0, SeekOrigin.Begin);
-                    int b;
-                    while ((b = sr.BaseStream.ReadByte()) != -1)
-                    {
-                        if (b == '\n') { lineEndingBytes = 1; break; }
-                        if (b == '\r') { lineEndingBytes = 2; break; }
-                    }
-                }
-            }
+            int lineEndingBytes = GetLineEndingBytes(photosPath);
 
             foreach (string line in File.ReadLines(photosPath))
             {
@@ -249,6 +254,24 @@ namespace Backend.Services
                 PhotoOffsetsBySymbol[currentSymbol] = (symbolStartOffset, offset - symbolStartOffset);
         }
 
+        private static int GetLineEndingBytes(string csvPath)
+        {
+            using var sr = new StreamReader(csvPath);
+            sr.ReadLine(); // read past first line
+            if (sr.BaseStream.Position > 0)
+            {
+                sr.BaseStream.Seek(0, SeekOrigin.Begin);
+                int b;
+                while ((b = sr.BaseStream.ReadByte()) != -1)
+                {
+                    if (b == '\n') { return 1; }
+                    if (b == '\r') { return 2; }
+                }
+            }
+
+            return 1;
+        }
+
         public static IEnumerable<Photo> GetPhotosForSymbol(string symbol)
         {
             if (_photoFileHandle is null || !PhotoOffsetsBySymbol.TryGetValue(symbol, out var entry))
@@ -258,17 +281,24 @@ namespace Backend.Services
             RandomAccess.Read(_photoFileHandle, buffer, entry.FirstOffset);
             foreach (string line in Encoding.UTF8.GetString(buffer).Split('\n', StringSplitOptions.RemoveEmptyEntries))
             {
-                // TODO get observer info from "tabbed-csv"
-                //TODO create proper license attribute caption
                 string[] fields = line.Split(',');
+                long observerId = long.Parse(fields[4].Trim('"', '\r'));
+                Observer observer = ObserversById[observerId];
                 yield return new Photo(
                     PhotoId: long.Parse(fields[0].Trim('"')),
                     AcceptedSymbol: fields[1].Trim('"'),
-                    License: fields[2].Trim('"'),
-                    Extension: fields[3].Trim('"'),
-                    ObserverId: long.Parse(fields[4].Trim('"', '\r'))
+                    FullCredits: BuildFullCredits(observer, fields[2].Trim('"')),
+                    Extension: fields[3].Trim('"')
                 );
             }
+        }
+        private static string BuildFullCredits(Observer observer, string license)
+        {
+            string credit = !string.IsNullOrEmpty(observer.Name) ? observer.Name
+                          : !string.IsNullOrEmpty(observer.Login) ? observer.Login
+                          : "Unknown";
+
+            return $"© {credit} / iNaturalist ({license.ToUpperInvariant()})";
         }
 
         private static PlantDataRow GetPlantDataRow(TextFieldParser parser)

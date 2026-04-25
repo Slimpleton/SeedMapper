@@ -10,7 +10,8 @@
         |titlecase}}</h2>
 
     @if(!showMap){
-    @if(src !=='' && src !== null && src !== undefined){
+    <!-- TODO add license check -->
+    @if(src !=='' && src !== null && src !== undefined && this.validCredits){
 
     <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" [srcset]="srcset"
         [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
@@ -75,8 +76,11 @@
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
 
-        <!-- TODO put citation / license / cc info here for img -->
-
+        @if(this.validCredits){
+        <span class="credits" id="credits-{{plant.acceptedSymbol}}">
+            {{this.fullImageCredits}}
+        </span>
+        }
 
         @if(!showMap){
         <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = true"

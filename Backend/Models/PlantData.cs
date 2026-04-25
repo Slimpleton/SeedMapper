@@ -230,7 +230,7 @@ namespace Backend.Models
         }
     }
 
-    public record Photo(long PhotoId, string AcceptedSymbol, string License, string Extension, long ObserverId);
+    public record Photo(long PhotoId, string AcceptedSymbol, string FullCredits, string Extension);
 
     public sealed record PlantDataDTO
     {
@@ -336,6 +336,7 @@ namespace Backend.Models
         public Photo[] Photos { get; init; } = [];
     }
 
+    public record Observer(string Name, string Login);
     public record ExtraInfo(HashSet<string> CombinedFIPs, string CommonName);
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
