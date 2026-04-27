@@ -1,5 +1,5 @@
-import { Component } from "@angular/core";
-import { RouterOutlet, RouterLinkWithHref } from "@angular/router";
+import { Component, inject } from "@angular/core";
+import { RouterOutlet, RouterLinkWithHref, Router } from "@angular/router";
 import { TranslocoPipe } from "@jsverse/transloco";
 import { Route } from "../app.routes";
 
@@ -12,6 +12,7 @@ import { Route } from "../app.routes";
 })
 export class AppShellComponent {
   public Route = Route;
+  protected readonly router = inject(Router);
   public constructor() {
   }
 }
