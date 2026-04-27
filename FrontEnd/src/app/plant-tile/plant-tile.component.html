@@ -11,8 +11,9 @@
         |titlecase}}</span>
 
     @if(!showMap){
-    <!-- TODO add license check -->
     @if(src !=='' && src !== null && src !== undefined && this.validCredits){
+
+<!-- TODO custom element with swiping / click capability for swiping between images -->
 
     <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" [srcset]="srcset"
         [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
