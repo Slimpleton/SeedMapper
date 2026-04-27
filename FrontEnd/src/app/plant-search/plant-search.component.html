@@ -1,19 +1,21 @@
 <section id="plant-search-container">
     <div class="col">
         <!-- TODO angular multiselect for this kinda filtering -->
-        <label class="label" for="search-container">{{'FILTERS' | transloco}}</label>
+        <span class="label">{{'FILTERS' | transloco}}</span>
         <div id="search-container" name="search-container" class="search-container col">
             <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
                 [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
             <div class="search-container row">
                 <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector"
-                    class="selector" id="growthHabitSelector" #growthHabitSelector>
+                    [attr.aria-label]="'GROWTH_HABIT' | transloco" class="selector" id="growthHabitSelector"
+                    #growthHabitSelector>
                     @for (growthHabit of growthHabits; track growthHabit) {
                     <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>
                     }
                 </select>
+                <!-- TODO allow for multi select -->
                 <select (change)="changeDuration(durationSelector.value)" name="durationSelector" id="durationSelector"
-                    class="selector" #durationSelector>
+                    [attr.aria-label]="'DURATION' | transloco" class="selector" #durationSelector>
                     @for(duration of durations; track duration){
                     <option [value]="duration">{{'DURATIONS.' + duration| uppercase | transloco}}</option>
                     }
@@ -23,28 +25,37 @@
     </div>
     <div class="col">
         <div name="sort-container" id="sort-container" class="sort-container col">
-            <label class="label sort-label" for="sort-container">{{'SORT' | transloco}}</label>
+            <span class="label sort-label">{{'SORT' | transloco}}</span>
             <select name="sortSelector" id="sortSelector" #sortSelector class="selector"
-                (change)="changeSortOption(sortSelector.value)">
+                [attr.aria-label]="'SORT' | transloco" (change)="changeSortOption(sortSelector.value)">
                 @for (option of sortOptions; track $index) {
                 <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>
                 }
             </select>
-            <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()">
+            <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()"
+                [attr.aria-label]="('SORT' | transloco) + ' ' + sortOptionDirection">
                 {{sortOptionDirection}}
             </button>
         </div>
     </div>
+    <!-- TODO swap to some sort of cdkVirtualFor, styling this is a mess  -->
+
+    <!-- <cdk-virtual-scroll-viewport itemSize="40" style="height: 240px">
+  <div *cdkVirtualFor="let county of filteredCounties" (mousedown)="selectCounty(county)">
+    {{ getCountyAndStateAbbrev(county) }}
+  </div>
+</cdk-virtual-scroll-viewport> -->
+
     <div class="filter-title-container">
-        <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} </h2>
+        <h2 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h2>
         <input (input)="handleNameInput(countyNameInput.value)" [value]="geolocationCountyName" #countyNameInput
-            [placeholder]="'COUNTY_PLACEHOLDER' | transloco" [placeholder]="'COUNTY_PLACEHOLDER' | transloco"
-            type="text" id="county-choice" class="input-counties" list="counties" />
+            [placeholder]="'COUNTY_PLACEHOLDER' | transloco" type="text" id="county-choice" class="input-counties"
+            aria-labelledby="filter-search-title" list="counties" />
     </div>
     <datalist id="counties" #countiesDataList>
         @for(county of counties$ | async; track trackCountyByCombinedFIP(county)){
         <option [value]="getCountyAndStateAbbrev(county)"></option>
         }
     </datalist>
-    <input #countyFipInput type="hidden" name="county-fip-choice" id="county-fip-choice">
+    <input #countyFipInput type="hidden" name="county-fip-choice" id="county-fip-choice" aria-hidden="true">
 </section>

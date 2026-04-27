@@ -44,6 +44,7 @@
     "PLANT_OVERVIEW": "Plant Overview",
     "BACK": "Back",
     "NATIVE_REGION_MAP": "Native Region Map",
+    "NATIVE_REGION_MAP_PLANT_LABEL": "Native Region Map for {{plantCommonName}}",
     "PLANT_OVERVIEW_HEADER": "{{plantCommonName}} aka {{plantScientificName}}",
     "PLANT_OVERVIEW_NATIVE_REGION_HEADER": "Native Regions",
     "PLANT_TILE_COMPONENT": {

@@ -1,13 +1,13 @@
 <section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
 
     <span class="splitter">
-        <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
-        </h1>
+        <h3 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
+        </h3>
         <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
-            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
+            id="plant-abbreviation-{{plant.acceptedSymbol}}">{{plant.acceptedSymbol}}</a>
     </span>
-    <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName
-        |titlecase}}</h2>
+    <span class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName
+        |titlecase}}</span>
 
     @if(!showMap){
     <!-- TODO add license check -->
@@ -15,34 +15,35 @@
 
     <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" [srcset]="srcset"
         [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
-        sizes="(max-width: 300px) 100vw, 250px" (dblclick)="openFullscreen(img)" #img
-        [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}">
+        sizes="(max-width: 300px) 100vw, 250px" (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img
+        [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}"
+        tabindex="0">
     }
     @else{
     @if(plant.growthHabit.size > 0)
     {
 
-    <h4 class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
+    <span class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
         @for (key of growthHabitKeys; track key; let last = $last) {
         {{ key | transloco }}@if (!last) {, }
         }
-    </h4> }
+    </span> }
 
     @if(plant.activeGrowthPeriod.length > 0){
-    <h4 class="result-property" id="active-season-{{plant.acceptedSymbol}}">
+    <span class="result-property" id="active-season-{{plant.acceptedSymbol}}">
         {{ plant.activeGrowthPeriod.join(', ') }}
-    </h4>
+    </span>
     }
 
     @if(plant.duration !== null){
-    <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{plantDuration}}
-    </h4>
+    <span class="result-property" id="duration-{{plant.acceptedSymbol}}">{{plantDuration}}
+    </span>
     }
 
     @if(plant.shapeAndOrientation !== null){
-    <h4 class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
+    <span class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
         {{plant.shapeAndOrientation}}
-    </h4>
+    </span>
     }
     }
 
@@ -54,7 +55,8 @@
 
     }
     @else {
-    <svg #map [attr.viewBox]="viewBox" class="mini-map">
+    <svg #map [attr.viewBox]="viewBox" class="mini-map" role="img"
+        [attr.aria-label]="'NATIVE_REGION_MAP_PLANT_LABEL' | transloco : {plantCommonName: plant.commonName | titlecase} ">
         <!-- nation border (render first, below everything) -->
         <use href="#nation-border" class="nation-border" />
         <!-- base mesh -->
@@ -72,27 +74,27 @@
     <div class="last-row" [style.margin-top]="src !=='' && src !== null && src !== undefined ? '.1em' : 'auto'"
         id="last-row-{{plant.acceptedSymbol}}">
         <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()"
-            [tooltip]="'PLANT_OVERVIEW' | transloco">
-            <app-icon class="info-icon" name="help"></app-icon>
+            [attr.aria-label]="'PLANT_OVERVIEW' | transloco" [tooltip]="'PLANT_OVERVIEW' | transloco">
+            <app-icon class="info-icon" name="help" aria-hidden="true"></app-icon>
         </button>
 
         @if(this.validCredits){
         <a class="credits" id="credits-{{plant.acceptedSymbol}}" target="_blank" rel="noopener noreferrer license"
-            [href]="'https://www.inaturalist.org/people/' + observerId">
+            [attr.aria-label]="this.fullImageCredits" [href]="'https://www.inaturalist.org/people/' + observerId">
             {{this.fullImageCredits}}
         </a>
         }
 
         @if(!showMap){
         <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = true"
-            [tooltip]=" 'NATIVE_REGION_MAP' | transloco">
-            <app-icon class="map-icon" name="location_marker"></app-icon>
+            [attr.aria-label]="'NATIVE_REGION_MAP' | transloco" [tooltip]=" 'NATIVE_REGION_MAP' | transloco">
+            <app-icon class="map-icon" name="location_marker" aria-hidden="true"></app-icon>
         </button>
         }
         @else {
         <button class="info-btn" id="back-btn-{{plant.acceptedSymbol}}" [tooltip]="'BACK' | transloco"
-            (click)="showMap = false">
-            <app-icon class="map-icon" name="undo"></app-icon>
+            [attr.aria-label]="'BACK' | transloco" (click)="showMap = false">
+            <app-icon class="map-icon" name="undo" aria-hidden="true"></app-icon>
         </button>
         }
     </div>

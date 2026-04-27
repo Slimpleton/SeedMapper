@@ -1,6 +1,6 @@
 <!-- HACK Base County Plant tile map ref -->
 @if(isBrowser){
-<svg width="0" height="0" style="position:absolute; pointer-events:none;">
+<svg width="0" height="0" style="position:absolute; pointer-events:none;" aria-hidden="true">
     <defs>
         <!-- individual counties -->
         @for(c of countiesPaths$ | async; track c.id){

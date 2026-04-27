@@ -113,9 +113,9 @@ h4 {
     max-height: calc(var(--item-height) - 4em);
     width: 100%;
     flex: 1;
-    /* fills remaining space after name/scientific name */
     min-height: 0;
     /* prevents flex blowout */
-    object-fit: contain;
     /* maintain aspect ratio */
+    object-fit: contain;
+    cursor: pointer;
 }
