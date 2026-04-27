@@ -4,6 +4,7 @@
         <h3 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
         </h3>
         <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
+            [attr.aria-label]="'USDA_PROFILE_LINK' | transloco : {plantCommonName: plant.commonName | titlecase, plantAcceptedSymbol: plant.acceptedSymbol}"
             id="plant-abbreviation-{{plant.acceptedSymbol}}">{{plant.acceptedSymbol}}</a>
     </span>
     <span class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName
