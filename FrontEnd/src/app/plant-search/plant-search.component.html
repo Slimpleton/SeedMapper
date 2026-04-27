@@ -38,13 +38,9 @@
             </button>
         </div>
     </div>
-    <!-- TODO swap to some sort of cdkVirtualFor, styling this is a mess  -->
 
-    <!-- <cdk-virtual-scroll-viewport itemSize="40" style="height: 240px">
-  <div *cdkVirtualFor="let county of filteredCounties" (mousedown)="selectCounty(county)">
-    {{ getCountyAndStateAbbrev(county) }}
-  </div>
-</cdk-virtual-scroll-viewport> -->
+    <!-- TODO swap the datalist to a state => county selection on mobile for ease of use or maybe something else idk -->
+    <!-- datalist sucks with ux -->
 
     <div class="filter-title-container">
         <h2 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h2>
