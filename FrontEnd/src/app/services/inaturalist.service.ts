@@ -52,7 +52,7 @@ export class INaturalistService {
   public iNatSrcset(photoId: number | string, ext = 'jpg'): { src: string, srcset: string } {
     const base = `https://inaturalist-open-data.s3.amazonaws.com/photos/${photoId}`;
     return {
-      src: `${base}/medium.${ext}`,
+      src: `${base}/small.${ext}`,
       srcset: INaturalistService._SIZES.map(s => `${base}/${s.name}.${ext} ${s.width}w`).join(', ')
     };
   }

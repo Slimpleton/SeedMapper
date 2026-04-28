@@ -23,6 +23,8 @@ export class PlantTileComponent {
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
 
   @Input({ required: true }) set plant(value: PlantData) {
+    this._src = '';
+    this._srcset = '';
     this._plant = value;
     this._loadImage(value);
     this.showMap = false;
