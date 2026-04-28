@@ -4,6 +4,7 @@
     "SEARCH": "Search",
     "APP_ICON":"The logo of the app, a sprouting seedling sprite",
     "NAVIGATION":"Main Navigation Bar",
+    "LOADING":"LOADING...",
     "COUNTY_PLACEHOLDER": "Search Counties",
     "FILTERS": "Filters",
     "SORT": "Sort",

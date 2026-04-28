@@ -47,6 +47,7 @@ namespace Backend.Controllers
         [HttpGet("plantdata/search")]
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption, [FromQuery] bool ascending, [FromQuery] int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, CancellationToken cancellationToken)
         {
+            int secondaryBatchSize = 1000;
             // Get county plants as a HashSet for O(1) lookups
             HashSet<PlantData>? countyPlants = FileService.GetPlantsByLocation(combinedFIP);
             if (countyPlants == null)
@@ -67,9 +68,10 @@ namespace Backend.Controllers
                 filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
 
             List<PlantDataDTO> batch = new(batchSize);
+            bool firstBatch = true;
             foreach (var item in filtered)
             {
-                var photos = FileService.GetPhotosForSymbol(item.AcceptedSymbol)?.ToList() ?? []; 
+                var photos = FileService.GetPhotosForSymbol(item.AcceptedSymbol)?.ToList() ?? [];
                 var dto = new PlantDataDTO
                 {
                     AcceptedSymbol = item.AcceptedSymbol,
@@ -169,16 +171,20 @@ namespace Backend.Controllers
                     VeneerProduct = item.VeneerProduct,
                     CommonName = item.CommonName,
                     CombinedCountyFIPs = item.CombinedCountyFIPs,
-                    Photos =[..photos],
+                    Photos = [.. photos],
                 };
 
                 batch.Add(dto);
+
+                batchSize = firstBatch ? batchSize : secondaryBatchSize;
+
                 if (batch.Count == batchSize)
                 {
                     await JsonSerializer.SerializeAsync(Response.Body, batch, options: _options, cancellationToken: cancellationToken);
                     await Response.WriteAsync(newLine, cancellationToken: cancellationToken);
                     await Response.Body.FlushAsync(cancellationToken: cancellationToken);
                     batch.Clear();
+                    firstBatch = false;
                 }
             }
 

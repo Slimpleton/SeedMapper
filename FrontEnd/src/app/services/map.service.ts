@@ -20,6 +20,31 @@ export class MapService {
   public static readonly PLANT_OVERVIEW_MAP_WIDTH: number = 1200;
   public static readonly PLANT_OVERVIEW_MAP_HEIGHT: number = 420;
 
+  private readonly observableCache = new Map<string, Observable<string>>();
+
+  private getMeshPath$(source$: Observable<GeoJSON.MultiLineString>, w: number, h: number, key: string): Observable<string> {
+    const cacheKey = `${key}-${w}x${h}`;
+    if (!this.observableCache.has(cacheKey)) {
+      this.observableCache.set(cacheKey, source$.pipe(
+        map(mesh => this.getPath(w, h)(mesh)!),
+        shareReplay(1)
+      ));
+    }
+    return this.observableCache.get(cacheKey)!;
+  }
+
+  public countyMeshPath$(w: number, h: number) {
+    return this.getMeshPath$(this._countyMesh$, w, h, 'countyMesh');
+  }
+
+  public stateMeshPath$(w: number, h: number) {
+    return this.getMeshPath$(this._stateMesh$, w, h, 'stateMesh');
+  }
+
+  public nationBorderPath$(w: number, h: number) {
+    return this.getMeshPath$(this._nationBorder$, w, h, 'nationBorder');
+  }
+
   private _topo$: Observable<Topology> = this._http
     .get<Topology>('/assets/counties-10m.json')
     .pipe(shareReplay(1));
@@ -58,26 +83,6 @@ export class MapService {
     return path;
   }
 
-  public countyMeshPath$(w: number, h: number) {
-    return this._countyMesh$.pipe(
-      map(mesh => this.getPath(w, h)(mesh)!),
-      shareReplay(1)
-    );
-  }
-
-  public stateMeshPath$(w: number, h: number) {
-    return this._stateMesh$.pipe(
-      map(mesh => this.getPath(w, h)(mesh)!),
-      shareReplay(1)
-    );
-  }
-
-  public nationBorderPath$(w: number, h: number) {
-    return this._nationBorder$.pipe(
-      map(border => this.getPath(w, h)(border)!),
-      shareReplay(1)
-    );
-  }
 
   public countiesPaths$(w: number, h: number): Observable<MapPath[]> {
     return this._topo$.pipe(

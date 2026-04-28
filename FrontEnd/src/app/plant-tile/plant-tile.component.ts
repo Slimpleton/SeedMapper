@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Inject, inject, Input, PLATFORM_ID, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Inject, inject, Input, PLATFORM_ID, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { isPlatformBrowser, TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';

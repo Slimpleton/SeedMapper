@@ -42,4 +42,22 @@ export class GridVirtualScrollDirective implements OnChanges, OnDestroy, AfterVi
             'gap': `${this.gutterSize}px`
         };
     }
+
+    public getRenderedRange() {
+        return this._viewport.getRenderedRange();
+    }
+
+    public getVisibleRange(): { start: number; end: number } {
+        const scrollOffset = this._viewport.measureScrollOffset();
+        const start = Math.floor(scrollOffset / this.rowHeight) * this.columns;
+        const visibleRows = Math.floor(this._viewport.elementRef.nativeElement.clientHeight / this.rowHeight);
+        return {
+            start,
+            end: start + (visibleRows * this.columns)
+        };
+    }
+
+    public get scrollHeight(): number {
+        return this._viewport.elementRef.nativeElement.clientHeight;
+    }
 }

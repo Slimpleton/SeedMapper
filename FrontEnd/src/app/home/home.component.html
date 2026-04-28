@@ -1,5 +1,5 @@
 <!-- HACK Base County Plant tile map ref -->
-@if(isBrowser){
+@defer(on idle){
 <svg width="0" height="0" style="position:absolute; pointer-events:none;" aria-hidden="true">
     <defs>
         <!-- individual counties -->
@@ -25,22 +25,28 @@
 <!-- TODO convert search / filter to popout sidebar? -->
 
 <div class="plant-search-container">
-    <plant-search class="plant-search" (filteredDataBatch)="updatePlantData($event)"
+    <plant-search class="plant-search" (filteredDataBatch)="updatePlantData($event)" #plantSearch
         (filterInProgress$)="clearData($event)" style="width:100%"></plant-search>
 </div>
 
 
 
-<!-- TODO remove priority if internet is slow? -->
-@defer(when plantData.length > 0){
+@if(plantData().length > 0){
 <section class="container" id="container">
     <cdk-virtual-scroll-viewport gridScroll #gridScroll="gridScroll" [rowHeight]="rowHeight" [columns]="columns"
         [gutterSize]="gutterSize" [buffer]="3" class="gov-container-scrollport">
         <div class="plant-grid" [style]="gridScroll.gridStyles">
-            <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant; let i = index; let first = first;"
-                class="plant-holder" [plant]="plant" [isPriority]="first">
+            <plant-tile *cdkVirtualFor="let plant of plantData$; trackBy: trackByPlant; let i = index;"
+                class="plant-holder" [plant]="plant" [isPriority]="isPlantPriority(i)">
             </plant-tile>
         </div>
     </cdk-virtual-scroll-viewport>
 </section>
+}
+
+@if(plantSearch.filterInProgress$ | async){
+    <span class="loading" id="loading">
+        <!-- TODO make better -->
+         {{'LOADING' | transloco}}
+    </span>
 }

@@ -16,7 +16,7 @@
 <!-- TODO custom element with swiping / click capability for swiping between images -->
 
     <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" [srcset]="srcset"
-        [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
+        [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'" decoding="async"
         sizes="(max-width: 300px) 100vw, 250px" (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img
         [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}"
         tabindex="0">

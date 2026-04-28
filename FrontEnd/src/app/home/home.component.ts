@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Inject, PLATFORM_ID, signal, ViewChild } from '@angular/core';
 import { CdkVirtualForOf, CdkVirtualScrollViewport, } from '@angular/cdk/scrolling';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
@@ -6,18 +6,22 @@ import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { AsyncPipe, isPlatformBrowser } from '@angular/common';
 import { MapPath, MapService } from '../services/map.service';
 import { Observable, of } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { GridVirtualScrollDirective } from '../directives/grid-virtual-scroll.directive';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [GridVirtualScrollDirective, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe],
+  imports: [GridVirtualScrollDirective, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe, TranslocoPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  public plantData: Readonly<PlantData>[] = [];
+  @ViewChild('gridScroll') private readonly _gridScroll?: GridVirtualScrollDirective;
+  protected plantData = signal<Readonly<PlantData>[]>([]);
+  protected readonly plantData$ = toObservable(this.plantData);
   public readonly itemSize = 360;
   public readonly gutterSize = 4;
   public columns = 1;
@@ -60,7 +64,7 @@ export class HomeComponent {
   private calculateColumns(): void {
     if (!this.isBrowser) return;
     this.columns = Math.max(1, Math.floor(window.innerWidth / (this.itemWidth)));
-    this._cdr.markForCheck();
+    this._cdr.detectChanges();
   }
 
   @HostListener('screen.orientation.change', ['$event'])
@@ -71,21 +75,21 @@ export class HomeComponent {
   }
 
   public clearData(searchStart: boolean): void {
-    if (searchStart) {
-      this.plantData = [];
-      this._cdr.markForCheck();
-    }
-
+    if (searchStart) this.plantData.set([]);
   }
 
   public updatePlantData(receivedPlantData: ReadonlyArray<Readonly<PlantData>>): void {
-    // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page with a min
-    // HACK recommended way to fill this arr
-    this.plantData = [...this.plantData, ...receivedPlantData];
-    this._cdr.markForCheck();
+    this.plantData.update(current => [...current, ...receivedPlantData]);
   }
 
   public trackByPlant(_: number, plant: PlantData): string {
     return plant.acceptedSymbol;
+  }
+
+
+  public isPlantPriority(index: number): boolean {
+    if (!this._gridScroll) return true;
+    const { start, end } = this._gridScroll.getVisibleRange();
+    return index >= start && index < end;
   }
 }

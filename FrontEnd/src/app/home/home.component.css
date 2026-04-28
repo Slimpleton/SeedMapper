@@ -33,3 +33,11 @@
   height: var(--item-height);
   width: 100%;
 }
+
+.loading{
+  margin-top: .5em;
+  display: inline-block;
+  text-align: center;
+  justify-self: center;
+  width:100%;
+}

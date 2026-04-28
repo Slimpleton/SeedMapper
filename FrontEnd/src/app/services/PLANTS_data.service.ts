@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { Duration, GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { map, switchMap } from "rxjs/operators";
+import { filter, map, switchMap } from "rxjs/operators";
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
-import { Observable } from "rxjs";
+import { EMPTY, Observable } from "rxjs";
 import { environment } from "../../environments/environment.prod";
 
 @Injectable({
@@ -13,7 +13,9 @@ import { environment } from "../../environments/environment.prod";
 export class GovPlantsDataService {
     public static readonly usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
     private readonly _dataUrl = `${environment.apiUrl}/FileData/plantdata`;
-    private static MIN_BATCH_SIZE: number = 100;
+
+    private static MIN_BATCH_SIZE: number = 20;
+    // TODO smaller first batch size
 
     public constructor(private readonly _http: HttpClient) {
     }
@@ -42,21 +44,59 @@ export class GovPlantsDataService {
             batchSize: batchSize.toString()
         });
 
-        const apiUrl = `${this._dataUrl}/search?${params}`;
+        const url = `${this._dataUrl}/search?${params}`;
 
-        return fromFetch(apiUrl).pipe(
-            switchMap(response => {
-                if (!response.ok)
-                    throw new Error(response.status + ' | ' + response.statusText);
+        return new Observable<Readonly<PlantData>[]>(subscriber => {
+            const worker = new Worker(
+                new URL('../web-workers/ndjsonstream.worker', import.meta.url),
+                { type: 'module' }
+            );
 
-                const stream: ReadableStream<PlantData[]> = response.body!.pipeThrough(new TextDecoderStream).pipeThrough(GovPlantsDataService.ndJsonTransformStream<PlantData[]>());
-                return GovPlantsDataService.readableStreamToObservable(stream);
-            }),
-            map((vals: PlantData[]) => vals.map(val => GovPlantsDataService.parsePlantData(val))),
-        );
+            worker.onmessage = ({ data }) => {
+                if (data.error) {
+                    subscriber.error(new Error(data.error));
+                    worker.terminate();
+                    return;
+                }
+                if (data.done) {
+                    subscriber.complete();
+                    worker.terminate();
+                    return;
+                }
+                // parsePlantData stays on main thread - Set can't transfer via postMessage
+                subscriber.next(
+                    (data.batch as PlantData[]).map(GovPlantsDataService.parsePlantData)
+                );
+            };
+
+            worker.onerror = (err) => {
+                subscriber.error(err);
+                worker.terminate();
+            };
+
+            worker.postMessage(url);
+
+            return () => {
+                worker.onmessage = null; // prevent any queued messages firing after termination
+                worker.onerror = null;
+                worker.terminate();
+            };
+        });
+
+
+        // return fromFetch(url).pipe(
+        //     switchMap(response => {
+        //         if (!response.ok)
+        //             throw new Error(response.status + ' | ' + response.statusText);
+        //         const stream = response.body?.pipeThrough(new TextDecoderStream).pipeThrough(GovPlantsDataService.ndJsonTransformStream<PlantData[]>());
+        //         return GovPlantsDataService.readableStreamToObservable(stream);
+        //     }),
+        //     map((vals: PlantData[]) => vals.map(val => GovPlantsDataService.parsePlantData(val))),
+        // );
     }
 
-    private static readableStreamToObservable<T>(stream: ReadableStream<T>): Observable<T> {
+    private static readableStreamToObservable<T>(stream: ReadableStream<T> | undefined): Observable<T> {
+        if (stream == undefined || stream == null) return EMPTY;
         return new Observable<T>(subscriber => {
             const reader = stream.getReader();
             let cancelled = false;
@@ -67,6 +107,7 @@ export class GovPlantsDataService {
                         const { done, value } = await reader.read();
                         if (done) break;
                         subscriber.next(value);
+                        await new Promise(r => setTimeout(r, 0));
                     }
                     if (!cancelled) subscriber.complete();
                 } catch (err) {
@@ -89,30 +130,31 @@ export class GovPlantsDataService {
 
         return new TransformStream<string, R>({
             transform(chunk, controller) {
-                leftover += chunk;
-                const lines = leftover.split('\n');
-                leftover = lines.pop()!; // keep last incomplete line
+                let start = 0;
+                let newLineIndex;
 
-                for (const line of lines) {
+                const searchStr = leftover + chunk;
+                while ((newLineIndex = searchStr.indexOf('\n', start)) !== -1) {
+                    const line = searchStr.slice(start, newLineIndex);
+                    start = newLineIndex + 1;
                     if (!line.trim()) continue;
-
-                    const value = JSON.parse(line) as R;
-                    controller.enqueue(value);
+                    controller.enqueue(JSON.parse(line) as R);
                 }
+
+                leftover = searchStr.slice(start);
             },
             flush(controller) {
                 const line = leftover.trim();
                 if (!line) return;
-
-                const value = JSON.parse(line) as R;
-                controller.enqueue(value);
+                controller.enqueue(JSON.parse(line) as R);
             }
         });
     }
 
     public getAllNativePlantDataBatched(): Observable<PlantData[]> {
-        const batchSize: number = 50;
+        const batchSize: number = 25;
         const apiUrl: string = this._dataUrl + 'batchSize=' + batchSize;
+
         return fromFetch(apiUrl).pipe(
             switchMap(response => {
                 if (!response.ok)

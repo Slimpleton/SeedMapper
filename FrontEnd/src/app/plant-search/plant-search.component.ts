@@ -115,6 +115,7 @@ export class PlantSearchComponent implements OnDestroy {
       return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder);
     }),
     tap((plants: Readonly<PlantData>[]) => {
+      console.log('batch received', plants.length, performance.now());
       this.filteredDataBatch.emit(plants);
       this.filterInProgress$.next(false);
     }),
