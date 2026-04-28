@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Inject, inject, Input, PLATFORM_ID, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, Inject, inject, Input, PLATFORM_ID, signal, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { isPlatformBrowser, TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -23,24 +23,19 @@ export class PlantTileComponent {
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
 
   @Input({ required: true }) set plant(value: PlantData) {
-    this._src = '';
-    this._srcset = '';
-    this._plant = value;
+    this.imageReady.set(false);
+    this._plant.set(value);
     this._loadImage(value);
     this.showMap = false;
   }
 
   @Input() public isPriority: boolean = false;
 
-  private _src: string = '';
-  private _srcset: string = '';
+  private readonly _src = signal('');
+  private readonly _srcset = signal('');
 
-  public get src() {
-    return this._src;
-  }
-  public get srcset() {
-    return this._srcset;
-  }
+  public readonly src = this._src.asReadonly();
+  public readonly srcset = this._srcset.asReadonly();
 
   public get fullImageCredits() {
     return this.plant.photos?.at(0)?.fullCredits ?? '';
@@ -54,21 +49,29 @@ export class PlantTileComponent {
     return this.fullImageCredits !== null && this.fullImageCredits !== undefined && this.fullImageCredits !== ''
   }
 
-  get plant(): PlantData {
-    return this._plant;
-  }
 
-  private _plant!: PlantData;
+  private readonly _plant = signal<PlantData | null>(null);
+  protected readonly imageReady = signal(false);
+
+  protected readonly showImage = computed(() => {
+    const photo = this._plant()?.photos?.at(0);
+    return this.imageReady() && !!photo?.fullCredits;
+  });
+
+  get plant(): PlantData {
+    return this._plant()!;
+  }
 
   private _loadImage(plant: PlantData) {
     const firstPhoto = plant.photos?.at(0);
     if (firstPhoto) {
       const x = this._iNaturalistService.iNatSrcset(firstPhoto.photoId, firstPhoto.extension);
-      this._src = x.src;
-      this._srcset = x.srcset;
+      this._src.set(x.src);
+      this._srcset.set(x.srcset);
+      this.imageReady.set(true);
     } else {
-      this._src = '';
-      this._srcset = '';
+      this._src.set('');
+      this._srcset.set('');
     }
   }
 

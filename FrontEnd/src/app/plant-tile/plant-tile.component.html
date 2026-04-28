@@ -11,13 +11,13 @@
         |titlecase}}</span>
 
     @if(!showMap){
-    @if(src !=='' && src !== null && src !== undefined && this.validCredits){
+    @if(showImage()){
 
-<!-- TODO custom element with swiping / click capability for swiping between images -->
+    <!-- TODO custom element with swiping / click capability for swiping between images -->
 
-    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src" [srcset]="srcset"
-        [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'" decoding="async"
-        sizes="240px" (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img
+    <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src()" [srcset]="srcset()"
+        [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
+        decoding="async" sizes="240px" (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img
         [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}"
         tabindex="0">
     }
@@ -73,7 +73,7 @@
     </svg>
     }
 
-    <div class="last-row" [style.margin-top]="src !=='' && src !== null && src !== undefined ? '.1em' : 'auto'"
+    <div class="last-row" [style.margin-top]="src() !=='' && src() !== null && src() !== undefined ? '.1em' : 'auto'"
         id="last-row-{{plant.acceptedSymbol}}">
         <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()"
             [attr.aria-label]="'PLANT_OVERVIEW' | transloco" [tooltip]="'PLANT_OVERVIEW' | transloco">
