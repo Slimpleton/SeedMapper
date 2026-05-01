@@ -40,13 +40,12 @@
                 class="plant-holder" [plant]="plant" [isPriority]="isPlantPriority(i)">
             </plant-tile>
         </div>
+        @if(plantSearch.filterInProgress$ | async){
+        <span class="loading" id="loading">
+            <!-- TODO make better -->
+            {{'LOADING' | transloco}}
+        </span>
+        }
     </cdk-virtual-scroll-viewport>
 </section>
-}
-
-@if(plantSearch.filterInProgress$ | async){
-<span class="loading" id="loading">
-    <!-- TODO make better -->
-    {{'LOADING' | transloco}}
-</span>
 }
