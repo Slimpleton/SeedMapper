@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Duration, GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { filter, map, switchMap } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
 import { EMPTY, Observable } from "rxjs";
@@ -31,6 +31,7 @@ export class GovPlantsDataService {
     // TODO add batch index param 
     // TODO store url, batch index, and batch in map for in-memory cache
 
+    // TODO swap to supporting array of growthhabit/duration, other filters
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, duration: Duration, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
         if (batchSize < GovPlantsDataService.MIN_BATCH_SIZE) batchSize = GovPlantsDataService.MIN_BATCH_SIZE;
 
@@ -82,17 +83,6 @@ export class GovPlantsDataService {
                 worker.terminate();
             };
         });
-
-
-        // return fromFetch(url).pipe(
-        //     switchMap(response => {
-        //         if (!response.ok)
-        //             throw new Error(response.status + ' | ' + response.statusText);
-        //         const stream = response.body?.pipeThrough(new TextDecoderStream).pipeThrough(GovPlantsDataService.ndJsonTransformStream<PlantData[]>());
-        //         return GovPlantsDataService.readableStreamToObservable(stream);
-        //     }),
-        //     map((vals: PlantData[]) => vals.map(val => GovPlantsDataService.parsePlantData(val))),
-        // );
     }
 
     private static readableStreamToObservable<T>(stream: ReadableStream<T> | undefined): Observable<T> {
@@ -120,7 +110,7 @@ export class GovPlantsDataService {
             // teardown called on unsubscribe
             return () => {
                 cancelled = true;
-                reader.cancel();   // <--- this is the crucial bit
+                reader.cancel();
             };
         });
     }

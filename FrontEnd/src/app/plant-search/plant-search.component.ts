@@ -24,6 +24,7 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
 })
 export class PlantSearchComponent implements OnDestroy {
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
+  // TODO emitters need to allow emitting an array 
   private readonly _growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
   public durations: Duration[] = ['Any', 'Annual', 'Perennial', 'Biennial'];
