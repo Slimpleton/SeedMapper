@@ -230,9 +230,14 @@ app.post<County | undefined>('/api/geolocation/county', async (req, res) => {
     // Step 1: get candidate counties using quadtree
     const candidates: any[] = getCandidateCounties(pos);
 
+    // If quadtree returned nothing, retry with a larger radius
+    const effectiveCandidates = candidates.length > 0
+      ? candidates
+      : getCandidateCounties({ ...pos, accuracy: 50_000 }); // ~50km fallback
+
     // Step 2: filter by bounding box
-    const BBOX_TOLERANCE = 0.001; // ~100 meters
-    const bboxCandidates = candidates.filter(c => {
+    const BBOX_TOLERANCE = 0.01; // ~1000 meters
+    const bboxCandidates = effectiveCandidates.filter(c => {
       const { minX, minY, maxX, maxY } = c.bbox;
       return pos.longitude >= minX - BBOX_TOLERANCE &&
         pos.longitude <= maxX + BBOX_TOLERANCE &&
@@ -246,7 +251,6 @@ app.post<County | undefined>('/api/geolocation/county', async (req, res) => {
     const stateFip = parseInt(county.id.substring(0, 2));
     const countyFip = county.id.substring(2);
     const countyCsvItem: County | undefined = getCountyCSVItem(stateFip, countyFip);
-    console.log(countyCsvItem, stateFip, countyFip);
     // TODO this should almost always return a county but sometimes i get nothing or some bug in some areas? idk it breaks the site i think tho. some sort of check issue? or maybe a faulty county in the data
 
     return res.json(countyCsvItem);
