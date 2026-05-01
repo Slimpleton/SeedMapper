@@ -2,9 +2,9 @@
     "TITLE": "What Grows Native Here",
     "ABOUT": "About",
     "SEARCH": "Search",
-    "APP_ICON":"The logo of the app, a sprouting seedling sprite",
-    "NAVIGATION":"Main Navigation Bar",
-    "LOADING":"LOADING...",
+    "APP_ICON": "The logo of the app, a sprouting seedling sprite",
+    "NAVIGATION": "Main Navigation Bar",
+    "LOADING": "LOADING...",
     "COUNTY_PLACEHOLDER": "Search Counties",
     "FILTERS": "Filters",
     "SORT": "Sort",
@@ -64,5 +64,6 @@
         "ME": "Who \"Me\"",
         "ME_CONTENT": "Currently working for SOTA Cloud as a developer, using this project to improve on my stack and skills. I was inspired by my own little native flowerbed I've guerrila garden'd from my landlord. I hope I can inspire you to guerrila garden effectively with my native region mapping so we can drive environmental change :)",
         "CONTENT": "What started as a passion project to deliver native plant info quickly evolved into an over-engineered mess built on delivering the fastest query results possible for native plants using the native geolocation api and SSR. Inspired by the design of McMaster-Carr, I was hoping to deliver public plant info to people with lower internet speeds. Please enjoy the fruits of my labor."
-    }
+    },
+    "NO_RESULTS": "No results found"
 }
