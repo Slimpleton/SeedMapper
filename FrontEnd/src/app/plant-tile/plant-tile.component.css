@@ -119,3 +119,7 @@ h4 {
     object-fit: contain;
     cursor: pointer;
 }
+
+.credits {
+    margin: 0 .1em;
+}

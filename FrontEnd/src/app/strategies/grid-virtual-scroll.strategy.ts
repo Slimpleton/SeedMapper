@@ -10,6 +10,7 @@ export class GridVirtualScrollStrategy implements VirtualScrollStrategy {
     private _rowHeight = 360;
     private _buffer = 3;
     private _dataLength = 0;
+    private _appendOnly: boolean = false;
 
     readonly scrolledIndexChange: Observable<number>;
     private _scrolledIndexChange$ = new Subject<number>();
@@ -18,7 +19,7 @@ export class GridVirtualScrollStrategy implements VirtualScrollStrategy {
         this.scrolledIndexChange = this._scrolledIndexChange$.pipe(distinctUntilChanged());
     }
 
-    public configure(rowHeight: number, columns: number, buffer = 3) {
+    public configure(rowHeight: number, columns: number, buffer: number = 3, appendOnly: boolean = false) {
         // Capture the first visible item index before changing any parameters so
         // we can restore the scroll position after the grid layout changes.
         const firstVisibleIndex = this._getFirstVisibleIndex();
@@ -26,6 +27,7 @@ export class GridVirtualScrollStrategy implements VirtualScrollStrategy {
         this._rowHeight = rowHeight;
         this._columns = columns;
         this._buffer = buffer;
+        this._appendOnly = appendOnly;
 
         this._updateTotalSize();
         this._updateRenderedRange();
@@ -82,16 +84,37 @@ export class GridVirtualScrollStrategy implements VirtualScrollStrategy {
 
     private _updateRenderedRange() {
         if (!this._viewport) return;
+
         const scrollOffset = this._viewport.measureScrollOffset();
         const viewportSize = this._viewport.getViewportSize();
+
         const firstVisibleRow = Math.floor(scrollOffset / this._rowHeight);
         const visibleRows = Math.ceil(viewportSize / this._rowHeight);
-        const startRow = Math.max(0, firstVisibleRow - this._buffer);
+
         const endRow = firstVisibleRow + visibleRows + this._buffer;
-        const start = startRow * this._columns;
         const end = Math.min(this._dataLength, endRow * this._columns);
-        this._viewport.setRenderedRange({ start, end });
-        this._viewport.setRenderedContentOffset(startRow * this._rowHeight);
-        this._scrolledIndexChange$.next(start);
+
+
+        if (this._appendOnly) {
+            // Never shrink the start — only grow the rendered range downward
+            const currentRange = this._viewport.getRenderedRange();
+            const start = currentRange.start; // lock the top in place
+
+            this._viewport.setRenderedRange({ start, end });
+            // Content offset stays at whatever it was set to initially (0)
+            // — do NOT call setRenderedContentOffset here
+        } else {
+            const startRow = Math.max(0, firstVisibleRow - this._buffer);
+            const start = startRow * this._columns;
+
+            this._viewport.setRenderedRange({ start, end });
+            this._viewport.setRenderedContentOffset(startRow * this._rowHeight);
+        }
+
+        this._scrolledIndexChange$.next(
+            this._appendOnly
+                ? this._viewport.getRenderedRange().start
+                : Math.max(0, (firstVisibleRow - this._buffer)) * this._columns
+        );
     }
 }
