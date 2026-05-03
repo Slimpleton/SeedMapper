@@ -1,7 +1,0 @@
-{
-  "name": "what-grows-native-here-dev-tools",
-  "private": true,
-  "scripts": {
-    "docker:dev": "docker build -f Dockerfile.dev -t wgn-dev . && docker run -it --rm -p 8080:8080 -p 4000:4000 -v ./Backend:/app/Backend -v ./FrontEnd:/app/FrontEnd -v /app/FrontEnd/node_modules wgn-dev"
-  }
-}

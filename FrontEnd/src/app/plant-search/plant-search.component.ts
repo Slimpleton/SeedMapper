@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, withLatestFrom } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, withLatestFrom, finalize } from 'rxjs/operators';
 import { combineLatest, merge, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
@@ -115,14 +115,13 @@ export class PlantSearchComponent implements OnDestroy {
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
-    switchMap(([growthHabit, duration, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, Duration, string, string, SortOption, boolean]) => {
+    switchMap(([growthHabit, duration, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, Duration, string, string, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder);
-    }),
-    tap((plants: Readonly<PlantData>[]) => {
-      console.log('batch received', plants.length, performance.now());
-      this.filteredDataBatch.emit(plants);
-      this.filterInProgress$.next(false);
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder).pipe(
+        tap((plants: Readonly<PlantData>[]) => {
+          this.filteredDataBatch.emit(plants);
+        }),
+        finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
   );

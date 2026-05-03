@@ -1,11 +1,15 @@
 <header id="nav-bar" class="nav-bar">
     <div class="title-container">
-        <img class="app-icon" [attr.width]="36" [attr.height]="36" src="/assets/sprout.svg" aria-hidden="true"/>
+        <img class="app-icon" [attr.width]="36" [attr.height]="36" src="/assets/sprout.svg" aria-hidden="true"
+            [alt]="'APP_ICON' | transloco" />
         <h2 class="title">{{'TITLE' | transloco}}</h2>
     </div>
     <nav class="link-container" [attr.aria-label]="'NAVIGATION' | transloco">
-        <a class="text" [routerLink]="Route.searchRoute" [attr.aria-current]="router.isActive(Route.searchRoute, false) ? 'page' : null"> {{'SEARCH' | transloco}}</a>
-        <a class="text" [routerLink]="Route.aboutRoute" [attr.aria-current]="router.isActive(Route.aboutRoute, true) ? 'page' : null">{{'ABOUT' | transloco}}</a>
+        <a class="text" [routerLink]="Route.searchRoute"
+            [attr.aria-current]="router.isActive(Route.searchRoute, false) ? 'page' : null"> {{'SEARCH' |
+            transloco}}</a>
+        <a class="text" [routerLink]="Route.aboutRoute"
+            [attr.aria-current]="router.isActive(Route.aboutRoute, true) ? 'page' : null">{{'ABOUT' | transloco}}</a>
     </nav>
 </header>
 <main>
