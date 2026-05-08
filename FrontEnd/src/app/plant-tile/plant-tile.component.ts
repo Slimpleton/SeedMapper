@@ -121,6 +121,7 @@ export class PlantTileComponent {
     );
 
     const preload = new Image();
+    preload.crossOrigin = 'anonymous'; 
     preload.src = fullRes;
 
     preload.onload = () => {
