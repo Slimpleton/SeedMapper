@@ -102,7 +102,6 @@ export class PlantSearchComponent implements OnDestroy {
   private readonly _search$: Observable<string> = merge(this.userSearchStarter$, this._searchStarter$).pipe(distinctUntilChanged(), takeUntil(this._destroy$));
 
   // Using a combineLatest to combine multiple state changes at once for filtering easy
-  // TODO pass in batch size at some point?
   private readonly _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
     this._growthHabitEmitter$,
     this._durationEmitter$,
