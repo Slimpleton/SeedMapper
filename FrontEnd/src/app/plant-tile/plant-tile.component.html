@@ -12,24 +12,29 @@
 
     @if(!showMap){
     @if(showImage()){
-        <div class="img-container" id="img-container-{{plant.acceptedSymbol}}">
-            <!-- TODO custom element with swiping / click capability for swiping between images -->
-            <button [disabled]="!imageReady()" class="img-btn img-btn-prev" id="img-btn-prev-{{plant.acceptedSymbol}}" (click)="prevImage()" [style.cursor]="imageReady() ? 'pointer' : 'default'">
-                <app-icon stroke="white" name="arrow"></app-icon>
-            </button>
-            
-            <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src()" [srcset]="srcset()" [style.cursor]="imageReady() ? 'pointer' : 'default'"
-            [attr.loading]="isPriority ? 'eager' : 'lazy'" [attr.fetchpriority]="isPriority ? 'high' : 'auto'"
-            decoding="async" sizes="240px" (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img crossorigin="anonymous"
+    <div class="img-container" id="img-container-{{plant.acceptedSymbol}}">
+        <!-- TODO custom element with swiping / click capability for swiping between images -->
+        <button [disabled]="!imageReady()" class="img-btn img-btn-prev" id="img-btn-prev-{{plant.acceptedSymbol}}"
+            (click)="prevImage()" [style.cursor]="imageReady() ? 'pointer' : 'default'"
+            [attr.aria-label]="'PREVIOUS_IMG' | transloco">
+            <app-icon stroke="white" name="arrow"></app-icon>
+        </button>
+
+        <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src()" [srcset]="srcset()"
+            [style.cursor]="imageReady() ? 'pointer' : 'default'" [attr.loading]="isPriority ? 'eager' : 'lazy'"
+            [attr.fetchpriority]="isPriority ? 'high' : 'auto'" decoding="async" sizes="240px"
+            (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img crossorigin="anonymous"
             [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}"
             tabindex="0">
 
-            <button [disabled]="!imageReady()" class="img-btn img-btn-next" id="img-btn-next-{{plant.acceptedSymbol}}" (click)="nextImage()" [style.cursor]="imageReady() ? 'pointer' : 'default'">
-                <app-icon stroke="white" name="arrow"></app-icon>
-            </button>
+        <button [disabled]="!imageReady()" class="img-btn img-btn-next" id="img-btn-next-{{plant.acceptedSymbol}}"
+            (click)="nextImage()" [style.cursor]="imageReady() ? 'pointer' : 'default'"
+            [attr.aria-label]="'NEXT_IMG'|transloco">
+            <app-icon stroke="white" name="arrow"></app-icon>
+        </button>
 
-        </div>
-        }
+    </div>
+    }
     @else{
     @if(plant.growthHabit.size > 0)
     {

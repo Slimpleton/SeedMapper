@@ -18,7 +18,7 @@
 .plant-search-container {
   position: sticky;
   width: calc(100% - (2 * var(--nav-bar--width-padding)));
-  background-color: var(--wood-brown);
+  background-image: linear-gradient(var(--wood-light-brown), var(--wood-brown));
   height: var(--container-height);
   padding-left: var(--nav-bar--width-padding);
   padding-right: var(--nav-bar--width-padding);
@@ -34,10 +34,10 @@
   width: 100%;
 }
 
-.loading{
+.loading {
   margin-top: .5em;
   display: inline-block;
   text-align: center;
   justify-self: center;
-  width:100%;
+  width: 100%;
 }
