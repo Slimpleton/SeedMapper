@@ -56,6 +56,31 @@ let usStatesGeometries: any[] = [];
 let usCountyQuadtree: any;
 let usCountiesGeometries: any[] = [];
 
+function getBBox(geometry: any) {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let sumX = 0, sumY = 0, count = 0;
+
+  const collect = (arr: any) => {
+    if (typeof arr[0] === 'number') {
+      if (arr[0] < minX) minX = arr[0];
+      if (arr[0] > maxX) maxX = arr[0];
+      if (arr[1] < minY) minY = arr[1];
+      if (arr[1] > maxY) maxY = arr[1];
+      sumX += arr[0];
+      sumY += arr[1];
+      count++;
+    } else {
+      arr.forEach(collect);
+    }
+  };
+  collect(geometry.coordinates);
+
+  return {
+    minX, maxX, minY, maxY,
+    centroid: [sumX / count, sumY / count] as [number, number],
+  };
+}
+
 async function preloadGeometry() {
   const topo = JSON.parse(
     await readFile(join(browserDistFolder, 'assets/counties-10m.json'), 'utf-8')
@@ -66,21 +91,9 @@ async function preloadGeometry() {
 
   // Compute bounding box for each county
   usCountiesGeometries.forEach(county => {
-    const coords = county.geometry.coordinates.flat(2); // flatten multipolygon/polygon
-    const lons = coords.map((p: any[]) => p[0]);
-    const lats = coords.map((p: any[]) => p[1]);
-    county.bbox = {
-      minX: Math.min(...lons),
-      minY: Math.min(...lats),
-      maxX: Math.max(...lons),
-      maxY: Math.max(...lats),
-    };
-
-    // Compute centroid for quadtree insertion
-    county.centroid = [
-      lons.reduce((a: any, b: any) => a + b, 0) / lons.length,
-      lats.reduce((a: any, b: any) => a + b, 0) / lats.length,
-    ];
+    const { centroid, ...bbox } = getBBox(county.geometry);
+    county.bbox = bbox;
+    county.centroid = centroid
   });
 
   // Build quadtree using centroids
@@ -94,7 +107,7 @@ async function preloadGeometry() {
 
 function getCandidateCounties(pos: GeolocationCoordinates): any[] {
   // Use accuracy or minimum 1km radius (whichever is larger)
-  const searchRadius = Math.max(pos.accuracy || 0, 1000); // meters
+  const searchRadius = Math.min(Math.max(pos.accuracy || 0, 1000), 10_000); // cap at 10km
   const radiusLat: number = searchRadius / 111_000; // meters → degrees latitude
   const radiusLon: number = searchRadius / (111_000 * Math.cos(pos.latitude * Math.PI / 180)); // meters → degrees longitude
 
@@ -236,7 +249,7 @@ app.post<County | undefined>('/api/geolocation/county', async (req, res) => {
       : getCandidateCounties({ ...pos, accuracy: 50_000 }); // ~50km fallback
 
     // Step 2: filter by bounding box
-    const BBOX_TOLERANCE = 0.01; // ~1000 meters
+    const BBOX_TOLERANCE = 0.001; // ~1000 meters
     const bboxCandidates = effectiveCandidates.filter(c => {
       const { minX, minY, maxX, maxY } = c.bbox;
       return pos.longitude >= minX - BBOX_TOLERANCE &&
