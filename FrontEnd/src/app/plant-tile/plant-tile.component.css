@@ -110,16 +110,40 @@ h4 {
 
 .img {
     display: block;
-    max-height: calc(var(--item-height) - 4em);
-    width: 100%;
-    flex: 1;
-    min-height: 0;
-    /* prevents flex blowout */
-    /* maintain aspect ratio */
+    width: fit-content;
     object-fit: contain;
-    cursor: pointer;
 }
 
 .credits {
     margin: 0 .2em;
+}
+
+.img-container {
+    max-height: calc(var(--item-height) - 4em);
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    margin-left: -1em;
+    margin-right: -1em;
+}
+
+.img-btn {
+    z-index: 2;
+    width: 5em;
+    max-height: calc(var(--item-height) - 4em);
+    background-color: transparent;
+    padding: 0;
+    border: none;
+}
+
+.img-btn-prev {
+    margin-right: -4em;
+}
+
+.img-btn-next {
+    margin-left: -4em;
+}
+
+.img-btn-next>* {
+    transform: rotate(180deg);
 }
