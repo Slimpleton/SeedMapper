@@ -13,7 +13,8 @@ RUN dotnet publish "./Backend.csproj" -c $BUILD_CONFIGURATION -o /app/backend /p
 # =========================
 # Frontend Build Stage
 # =========================
-FROM node:22-alpine AS frontend-build
+FROM node:25-alpine AS frontend-build
+RUN npm install -g npm@11
 WORKDIR /app
 COPY FrontEnd/package.json FrontEnd/package-lock.json ./
 RUN npm ci
