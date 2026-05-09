@@ -8,6 +8,8 @@
     "COUNTY_PLACEHOLDER": "Search Counties",
     "FILTERS": "Filters",
     "SORT": "Sort",
+    "PREVIOUS_IMG": "Previous Image",
+    "NEXT_IMG": "Next Image",
     "SORT_OPTIONS": {
         "COMMONNAME": "Common Name",
         "SCIENTIFICNAME": "Scientific Name",

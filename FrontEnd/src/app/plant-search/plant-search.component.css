@@ -56,7 +56,8 @@ h2 {
 
 .sortOrderButton {
     background-color: var(--grass-light-green);
-    color: var(--wood-dark-brown);
+    color: black;
+    font-weight: bold;
     width: 6ch;
     padding: .5ch;
     margin: 0;

@@ -24,6 +24,7 @@ export class PlantTileComponent {
 
   @Input({ required: true }) set plant(value: PlantData) {
     this.imageReady.set(false);
+    this.imgIndex.set(0);
     this._plant.set(value);
     this._loadImage(value);
     this.showMap = false;
@@ -31,6 +32,7 @@ export class PlantTileComponent {
 
   @Input() public isPriority: boolean = false;
 
+  private imgIndex = signal(0);
   private readonly _src = signal('');
   private readonly _srcset = signal('');
 
@@ -38,11 +40,11 @@ export class PlantTileComponent {
   public readonly srcset = this._srcset.asReadonly();
 
   public get fullImageCredits() {
-    return this.plant.photos?.at(0)?.fullCredits ?? '';
+    return this.plant.photos?.at(this.imgIndex())?.fullCredits ?? '';
   }
 
   public get observerId() {
-    return this.plant.photos?.at(0)?.observerId ?? NaN;
+    return this.plant.photos?.at(this.imgIndex())?.observerId ?? NaN;
   }
 
   public get validCredits(): boolean {
@@ -54,7 +56,7 @@ export class PlantTileComponent {
   protected readonly imageReady = signal(false);
 
   protected readonly showImage = computed(() => {
-    const photo = this._plant()?.photos?.at(0);
+    const photo = this._plant()?.photos?.at(this.imgIndex());
     return this.imageReady() && !!photo?.fullCredits;
   });
 
@@ -63,9 +65,9 @@ export class PlantTileComponent {
   }
 
   private _loadImage(plant: PlantData) {
-    const firstPhoto = plant.photos?.at(0);
-    if (firstPhoto) {
-      const x = this._iNaturalistService.iNatSrcset(firstPhoto.photoId, firstPhoto.extension);
+    const photo = plant.photos?.at(this.imgIndex());
+    if (photo) {
+      const x = this._iNaturalistService.iNatSrcset(photo.photoId, photo.extension);
       this._src.set(x.src);
       this._srcset.set(x.srcset);
       this.imageReady.set(true);
@@ -114,13 +116,14 @@ export class PlantTileComponent {
       navigationUI: 'show'
     };
     await img.requestFullscreen(fsOptions);
-    const firstPhoto = this.plant.photos!.at(0);
+    const photo = this.plant.photos!.at(this.imgIndex());
     const fullRes = this._iNaturalistService.iNatBest(
-      firstPhoto!.photoId,
+      photo!.photoId,
       this.getBestFullscreenSize()
     );
 
     const preload = new Image();
+    preload.crossOrigin = 'anonymous';
     preload.src = fullRes;
 
     preload.onload = () => {
@@ -136,5 +139,21 @@ export class PlantTileComponent {
 
     const width = window.innerWidth * window.devicePixelRatio;
     return width <= 1024 ? 'large' : 'original';
+  }
+
+  protected nextImage(): void {
+    if (!isPlatformBrowser(this._platformId)) return;
+    if(!this.imageReady()) return;
+    this.imageReady.set(false);
+    this.imgIndex.update((x) => x == this._plant()!.photos!.length - 1 ? 0 : ++x);
+    this._loadImage(this._plant()!);
+  }
+
+  protected prevImage(): void { 
+    if (!isPlatformBrowser(this._platformId)) return;
+    if(!this.imageReady()) return;
+    this.imageReady.set(false);
+    this.imgIndex.update((x) => x == 0 ? this._plant()!.photos!.length - 1 : --x);
+    this._loadImage(this._plant()!);
   }
 }

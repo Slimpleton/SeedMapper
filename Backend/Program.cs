@@ -27,10 +27,10 @@ namespace Backend
             builder.Services.AddResponseCompression(options =>
             {
                 options.EnableForHttps = true;
-                options.Providers.Add<BrotliCompressionProvider>();
+                options.Providers.Add<GzipCompressionProvider>();
             });
 
-            builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+            builder.Services.Configure<GzipCompressionProviderOptions>(options =>
             {
                 options.Level = CompressionLevel.Fastest;
             });

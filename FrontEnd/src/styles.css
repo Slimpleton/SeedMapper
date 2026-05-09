@@ -25,6 +25,7 @@
 /* You can add global styles to this file, and also import other style files */
 :root {
   font-family: 'Roboto', 'Times New Roman', Times, serif;
+  --wood-light-brown: rgb(190, 156, 104);
   --wood-brown: rgb(131, 100, 60);
   --wood-dark-brown: rgb(99, 73, 39);
   --grass-light-green: rgb(162, 192, 162);
