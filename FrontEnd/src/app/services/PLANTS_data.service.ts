@@ -143,7 +143,7 @@ export class GovPlantsDataService {
 
     public getAllNativePlantDataBatched(): Observable<PlantData[]> {
         const batchSize: number = 25;
-        const apiUrl: string = this._dataUrl + 'batchSize=' + batchSize;
+        const apiUrl: string = this._dataUrl + '?batchSize=' + batchSize;
 
         return fromFetch(apiUrl).pipe(
             switchMap(response => {

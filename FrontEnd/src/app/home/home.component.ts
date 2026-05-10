@@ -1,11 +1,11 @@
-import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Inject, PLATFORM_ID, signal, ViewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, PLATFORM_ID, signal, ViewChild } from '@angular/core';
 import { CdkVirtualForOf, CdkVirtualScrollViewport, } from '@angular/cdk/scrolling';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { AsyncPipe, isPlatformBrowser } from '@angular/common';
 import { MapPath, MapService } from '../services/map.service';
-import { Observable, of } from 'rxjs';
+import { debounceTime, fromEvent, merge, Observable, of, } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { GridVirtualScrollDirective } from '../directives/grid-virtual-scroll.directive';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -55,6 +55,7 @@ export class HomeComponent {
 
   public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _cdr: ChangeDetectorRef, public readonly mapService: MapService) {
     afterNextRender({ write: () => this.calculateColumns() });
+    merge(fromEvent(window, 'resize').pipe(debounceTime(150)), fromEvent(screen.orientation, 'change')).subscribe(() => this.calculateColumns());
   }
 
   public get isBrowser(): boolean {
@@ -65,13 +66,6 @@ export class HomeComponent {
     if (!this.isBrowser) return;
     this.columns = Math.max(1, Math.floor(window.innerWidth / (this.itemWidth)));
     this._cdr.detectChanges();
-  }
-
-  @HostListener('screen.orientation.change', ['$event'])
-  @HostListener('window:resize', ['$event'])
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onResizeOrRotate(_: Event) {
-    this.calculateColumns();
   }
 
   public clearData(searchStart: boolean): void {
