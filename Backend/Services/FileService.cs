@@ -14,7 +14,7 @@ namespace Backend.Services
         private static Dictionary<string, HashSet<PlantData>> PlantsByLocation { get; } = [];
         public static PlantData[] PlantData { get; }
         private static readonly SafeFileHandle? _photoFileHandle;
-        private static readonly SafeFileHandle? _observerFileHandle;
+        public static Dictionary<string, PlantData> AcceptedSymbolToPlant { get; } = [];
         public static Dictionary<string, int> AcceptedSymbolToTaxonId { get; } = [];
         public static Dictionary<string, (long FirstOffset, long TotalBytes)> PhotoOffsetsBySymbol { get; } = [];
         public static Dictionary<long, Observer> ObserversById { get; } = [];
@@ -115,7 +115,6 @@ namespace Backend.Services
             string photosPath = Path.Combine(dirName, "sorted_photos.csv");
             _photoFileHandle = File.OpenHandle(photosPath, FileMode.Open, FileAccess.Read, FileShare.Read, options: FileOptions.RandomAccess);
             string observersPath = Path.Combine(dirName, "observers.csv");
-            _observerFileHandle = File.OpenHandle(observersPath, FileMode.Open, FileAccess.Read, FileShare.Read, options: FileOptions.RandomAccess);
             ParseSymbolOffsets(photosPath);
             ParseObservers(observersPath);
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
@@ -165,6 +164,7 @@ namespace Backend.Services
                     // Add state fip
                     //PlantsByLocation[fip[..2]].Add(datum);
                 }
+                AcceptedSymbolToPlant.Add(datum.AcceptedSymbol, datum);
             }
         }
 

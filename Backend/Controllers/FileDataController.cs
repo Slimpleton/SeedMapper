@@ -40,15 +40,18 @@ namespace Backend.Controllers
         }
 
         [HttpGet("plantdata/{id}")]
-        public async Task<PlantData?> GetPlantDataAsync(string id, CancellationToken cancellationToken)
+        public Task<PlantData?> GetPlantDataAsync(string id)
         {
-            return await FileService.PlantData.ToAsyncEnumerable().FirstOrDefaultAsync(x => x.AcceptedSymbol == id, cancellationToken: cancellationToken);
+            return Task.FromResult(
+                FileService.AcceptedSymbolToPlant.TryGetValue(id, out var plant)
+                    ? plant
+                    : null
+            );
         }
 
         [HttpGet("plantdata/search")]
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption, [FromQuery] bool ascending, [FromQuery] int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, CancellationToken cancellationToken)
         {
-            // Add this at the top
             Response.Headers.Append("Content-Encoding", "gzip");
             Response.ContentType = "application/json";
 
