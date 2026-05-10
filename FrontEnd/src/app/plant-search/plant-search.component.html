@@ -44,7 +44,7 @@
     <!-- datalist sucks with ux -->
 
     <div class="filter-title-container">
-        <h2 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h2>
+        <h1 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h1>
         <input (input)="handleNameInput(countyNameInput.value)" [value]="geolocationCountyName" #countyNameInput
             [placeholder]="'COUNTY_PLACEHOLDER' | transloco" type="text" id="county-choice" class="input-counties"
             aria-labelledby="filter-search-title" list="counties" />
