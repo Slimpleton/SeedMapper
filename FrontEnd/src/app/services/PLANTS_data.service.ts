@@ -158,13 +158,13 @@ export class GovPlantsDataService {
     }
 
     private static parsePlantData(raw: PlantData) {
-        return Object.freeze({
+        return {
             ...raw,
             nativeStateAndProvinceCodes: new Set(raw.nativeStateAndProvinceCodes ?? []),
             growthHabit: new Set(raw.growthHabit ?? []),
             duration: new Set(raw.duration ?? []),
             stateAndProvince: new Set(raw.stateAndProvince ?? []),
             photos: (raw.photos ?? [])
-        })
+        };
     }
 }
