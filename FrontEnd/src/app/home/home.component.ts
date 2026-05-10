@@ -9,12 +9,13 @@ import { debounceTime, fromEvent, merge, Observable, of, } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { GridVirtualScrollDirective } from '../directives/grid-virtual-scroll.directive';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LoaderComponent } from '../loader/loader.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [GridVirtualScrollDirective, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe, TranslocoPipe],
+  imports: [GridVirtualScrollDirective, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe, TranslocoPipe, LoaderComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

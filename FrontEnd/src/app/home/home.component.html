@@ -34,13 +34,14 @@
 @if(plantData().length > 0){
 <section class="container" id="container">
     <cdk-virtual-scroll-viewport gridScroll #gridScroll="gridScroll" [rowHeight]="rowHeight" [columns]="columns"
-        appendOnly="true" [gutterSize]="gutterSize" [buffer]="5" class="gov-container-scrollport">
+        appendOnly="false" [gutterSize]="gutterSize" [buffer]="6" class="gov-container-scrollport">
         <div class="plant-grid" [style]="gridScroll.gridStyles">
             <plant-tile *cdkVirtualFor="let plant of plantData$; trackBy: trackByPlant; let i = index;"
                 class="plant-holder" [plant]="plant" [isPriority]="isPlantPriority(i)">
             </plant-tile>
         </div>
         @if(plantSearch.filterInProgress$ | async){
+        <app-loader></app-loader>
         <span class="loading" id="loading">
             <!-- TODO make better -->
             {{'LOADING' | transloco}}

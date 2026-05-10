@@ -152,3 +152,15 @@ h4 {
 .img-btn-next>* {
     transform: rotate(180deg);
 }
+
+.img-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.img-container-empty {
+    flex: 0;
+    max-height: 0;
+    overflow: hidden;
+}

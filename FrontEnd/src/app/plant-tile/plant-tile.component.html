@@ -11,16 +11,19 @@
         |titlecase}}</span>
 
     @if(!showMap){
-    @if(showImage()){
-    <div class="img-container" id="img-container-{{plant.acceptedSymbol}}">
-        <!-- TODO custom element with swiping / click capability for swiping between images -->
+    <div class="img-container" [class.img-container-empty]="!src()" id="img-container-{{plant.acceptedSymbol}}">
         <button [disabled]="!imageReady()" class="img-btn img-btn-prev" id="img-btn-prev-{{plant.acceptedSymbol}}"
             (click)="prevImage()" [style.cursor]="imageReady() ? 'pointer' : 'default'"
             [attr.aria-label]="'PREVIOUS_IMG' | transloco">
             <app-icon stroke="white" name="arrow"></app-icon>
         </button>
 
+        @if(!showImage()){
+        <app-loader></app-loader>
+        }
+
         <img class="img" id="plant-img-{{plant.acceptedSymbol}}" [src]="src()" [srcset]="srcset()"
+            [class.img-hidden]="!showImage()" (load)="onImageLoad()"
             [style.cursor]="imageReady() ? 'pointer' : 'default'" [attr.loading]="isPriority ? 'eager' : 'lazy'"
             [attr.fetchpriority]="isPriority ? 'high' : 'auto'" decoding="async" sizes="240px"
             (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img crossorigin="anonymous"
@@ -34,8 +37,7 @@
         </button>
 
     </div>
-    }
-    @else{
+    @if(!src()){
     @if(plant.growthHabit.size > 0)
     {
 
@@ -88,7 +90,7 @@
             <app-icon class="info-icon" name="help" aria-hidden="true"></app-icon>
         </button>
 
-        @if(this.validCredits){
+        @if(this.validCredits && showImage()){
         <a class="credits" id="credits-{{plant.acceptedSymbol}}" target="_blank" rel="noopener noreferrer license"
             [attr.aria-label]="this.fullImageCredits" [href]="'https://www.inaturalist.org/people/' + observerId">
             {{this.fullImageCredits}}

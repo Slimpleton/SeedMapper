@@ -46,7 +46,6 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-
 @supports (scrollbar-color: auto) {
   * {
     scrollbar-color: var(--wood-dark-brown) var(--wood-brown);

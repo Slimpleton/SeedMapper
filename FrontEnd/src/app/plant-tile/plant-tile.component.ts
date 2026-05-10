@@ -9,11 +9,12 @@ import { IconComponent } from '../icon/icon.component';
 import { MapService } from '../services/map.service';
 import { TooltipDirective } from "../directives/tooltip.directive";
 import { INaturalistService } from '../services/inaturalist.service';
+import { LoaderComponent } from '../loader/loader.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-tile',
-  imports: [TitleCasePipe, TranslocoPipe, IconComponent, TooltipDirective],
+  imports: [TitleCasePipe, TranslocoPipe, IconComponent, TooltipDirective, LoaderComponent],
   templateUrl: './plant-tile.component.html',
   styleUrl: './plant-tile.component.css',
   standalone: true
@@ -21,8 +22,10 @@ import { INaturalistService } from '../services/inaturalist.service';
 export class PlantTileComponent {
   public get usdaGovPlantProfileUrl(): string { return GovPlantsDataService.usdaGovPlantProfileUrl; }
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
-
+  @ViewChild('img') public readonly image?: ElementRef<HTMLImageElement>;
   @Input({ required: true }) set plant(value: PlantData) {
+    this._src.set('');
+    this._srcset.set('');
     this.imageReady.set(false);
     this.imgIndex.set(0);
     this._plant.set(value);
@@ -70,11 +73,17 @@ export class PlantTileComponent {
       const x = this._iNaturalistService.iNatSrcset(photo.photoId, photo.extension);
       this._src.set(x.src);
       this._srcset.set(x.srcset);
-      this.imageReady.set(true);
+
     } else {
       this._src.set('');
       this._srcset.set('');
+      this.imageReady.set(false);
     }
+  }
+
+  protected onImageLoad(): void {
+    if (this.image?.nativeElement.src !== this.src()) return;
+    this.imageReady.set(true);
   }
 
   public get viewBox(): string {
