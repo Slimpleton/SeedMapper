@@ -109,6 +109,7 @@ export class PlantTileComponent {
     return this.plant.combinedCountyFIPs;
   }
 
+  // TODO replace with custom fullscreen overlay cuz .requestFullscreen sucks
   public async openFullscreen(img: HTMLImageElement): Promise<void> {
     if (!isPlatformBrowser(this._platformId)) return;
 
@@ -143,15 +144,15 @@ export class PlantTileComponent {
 
   protected nextImage(): void {
     if (!isPlatformBrowser(this._platformId)) return;
-    if(!this.imageReady()) return;
+    if (!this.imageReady()) return;
     this.imageReady.set(false);
     this.imgIndex.update((x) => x == this._plant()!.photos!.length - 1 ? 0 : ++x);
     this._loadImage(this._plant()!);
   }
 
-  protected prevImage(): void { 
+  protected prevImage(): void {
     if (!isPlatformBrowser(this._platformId)) return;
-    if(!this.imageReady()) return;
+    if (!this.imageReady()) return;
     this.imageReady.set(false);
     this.imgIndex.update((x) => x == 0 ? this._plant()!.photos!.length - 1 : --x);
     this._loadImage(this._plant()!);
