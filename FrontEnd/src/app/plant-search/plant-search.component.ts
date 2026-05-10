@@ -5,10 +5,10 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
+import { CountyService } from '../services/county.service';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, withLatestFrom, finalize } from 'rxjs/operators';
-import { combineLatest, merge, Subject } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, take, withLatestFrom, finalize, startWith } from 'rxjs/operators';
+import { combineLatest, Subject } from 'rxjs';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { buildRoute, Route, SearchRouteParam } from '../app.routes';
@@ -24,7 +24,6 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
 })
 export class PlantSearchComponent implements OnDestroy {
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
-  // TODO emitters need to allow emitting an array 
   private readonly _growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
   public durations: Duration[] = ['Any', 'Annual', 'Perennial', 'Biennial'];
@@ -33,11 +32,10 @@ export class PlantSearchComponent implements OnDestroy {
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
 
-  private static readonly _countyNameStateSeparator: string = ' - ';
-
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
   }
+
   private _sortOptionDirection: 'A-Z' | 'Z-A' = 'A-Z';
   public get sortOptionDirection(): 'A-Z' | 'Z-A' {
     return this._sortOptionDirection;
@@ -55,53 +53,40 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   private readonly _destroy$: Subject<void> = new Subject<void>();
-  @Output() public filterInProgress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
+  @Output() public filterInProgress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   @ViewChild('countiesDataList') public readonly countiesDataList!: ElementRef<HTMLDataListElement>;
-  public readonly counties$: Observable<CountyCSVItem[]> = this._http.get<CountyCSVItem[]>('/api/counties').pipe(takeUntil(this._destroy$), shareReplay({ bufferSize: 1, refCount: false }));
-  public trackCountyByCombinedFIP(county: CountyCSVItem): string {
-    return combineCountyFIP(county);
-  }
+
+  // Delegated to CountyService — survives navigation and SSR hydration
+  public get counties$(): Observable<CountyCSVItem[]> { return this.countyService.counties$; }
+  public trackCountyByCombinedFIP(county: CountyCSVItem): string { return this.countyService.trackCountyByCombinedFIP(county); }
 
   public geolocationCountyName: string = '';
-
-  private readonly _countyLookup$: Observable<Map<string, CountyCSVItem>> = this.counties$.pipe(
-    take(1),
-    map(counties => {
-      const map = new Map<string, CountyCSVItem>();
-      for (const c of counties) {
-        map.set(
-          this.getCountyAndStateAbbrev(c),
-          c
-        );
-      }
-      return map;
-    }),
-    shareReplay({ bufferSize: 1, refCount: false })
-  );
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
     this._countyRenavigate$.pipe(
-      withLatestFrom(this._countyLookup$),
+      withLatestFrom(this.countyService.countyLookup$),
       map(([countyKey, map]) => [countyKey, map.get(countyKey)] as [string, CountyCSVItem | undefined]),
       filter((pair): pair is [string, CountyCSVItem] => pair[1] !== undefined),
       tap(([countyKey]) => {
-        const [countyName, stateAbbrev] = countyKey.split(PlantSearchComponent._countyNameStateSeparator);
+        const [countyName, stateAbbrev] = countyKey.split(' - ');
         this._router.navigate([buildRoute(Route.searchRoute, { countyName, stateAbbrev })], {
           queryParamsHandling: 'merge'
         });
       }),
       map(([, county]) => county)
     );
-  private readonly _searchStarter$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  private readonly _userSearchStarter$: Subject<string> = new Subject<string>();
-  private get userSearchStarter$(): Observable<string> {
-    return this._userSearchStarter$.pipe(debounceTime(this._searchDebounceTimeMs));
-  }
-  private readonly _search$: Observable<string> = merge(this.userSearchStarter$, this._searchStarter$).pipe(distinctUntilChanged(), takeUntil(this._destroy$));
 
-  // Using a combineLatest to combine multiple state changes at once for filtering easy
+  private readonly _userSearchStarter$: Subject<string> = new Subject<string>();
+
+  private readonly _search$: Observable<string> = this._userSearchStarter$.pipe(
+    debounceTime(this._searchDebounceTimeMs),
+    startWith(''),
+    distinctUntilChanged(),
+    takeUntil(this._destroy$)
+  );
+
   private readonly _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
     this._growthHabitEmitter$,
     this._durationEmitter$,
@@ -113,7 +98,8 @@ export class PlantSearchComponent implements OnDestroy {
     distinctUntilChanged((a, b) => a.every((v, i) => v === b[i])),
     switchMap(([growthHabit, duration, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, Duration, string, string, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder).pipe(finalize(() => { this.filterInProgress$.next(false); }));
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder)
+        .pipe(finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
   );
@@ -123,11 +109,12 @@ export class PlantSearchComponent implements OnDestroy {
   public constructor(
     private readonly _plantService: GovPlantsDataService,
     private readonly _positionService: PositionService,
-    private readonly _http: HttpClient,
+    protected readonly countyService: CountyService,
     private readonly _title: Title,
     private readonly _meta: Meta,
     private readonly _activatedRoute: ActivatedRoute,
     private readonly _router: Router) {
+
     this._fullyFilteredNativePlants.subscribe((plants) => this.filteredDataBatch.emit(plants));
 
     this._positionService.countyEmitter$
@@ -142,10 +129,11 @@ export class PlantSearchComponent implements OnDestroy {
             map(() => county)
           )
         ),
-        switchMap((x) => this._http.get<CountyCSVItem>(`/api/counties/${x.stateFip}/${x.countyFip}`)),
-        takeUntil(this._destroy$))
+        switchMap((x) => this.countyService.getCountyByFip(x.stateFip, x.countyFip)),
+        takeUntil(this._destroy$)
+      )
       .subscribe((county) => {
-        const combinedName = this.getCountyAndStateAbbrev(county);
+        const combinedName = this.countyService.getCountyAndStateAbbrev(county);
         this.geolocationCountyName = combinedName;
         this._countyRenavigate$.next(combinedName);
       });
@@ -154,17 +142,17 @@ export class PlantSearchComponent implements OnDestroy {
       map((p) => p as Partial<Record<SearchRouteParam, string>>),
       filter((params) => !!params.countyName && params.stateAbbrev?.length === 2),
       switchMap((params) =>
-        this._countyLookup$.pipe(
+        this.countyService.countyLookup$.pipe(
           take(1),
           map((countyMap) => countyMap.get(
-            this.formatCountyAndStateAbbrev(params.countyName!, params.stateAbbrev!)
+            this.countyService.formatCountyAndStateAbbrev(params.countyName!, params.stateAbbrev!)
           ))
         )
       ),
       filter((county): county is CountyCSVItem => !!county),
       takeUntil(this._destroy$)
     ).subscribe((county) => {
-      this.geolocationCountyName = this.getCountyAndStateAbbrev(county);
+      this.geolocationCountyName = this.countyService.getCountyAndStateAbbrev(county);
       this._positionService.manualCounty = county;
     });
 
@@ -180,40 +168,28 @@ export class PlantSearchComponent implements OnDestroy {
     this._meta.updateTag(tag);
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
   }
-
-  // TODO figure out use case when the plant is native to state but has no county data? do i just include all or none for now
 
   public search(searchValue: string): void {
     this._userSearchStarter$.next(searchValue);
   }
 
-  public changeSortOption(option: string) {
+  public changeSortOption(option: string): void {
     this._sortOptionsEmitter$.next(option as SortOption);
   }
 
-  public changeGrowthHabit(habit: string) {
+  public changeGrowthHabit(habit: string): void {
     this._growthHabitEmitter$.next(habit as GrowthHabit);
   }
 
-  public changeDuration(duration: string) {
+  public changeDuration(duration: string): void {
     this._durationEmitter$.next(duration as Duration);
   }
 
   public handleNameInput(name: string | null): void {
-    if (name)
-      this._countyRenavigate$.next(name);
-  }
-
-  public getCountyAndStateAbbrev(c: CountyCSVItem): string {
-    return this.formatCountyAndStateAbbrev(c.countyName, c.stateAbbrev);
-  }
-
-  private formatCountyAndStateAbbrev(countyName: string, stateAbbrev: string) {
-    return countyName + PlantSearchComponent._countyNameStateSeparator + stateAbbrev;
+    if (name) this._countyRenavigate$.next(name);
   }
 }
-

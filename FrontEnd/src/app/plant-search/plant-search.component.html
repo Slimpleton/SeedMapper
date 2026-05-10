@@ -51,7 +51,7 @@
     </div>
     <datalist id="counties" #countiesDataList>
         @for(county of counties$ | async; track trackCountyByCombinedFIP(county)){
-        <option [value]="getCountyAndStateAbbrev(county)"></option>
+        <option [value]="countyService.getCountyAndStateAbbrev(county)"></option>
         }
     </datalist>
     <input #countyFipInput type="hidden" name="county-fip-choice" id="county-fip-choice" aria-hidden="true">

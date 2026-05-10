@@ -60,7 +60,7 @@ namespace Backend.Controllers
             await using (gzip.ConfigureAwait(false))
             {
 
-                int secondaryBatchSize = 500;
+                int secondaryBatchSize = 250;
                 // Get county plants as a HashSet for O(1) lookups
                 HashSet<PlantData>? countyPlants = FileService.GetPlantsByLocation(combinedFIP);
                 if (countyPlants == null)

@@ -170,7 +170,10 @@ app.use(compression({
 const angularApp = new AngularNodeAppEngine();
 
 // Add i18n - serve directly from browser folder
-app.use('/assets', express.static(join(browserDistFolder, 'assets')));
+app.use('/assets', express.static(join(browserDistFolder, 'assets'), {
+  maxAge: '1y',
+  immutable: true
+}));
 
 app.use(
   createProxyMiddleware({
