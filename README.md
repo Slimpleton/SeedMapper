@@ -1,9 +1,8 @@
 # WhatGrowsNativeHere
 A search engine for native plants using USDA Plants Database info and county mapping information to detect where you are and what grows around you 
+Using INaturalist licensed Open api photos to show images of many of the searchable plants
 
 Inspired by the ideals of design behind McMasterCarr and wanting to know the extent of ssr capabilities, this is a search engine designed to deliver quick plant info based on the USDA PLANTS csv and other info available for download from their website.
 My hope is to deliver accurate names and information to those with poorer internet service within the US because man their site loads slow.
 
-<img width="2541" height="1337" alt="image" src="https://github.com/user-attachments/assets/0a8d535d-3770-432d-81f3-69415ab0a0e2" />
-
-<img width="2543" height="1361" alt="image" src="https://github.com/user-attachments/assets/dcb2756a-1214-4b39-a474-c60e7e79474f" />
+<img width="2557" height="1274" alt="image" src="https://github.com/user-attachments/assets/77bc6071-9719-42b3-b463-331a4887e0bd" />
