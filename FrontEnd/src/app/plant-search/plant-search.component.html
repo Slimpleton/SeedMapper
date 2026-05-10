@@ -1,7 +1,6 @@
 <section id="plant-search-container">
     <div class="col">
         <!-- TODO angular multiselect for this kinda filtering -->
-        <!-- TODO replace entire portions with menus  separate for sort and filter ?? not sure or combine?-->
         <span class="label">{{'FILTERS' | transloco}}</span>
         <div id="search-container" name="search-container" class="search-container col">
             <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"

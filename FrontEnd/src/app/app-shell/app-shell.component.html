@@ -5,11 +5,12 @@
         <h2 class="title">{{'TITLE' | transloco}}</h2>
     </div>
     <nav class="link-container" [attr.aria-label]="'NAVIGATION' | transloco">
-        <a class="text" [routerLink]="Route.searchRoute"
-            [attr.aria-current]="router.isActive(Route.searchRoute, false) ? 'page' : null"> {{'SEARCH' |
+        <a class="text" [routerLink]="''" routerLinkActive #searchLink="routerLinkActive"
+            [routerLinkActiveOptions]="{ exact: false }" [attr.aria-current]="searchLink.isActive ? 'page' : null">
+            {{'SEARCH' |
             transloco}}</a>
-        <a class="text" [routerLink]="Route.aboutRoute"
-            [attr.aria-current]="router.isActive(Route.aboutRoute, true) ? 'page' : null">{{'ABOUT' | transloco}}</a>
+        <a class="text" [routerLink]="Route.aboutRoute" routerLinkActive #aboutLink="routerLinkActive"
+            [attr.aria-current]="aboutLink.isActive ? 'page' : null">{{'ABOUT' | transloco}}</a>
     </nav>
 </header>
 <main>
