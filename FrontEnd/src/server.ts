@@ -182,6 +182,7 @@ app.use(
 
 // API endpoints
 app.get('/api/states', (_, res) => {
+  res.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
   res.json(statesCSVCache);
 });
 
@@ -192,10 +193,12 @@ app.get('/api/states/:stateFip', (req, res) => {
 });
 
 app.get('/api/counties', (_, res) => {
+  res.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
   return res.json(countiesCSVCache);
 });
 
 app.get('/api/counties/:stateFip/:countyFip', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
   const requestedStateFip = Number(req.params.stateFip);
   const requestedCountyFip = req.params.countyFip;
   const countyCsvItem = getCountyCSVItem(requestedStateFip, requestedCountyFip)

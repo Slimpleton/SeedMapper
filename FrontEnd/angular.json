@@ -18,7 +18,6 @@
             "browser": "src/main.ts",
             "polyfills": [],
             "tsConfig": "tsconfig.app.json",
-            "prerender": true,
             "namedChunks": false,
             "optimization": {
               "scripts": true,
@@ -73,7 +72,8 @@
               }
             },
             "development": {
-              "optimization": true,
+              "namedChunks": true,
+              "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
             }

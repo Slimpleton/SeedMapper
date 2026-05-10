@@ -58,7 +58,7 @@ export class PlantSearchComponent implements OnDestroy {
   @Output() public filterInProgress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   @ViewChild('countiesDataList') public readonly countiesDataList!: ElementRef<HTMLDataListElement>;
-  public readonly counties$: Observable<CountyCSVItem[]> = this._http.get<CountyCSVItem[]>('/api/counties').pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this._destroy$));
+  public readonly counties$: Observable<CountyCSVItem[]> = this._http.get<CountyCSVItem[]>('/api/counties').pipe(takeUntil(this._destroy$), shareReplay({ bufferSize: 1, refCount: false }));
   public trackCountyByCombinedFIP(county: CountyCSVItem): string {
     return combineCountyFIP(county);
   }
@@ -110,13 +110,10 @@ export class PlantSearchComponent implements OnDestroy {
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
+    distinctUntilChanged((a, b) => a.every((v, i) => v === b[i])),
     switchMap(([growthHabit, duration, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, Duration, string, string, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder).pipe(
-        tap((plants: Readonly<PlantData>[]) => {
-          this.filteredDataBatch.emit(plants);
-        }),
-        finalize(() => { this.filterInProgress$.next(false); }));
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder).pipe(finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
   );
@@ -131,11 +128,12 @@ export class PlantSearchComponent implements OnDestroy {
     private readonly _meta: Meta,
     private readonly _activatedRoute: ActivatedRoute,
     private readonly _router: Router) {
-    this._fullyFilteredNativePlants.subscribe();
+    this._fullyFilteredNativePlants.subscribe((plants) => this.filteredDataBatch.emit(plants));
 
     this._positionService.countyEmitter$
       .pipe(
         filter(Boolean),
+        distinctUntilChanged((a, b) => combineCountyFIP(a) === combineCountyFIP(b)),
         switchMap((county) =>
           this._activatedRoute.params.pipe(
             take(1),
