@@ -23,6 +23,7 @@ figure {
     gap: .5em;
     font-size: 1.1em;
     font-weight: bold;
+    flex-grow: 1;
 }
 
 h1,
@@ -34,11 +35,20 @@ h4 {
 
 .splitter {
     display: inline-flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 1.5em;
 }
 
 .result-scientific-name {
     font-style: italic;
+    margin-top: -.95em;
+}
+
+.result-common-name,
+.result-scientific-name,
+.result-property {
+    width: fit-content;
 }
 
 .result-property {
@@ -163,4 +173,8 @@ h4 {
     flex: 0;
     max-height: 0;
     overflow: hidden;
+}
+
+.icon-link {
+    z-index: 2;
 }

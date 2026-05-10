@@ -334,6 +334,7 @@ namespace Backend.Models
         public HashSet<string> CombinedCountyFIPs { get; init; }
 
         public Photo[] Photos { get; init; } = [];
+        public string? TaxonId { get; init; } = null;
     }
 
     public record Observer(string Name, string Login);

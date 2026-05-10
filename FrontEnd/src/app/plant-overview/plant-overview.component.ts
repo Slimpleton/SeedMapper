@@ -8,6 +8,7 @@ import { MapPath, MapService } from '../services/map.service';
 import { Observable, of } from 'rxjs';
 import { TooltipDirective } from "../directives/tooltip.directive";
 import { Meta, Title } from '@angular/platform-browser';
+import { INaturalistService } from '../services/inaturalist.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,7 +19,7 @@ import { Meta, Title } from '@angular/platform-browser';
   styleUrl: './plant-overview.component.css'
 })
 export class PlantOverviewComponent implements OnInit {
-
+  public get iNaturalistObservationUrl(): string { return INaturalistService.observationUrl; }
   public get PLANT_MAP_WIDTH(): number { return MapService.PLANT_OVERVIEW_MAP_WIDTH; }
   public get PLANT_MAP_HEIGHT(): number { return MapService.PLANT_OVERVIEW_MAP_HEIGHT; }
   public get usdaGovPlantProfileUrl(): string { return GovPlantsDataService.usdaGovPlantProfileUrl; }
@@ -38,6 +39,7 @@ export class PlantOverviewComponent implements OnInit {
       name: 'description',
       content: `Plant overview for ${commonName} that contains native region maps and more detailed characteristic data`
     });
+    console.log(this.plant());
   }
 
   public isIterableNotString(value: unknown): value is Iterable<unknown> {

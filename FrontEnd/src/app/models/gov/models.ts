@@ -292,6 +292,7 @@ export type PlantData = Readonly<{
     veneerProduct: boolean;
     commonName: string;
     photos: Photo[] | undefined;
+    taxonId: string | undefined;
 }>;
 
 export type County = Omit<CountyCSVItem, 'countyName' | 'stateAbbrev'>

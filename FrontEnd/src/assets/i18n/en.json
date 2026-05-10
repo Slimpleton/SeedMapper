@@ -26,6 +26,7 @@
         "FORB/HERB": "Forb/Herb",
         "FORBHERB": "Forb/Herb"
     },
+    "INATURALIST_OBSERVATION_LINK": "INaturalist link to observations for {{plantCommonName}} {{plantTaxonId}}, opens in new tab",
     "USDA_PROFILE_LINK": "USDA profile for {{plantCommonName}} ({{plantAcceptedSymbol}}), opens in new tab",
     "COUNTY_SEARCH_HINT": "Type to search counties...",
     "COUNTY_NO_RESULTS": "No counties found",

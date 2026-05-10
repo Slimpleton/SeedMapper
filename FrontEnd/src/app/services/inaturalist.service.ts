@@ -41,8 +41,10 @@ export class INaturalistService {
     { name: 'small', width: 240 },
     { name: 'medium', width: 500 },
     { name: 'large', width: 1024 },
-    { name: 'original', width: 2048 },  
+    { name: 'original', width: 2048 },
   ];
+
+  public static readonly observationUrl: string = 'https://www.inaturalist.org/observations?taxon_id=';
 
   public iNatBest(photoId: number | string, size: 'large' | 'original' = 'original', ext = 'jpg'): string {
     const base = `https://inaturalist-open-data.s3.amazonaws.com/photos/${photoId}`;

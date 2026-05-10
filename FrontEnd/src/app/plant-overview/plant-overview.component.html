@@ -6,7 +6,14 @@
         plantScientificName: plant().scientificName | titlecase} }} (<a target="_blank" rel="noopener noreferrer"
             [attr.aria-label]="'USDA_PROFILE_LINK' | transloco : {plantCommonName: plant().commonName | titlecase, plantAcceptedSymbol: plant().acceptedSymbol}"
             [href]="usdaGovPlantProfileUrl + plant().acceptedSymbol"
-            id="plant-abbreviation-{{plant().acceptedSymbol}}">{{plant().acceptedSymbol}}</a>)
+            id="plant-abbreviation-{{plant().acceptedSymbol}}">{{plant().acceptedSymbol}}</a>
+        @if(plant().taxonId !== null && plant().taxonId !== undefined){ |
+        <a [href]="iNaturalistObservationUrl + plant().taxonId " target="_blank" rel="noopener noreferrer"
+            [attr.aria-label]="'INATURALIST_OBSERVATION_LINK' | transloco : {plantCommonName: plant().commonName | titlecase, plantTaxonId: plant().taxonId}"
+            id="plant-taxon-id-{{plant().taxonId}}">
+            {{plant().taxonId}}
+        </a>
+        })
     </h1>
 
     <!-- TODO zoomable county map -->
@@ -40,9 +47,11 @@
 
     <ul class="key-value-list">
         @for(item of plant() | keyvalue; track item.key){
+        @if(item.key !== 'photos' && item.value){
         <li class="text"><strong>{{item.key | camelSplit | titlecase}}</strong>:
             {{isIterableNotString(item.value) ? getIterableString(item.value) : item.value}}
         </li>
+        }
         }
     </ul>
     }

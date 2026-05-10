@@ -46,12 +46,10 @@ const plantOverviewResolver: ResolveFn<Readonly<PlantData> | RedirectCommand> = 
         console.error('Invalid symbol detected, rerouting to different view');
         return new RedirectCommand(inject(Router).parseUrl(''));
     }
-
-    if (route.data) {
-        const routeData = route.data as PlantOverviewRouteData;
-        if (routeData.plant != null)
-            return of(routeData.plant);
-    }
+    const router = inject(Router);
+    const routeData = router.currentNavigation()?.extras?.state as PlantOverviewRouteData | undefined;
+    if (routeData?.plant != null)
+        return of(routeData.plant);
 
     return inject(GovPlantsDataService).getPlantById(acceptedSymbol);
 };

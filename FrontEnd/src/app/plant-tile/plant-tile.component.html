@@ -3,9 +3,24 @@
     <span class="splitter">
         <h3 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
         </h3>
+        <!-- TODO insert inaturalist stuff here -->
+        <!-- TODO get taxonId from plant -->
+        @if(plant.taxonId !== null && plant.taxonId !== undefined){
+        <a [href]="iNaturalistObservationUrl + plant.taxonId" target="_blank" rel="noopener noreferrer"
+            class="icon-link"
+            [attr.aria-label]="'INATURALIST_OBSERVATION_LINK' | transloco : {plantCommonName: plant.commonName | titlecase, plantTaxonId: plant.taxonId}"
+            id="inaturalist-link-{{plant.taxonId}}">
+            <img src="https://www.inaturalist.org/favicon.ico" alt="iNaturalist" width="32" height="32"
+                inaturalist-img-{{plant.taxonId}} />
+        </a>
+        }
         <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
+            class="icon-link"
             [attr.aria-label]="'USDA_PROFILE_LINK' | transloco : {plantCommonName: plant.commonName | titlecase, plantAcceptedSymbol: plant.acceptedSymbol}"
-            id="plant-abbreviation-{{plant.acceptedSymbol}}">{{plant.acceptedSymbol}}</a>
+            id="usda-plant-link-{{plant.acceptedSymbol}}">
+            <img src="assets/usda-symbol.svg" alt="USDA PLANTS Database" width="32" height="32"
+                id="usda-plant-img-{{plant.acceptedSymbol}}" />
+        </a>
     </span>
     <span class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName
         |titlecase}}</span>

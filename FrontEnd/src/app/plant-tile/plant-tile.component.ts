@@ -20,6 +20,7 @@ import { LoaderComponent } from '../loader/loader.component';
   standalone: true
 })
 export class PlantTileComponent {
+  public get iNaturalistObservationUrl(): string { return INaturalistService.observationUrl; }
   public get usdaGovPlantProfileUrl(): string { return GovPlantsDataService.usdaGovPlantProfileUrl; }
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
   @ViewChild('img') public readonly image?: ElementRef<HTMLImageElement>;

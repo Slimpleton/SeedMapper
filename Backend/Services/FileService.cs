@@ -15,7 +15,7 @@ namespace Backend.Services
         public static PlantData[] PlantData { get; }
         private static readonly SafeFileHandle? _photoFileHandle;
         public static Dictionary<string, PlantData> AcceptedSymbolToPlant { get; } = [];
-        public static Dictionary<string, int> AcceptedSymbolToTaxonId { get; } = [];
+        public static Dictionary<string, string> AcceptedSymbolToTaxonId { get; } = [];
         public static Dictionary<string, (long FirstOffset, long TotalBytes)> PhotoOffsetsBySymbol { get; } = [];
         public static Dictionary<long, Observer> ObserversById { get; } = [];
 
@@ -115,8 +115,10 @@ namespace Backend.Services
             string photosPath = Path.Combine(dirName, "sorted_photos.csv");
             _photoFileHandle = File.OpenHandle(photosPath, FileMode.Open, FileAccess.Read, FileShare.Read, options: FileOptions.RandomAccess);
             string observersPath = Path.Combine(dirName, "observers.csv");
+            string taxonsPath = Path.Combine(dirName, "taxonMapping.csv");
             ParseSymbolOffsets(photosPath);
             ParseObservers(observersPath);
+            ParseTaxons(taxonsPath);
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
             Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
 
@@ -222,6 +224,16 @@ namespace Backend.Services
                     fields.Length >= 3 ? fields[2] : ""
                 );
                 }
+            }
+        }
+
+
+        private static void ParseTaxons(string taxonsPath)
+        {
+            foreach (string line in File.ReadLines(taxonsPath).Skip(1))
+            {
+                string[] fields = line.Split(',');
+                if (fields.Length >= 1) AcceptedSymbolToTaxonId.Add(fields[0].Trim('"'), fields[1].Trim('"'));
             }
         }
 

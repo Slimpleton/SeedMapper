@@ -88,6 +88,7 @@ namespace Backend.Controllers
                 foreach (var item in filtered)
                 {
                     var photos = FileService.GetPhotosForSymbol(item.AcceptedSymbol)?.ToList() ?? [];
+                    bool hasTaxonId = FileService.AcceptedSymbolToTaxonId.TryGetValue(item.AcceptedSymbol, out string? taxonId) && taxonId != "NaN";
                     var dto = new PlantDataDTO
                     {
                         AcceptedSymbol = item.AcceptedSymbol,
@@ -188,6 +189,7 @@ namespace Backend.Controllers
                         CommonName = item.CommonName,
                         CombinedCountyFIPs = item.CombinedCountyFIPs,
                         Photos = [.. photos],
+                        TaxonId = hasTaxonId ? taxonId : null
                     };
 
                     batch.Add(dto);
