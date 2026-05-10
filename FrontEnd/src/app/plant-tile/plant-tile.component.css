@@ -24,6 +24,10 @@ figure {
     font-size: 1.1em;
     font-weight: bold;
     flex-grow: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    min-width: 0;
+    overflow: hidden;
 }
 
 h1,
