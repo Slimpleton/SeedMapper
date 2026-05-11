@@ -3,8 +3,13 @@
   --container-height: 5.5em;
 }
 
+:host ::ng-deep .cdk-virtual-scroll-content-wrapper {
+  max-width: 100%;
+}
+
 .gov-container-scrollport {
   width: 100%;
+  max-width: 100%;
   height: calc(100vh - 40px - var(--container-height));
 }
 

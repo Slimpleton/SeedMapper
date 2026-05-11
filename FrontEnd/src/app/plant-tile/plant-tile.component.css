@@ -1,14 +1,8 @@
 :root {
     --item-size: 6em;
-
 }
 
-figure {
-    margin: none;
-    padding: none;
-}
-
-.plant-holder {
+.plant-holder-tile {
     height: calc(100% - 2em);
     width: calc(100% - 2em);
     display: flex;
@@ -23,11 +17,8 @@ figure {
     gap: .5em;
     font-size: 1.1em;
     font-weight: bold;
+    flex-shrink: 1;
     flex-grow: 1;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    min-width: 0;
-    overflow: hidden;
 }
 
 h1,
@@ -38,10 +29,12 @@ h4 {
 }
 
 .splitter {
-    display: inline-flex;
+    display: flex;
     justify-content: flex-end;
     align-items: flex-start;
-    gap: 1.5em;
+    gap: .75em;
+    min-width: 0;
+    width: 100%;
 }
 
 .result-scientific-name {
@@ -50,7 +43,14 @@ h4 {
 }
 
 .result-common-name,
-.result-scientific-name,
+.result-scientific-name {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    min-width: 0;
+    overflow: hidden;
+    width: auto;
+}
+
 .result-property {
     width: fit-content;
 }
@@ -60,7 +60,7 @@ h4 {
 }
 
 .symbolAndShadeRow {
-    display: inline-flex;
+    display: flex;
     gap: .25em;
     place-items: center;
 }
@@ -82,12 +82,13 @@ h4 {
 }
 
 .last-row {
-    display: inline-flex;
+    display: flex;
     margin-top: .15em;
     align-content: center;
     align-items: center;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 }
 
 .search-icon {
@@ -125,6 +126,7 @@ h4 {
 .img {
     display: block;
     width: fit-content;
+    max-width: 100%;
     object-fit: contain;
 }
 
@@ -180,5 +182,5 @@ h4 {
 }
 
 .icon-link {
-    z-index: 2;
+    flex-shrink: 0;
 }
