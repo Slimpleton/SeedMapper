@@ -101,7 +101,7 @@ export class PlantTileComponent {
 
 
   public get growthHabitKeys(): string[] {
-    if (!this.plant?.growthHabit || this.plant.growthHabit.size === 0) {
+    if (!this.plant?.growthHabit || this.plant.growthHabit.length === 0) {
       return [];
     }
     return [...this.plant.growthHabit].map(x => 'GROWTH_HABITS.' + x.toUpperCase());

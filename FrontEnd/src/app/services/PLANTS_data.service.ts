@@ -49,7 +49,7 @@ export class GovPlantsDataService {
 
         return new Observable<Readonly<PlantData>[]>(subscriber => {
             const worker = new Worker(
-                new URL('../web-workers/ndjsonstream.worker', import.meta.url),
+                new URL('../web-workers/plantDataNdJsonstream.worker', import.meta.url),
                 { type: 'module' }
             );
 
@@ -65,9 +65,7 @@ export class GovPlantsDataService {
                     return;
                 }
                 // parsePlantData stays on main thread - Set can't transfer via postMessage
-                subscriber.next(
-                    (data.batch as PlantData[]).map(GovPlantsDataService.parsePlantData)
-                );
+                subscriber.next(data.batch);
             };
 
             worker.onerror = (err) => {
@@ -157,14 +155,14 @@ export class GovPlantsDataService {
         );
     }
 
-    private static parsePlantData(raw: PlantData) {
+    public static parsePlantData(raw: PlantData) {
         return {
             ...raw,
-            nativeStateAndProvinceCodes: new Set(raw.nativeStateAndProvinceCodes ?? []),
-            growthHabit: new Set(raw.growthHabit ?? []),
-            duration: new Set(raw.duration ?? []),
-            stateAndProvince: new Set(raw.stateAndProvince ?? []),
-            photos: (raw.photos ?? [])
+            nativeStateAndProvinceCodes: raw.nativeStateAndProvinceCodes ?? [],
+            growthHabit: raw.growthHabit ?? [],
+            duration: raw.duration ?? [],
+            stateAndProvince: raw.stateAndProvince ?? [],
+            photos: raw.photos ?? []
         };
     }
 }
