@@ -1,5 +1,8 @@
 :root {
     --item-size: 6em;
+}
+
+:host {
     --splitter-gap: .85em;
 }
 
