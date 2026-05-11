@@ -37,6 +37,7 @@
   display: inline-block;
   height: var(--item-height);
   width: 100%;
+  max-width: 100vw;
 }
 
 .loading {
