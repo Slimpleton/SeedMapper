@@ -1,6 +1,6 @@
 :root {
     --item-size: 6em;
-    --splitter-gap: .75em;
+    --splitter-gap: .85em;
 }
 
 .plant-holder-tile {
