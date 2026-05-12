@@ -47,8 +47,8 @@
         <h1 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h1>
         <div ngCombobox filterMode="auto-select" >
             <div class="autocomplete" #countyOrigin>
-                <input #countyNameInput="ngComboboxInput" ngComboboxInput  [(ngModel)]="geolocationCountyNewQuery"
-                    [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice" class="input-counties"
+                <input #countyNameInput="ngComboboxInput" ngComboboxInput  [(ngModel)]="geolocationCountyNewQuery" #countyInput
+                    [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice" class="input-counties" (focus)="countyInput.select()"
                     aria-labelledby="filter-search-title"  />
             </div>
             <ng-template ngComboboxPopupContainer>
