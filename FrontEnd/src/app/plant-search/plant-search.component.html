@@ -45,16 +45,16 @@
 
     <div class="filter-title-container">
         <h1 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h1>
-        <div ngCombobox filterMode="auto-select">
+        <div ngCombobox filterMode="auto-select" >
             <div class="autocomplete" #countyOrigin>
                 <input #countyNameInput="ngComboboxInput" ngComboboxInput  [(ngModel)]="geolocationCountyNewQuery"
                     [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice" class="input-counties"
-                    aria-labelledby="filter-search-title" (valueChange)="handleNameInput(countyNameInput.value())" />
+                    aria-labelledby="filter-search-title"  />
             </div>
             <ng-template ngComboboxPopupContainer>
                 <ng-template [cdkConnectedOverlay]="{origin: countyOrigin,  usePopover: 'inline', matchWidth: true}"
                     [cdkConnectedOverlayOpen]="true">
-                    <div class="popup">
+                    <div class="county-popup">
                         @if(filteredCounties()?.length === 0)
                         {
                         <div class="no-results">{{'NO_COUNTRIES_FOUND' | transloco}}</div>

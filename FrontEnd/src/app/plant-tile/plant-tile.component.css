@@ -7,10 +7,10 @@
 }
 
 .plant-holder-tile {
-    height: calc(100% - 2em);
-    width: calc(100% - 2em);
+    height: calc(100% - 1em);
+    width: calc(100% - 1em);
     display: flex;
-    padding: 1em;
+    padding: .5em;
     flex-direction: column;
     background-color: var(--grass-light-green);
 }

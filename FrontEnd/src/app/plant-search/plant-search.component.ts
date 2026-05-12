@@ -80,7 +80,11 @@ export class PlantSearchComponent implements OnDestroy {
   public trackCountyByCombinedFIP(county: CountyCSVItem): string { return this.countyService.trackCountyByCombinedFIP(county); }
 
   public geolocationCountyNewQuery = signal('');
-  public filteredCounties = computed(() => this.countiesSignal()?.filter((county) => county.countyName.toLowerCase().includes(this.geolocationCountyNewQuery().toLowerCase()) || this.geolocationCountyNewQuery().toLowerCase().includes(county.stateAbbrev.toLowerCase())));
+  public filteredCounties = computed(() => {
+    const query = this.geolocationCountyNewQuery().toLowerCase();
+    return this.countiesSignal()?.filter((county) => `${county.countyName} - ${county.stateAbbrev}`.toLowerCase()
+      .includes(query));
+  });
 
   protected listbox = viewChild<Listbox<string>>(Listbox);
   protected options = viewChildren<Option<string>>(Option);

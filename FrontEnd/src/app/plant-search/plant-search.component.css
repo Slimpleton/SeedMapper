@@ -20,7 +20,7 @@ h1 {
     gap: .3em;
     flex-wrap: wrap;
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .filter-title {
@@ -93,12 +93,11 @@ h1 {
     max-width: 40ch;
     font-weight: 600;
     text-overflow: ellipsis;
-    margin-left: .2em;
     font-size: clamp(1rem, 2cqi, 3rem);
     box-sizing: border-box;
 }
 
-[ngCombobox]:has([aria-expanded='false']) .popup {
+[ngCombobox]:has([aria-expanded='false']) .county-popup {
     display: none;
 }
 
@@ -109,14 +108,19 @@ h1 {
     background-color: var(--grass-green);
     border-left: .2em solid var(--wood-dark-brown);
     border-right: .2em solid var(--wood-dark-brown);
+    border-bottom: .2em solid var(--wood-dark-brown);
+    overflow-y: auto;
+    height: 100%;
 }
 
 [ngOption] {
     display: flex;
     cursor: pointer;
     align-items: center;
-    padding: 0 .5em;
+    padding: .5em;
     min-height: 2em;
+    height: auto;
+    flex-shrink: 0;
 }
 
 [ngOption]:not(:last-child) {
@@ -128,8 +132,16 @@ h1 {
 }
 
 .county-popup {
-    max-height: 12em;
+    max-height: max(6em, 50vh);
     font-size: .9em;
-    overflow-y: auto;
     width: 100%;
+}
+
+.no-results {
+    border-left: .2em solid var(--wood-dark-brown);
+    border-right: .2em solid var(--wood-dark-brown);
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    background-color: var(--grass-green);
 }
