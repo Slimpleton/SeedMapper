@@ -17,7 +17,7 @@ h1 {
     display: flex;
     flex-grow: 1;
     justify-content: center;
-    gap: .3em;
+    gap: .5em;
     flex-wrap: wrap;
     min-width: 0;
     overflow: visible;

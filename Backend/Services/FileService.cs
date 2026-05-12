@@ -2,6 +2,7 @@
 using Backend.Models;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32.SafeHandles;
+using System.Collections.Frozen;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -11,18 +12,24 @@ namespace Backend.Services
 {
     public static partial class FileService
     {
-        private static Dictionary<string, HashSet<PlantData>> PlantsByLocation { get; } = [];
+        private static FrozenDictionary<string, HashSet<PlantData>> PlantsByLocation { get; set; }
+        = FrozenDictionary<string, HashSet<PlantData>>.Empty;
         public static PlantData[] PlantData { get; }
         private static readonly SafeFileHandle? _photoFileHandle;
-        public static Dictionary<string, PlantData> AcceptedSymbolToPlant { get; } = [];
-        public static Dictionary<string, string> AcceptedSymbolToTaxonId { get; } = [];
-        public static Dictionary<string, (long FirstOffset, long TotalBytes)> PhotoOffsetsBySymbol { get; } = [];
-        public static Dictionary<long, Observer> ObserversById { get; } = [];
+        public static FrozenDictionary<string, PlantData> AcceptedSymbolToPlant { get; private set; }
+         = FrozenDictionary<string, PlantData>.Empty;
+
+        public static FrozenDictionary<string, string> AcceptedSymbolToTaxonId { get; private set; }
+         = FrozenDictionary<string, string>.Empty;
+        public static FrozenDictionary<string, (long FirstOffset, long TotalBytes)> PhotoOffsetsBySymbol { get; private set; }
+            = FrozenDictionary<string, (long FirstOffset, long TotalBytes)>.Empty;
+        public static FrozenDictionary<long, Observer> ObserversById { get; private set;} 
+         = FrozenDictionary<long, Observer>.Empty;
 
         private const int MinimumSpeciesNameWords = 2;
 
-        private static readonly Dictionary<LocationCode, NativeLocationCode[]> _LocationToNativeRegion =
-    new()
+        private static readonly FrozenDictionary<LocationCode, NativeLocationCode[]> _LocationToNativeRegion =
+    new Dictionary<LocationCode, NativeLocationCode[]>()
     {
         // US States (Lower 48)
         { LocationCode.AL, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
@@ -107,7 +114,7 @@ namespace Backend.Services
         { LocationCode.YT, new[] { NativeLocationCode.CAN } },
         { LocationCode.NF, new[] { NativeLocationCode.CAN } },
         { LocationCode.LB, new[] { NativeLocationCode.CAN } }
-    };
+    }.ToFrozenDictionary();
 
         static FileService()
         {
@@ -155,19 +162,22 @@ namespace Backend.Services
             PlantData = new PlantData[data.Length];
             data.CopyTo(PlantData);
 
-
+            var dict = new Dictionary<string, PlantData>();
+            var plantDict = new Dictionary<string, HashSet<PlantData>>();
             foreach (PlantData datum in data)
             {
                 foreach (string fip in datum.CombinedCountyFIPs)
                 {
-                    if (!PlantsByLocation.ContainsKey(fip))
-                        PlantsByLocation[fip] = [];
-                    PlantsByLocation[fip].Add(datum);
+                    if (!plantDict.ContainsKey(fip))
+                        plantDict[fip] = [];
+                    plantDict[fip].Add(datum);
                     // Add state fip
                     //PlantsByLocation[fip[..2]].Add(datum);
                 }
-                AcceptedSymbolToPlant.Add(datum.AcceptedSymbol, datum);
+                dict.Add(datum.AcceptedSymbol, datum);
             }
+            AcceptedSymbolToPlant = dict.ToFrozenDictionary();
+            PlantsByLocation = plantDict.ToFrozenDictionary();
         }
 
 
@@ -214,56 +224,64 @@ namespace Backend.Services
 
         private static void ParseObservers(string observersPath)
         {
+            var dict = new Dictionary<long, Observer>();
             foreach (string line in File.ReadLines(observersPath).Skip(1))
             {
                 string[] fields = line.Split('\t');
                 if (fields.Length >= 1 && long.TryParse(fields[0], out long observerId))
                 {
-                    ObserversById[observerId] = new Observer(
+                    dict[observerId] = new Observer(
                     fields.Length >= 2 ? fields[1] : "",
                     fields.Length >= 3 ? fields[2] : ""
                 );
                 }
             }
+            ObserversById = dict.ToFrozenDictionary();
         }
 
 
         private static void ParseTaxons(string taxonsPath)
         {
+            var dict = new Dictionary<string, string>();
             foreach (string line in File.ReadLines(taxonsPath).Skip(1))
             {
                 string[] fields = line.Split(',');
-                if (fields.Length >= 1) AcceptedSymbolToTaxonId.Add(fields[0].Trim('"'), fields[1].Trim('"'));
+                if (fields.Length >= 1) dict.Add(fields[0].Trim('"'), fields[1].Trim('"'));
             }
+
+            AcceptedSymbolToTaxonId = dict.ToFrozenDictionary();
         }
 
         private static void ParseSymbolOffsets(string photosPath)
         {
-
             long offset = 0;
             string? currentSymbol = null;
             long symbolStartOffset = 0;
             int lineEndingBytes = GetLineEndingBytes(photosPath);
+            var dict = new Dictionary<string, (long FirstOffset, long TotalBytes)>();
 
             foreach (string line in File.ReadLines(photosPath))
             {
-                long lineBytes = Encoding.UTF8.GetByteCount(line) + lineEndingBytes; // +2 for \r\n
+                long lineBytes = Encoding.UTF8.GetByteCount(line) + lineEndingBytes;
                 if (offset > 0) // skip header
                 {
                     string symbol = line.Split(',')[1].Trim('"');
                     if (symbol != currentSymbol)
                     {
                         if (currentSymbol != null)
-                            PhotoOffsetsBySymbol[currentSymbol] = (symbolStartOffset, offset - symbolStartOffset);
+                            dict[currentSymbol] = (symbolStartOffset, offset - symbolStartOffset);
                         currentSymbol = symbol;
                         symbolStartOffset = offset;
                     }
                 }
                 offset += lineBytes;
             }
-            // finalize last symbol
+
+            // Finalize last symbol
             if (currentSymbol != null)
-                PhotoOffsetsBySymbol[currentSymbol] = (symbolStartOffset, offset - symbolStartOffset);
+                dict[currentSymbol] = (symbolStartOffset, offset - symbolStartOffset);
+
+            PhotoOffsetsBySymbol = dict.ToFrozenDictionary();
         }
 
         private static int GetLineEndingBytes(string csvPath)
