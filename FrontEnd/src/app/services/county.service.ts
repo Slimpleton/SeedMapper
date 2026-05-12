@@ -1,8 +1,9 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, Signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { combineCountyFIP, CountyCSVItem } from '../models/gov/models';
 import { Observable, Subject } from 'rxjs';
 import { map, shareReplay, take, takeUntil } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class CountyService implements OnDestroy {
@@ -14,6 +15,7 @@ export class CountyService implements OnDestroy {
             shareReplay({ bufferSize: 1, refCount: false }),
             takeUntil(this._destroy$)
         );
+    public readonly countiesSignal: Signal<CountyCSVItem[] | undefined> = toSignal(this.counties$);
 
     public readonly countyLookup$: Observable<Map<string, CountyCSVItem>> = this.counties$.pipe(
         take(1),
@@ -27,6 +29,7 @@ export class CountyService implements OnDestroy {
         shareReplay({ bufferSize: 1, refCount: false })
     );
 
+    public readonly countyLookupSignal: Signal<Map<string, CountyCSVItem> | undefined> = toSignal(this.countyLookup$);
     public constructor(private readonly _http: HttpClient) { }
 
     public getCountyByFip(stateFip: number, countyFip: string): Observable<CountyCSVItem> {

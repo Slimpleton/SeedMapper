@@ -1,3 +1,4 @@
+/* eslint-disable css/use-baseline */
 h2,
 h1 {
     margin: 0;
@@ -94,57 +95,37 @@ h1 {
     font-size: clamp(1rem, 2cqi, 3rem);
 }
 
-.county-combobox {
-    display: inline-flex;
-    flex-direction: column;
-    position: relative;
+[ngCombobox]:has([aria-expanded='false']) .popup {
+    display: none;
 }
 
-.county-input-wrapper {
+[ngListbox] {
+    gap: .1em;
+    height: 100%;
     display: flex;
+    overflow: auto;
+    flex-direction: column;
+    background-color: var(--grass-green);
+}
+
+[ngOption] {
+    display: flex;
+    cursor: pointer;
     align-items: center;
+    padding: 0 1rem;
+    min-height: 2em;
+}
+
+[ngOption]:not(:last-child) {
+    border-bottom: .1em solid var(--wood-dark-brown);
+}
+
+[ngOption][aria-selected='true'] {
+    background-color: var(--grass-light-green);
 }
 
 .county-popup {
-    background: white;
-    border: 1px solid var(--wood-dark-brown);
-    border-radius: 4px;
-    max-height: calc(48px * 6);
-    /* 6 visible rows max */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    /* smooth momentum scroll on iOS */
-    overscroll-behavior: contain;
-    /* prevent page scroll bleed-through */
-}
-
-.county-listbox {
-    display: flex;
-    flex-direction: column;
-}
-
-.county-option {
-    min-height: 48px;
-    /* minimum tap target */
-    display: flex;
-    align-items: center;
-    padding: 0 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-sizing: border-box;
-    color: var(--wood-dark-brown);
-}
-
-.county-option:hover,
-[ngOption][aria-selected="true"] {
-    background: var(--grass-light-green);
-}
-
-.county-hint {
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    padding: 0 1rem;
-    opacity: 0.6;
-    font-style: italic;
+    max-height: 12em;
+    font-size: .9em;
+    width: 100%;
 }

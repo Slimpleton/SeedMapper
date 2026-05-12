@@ -1,8 +1,8 @@
 <section class="plant-holder-tile" id="plant-holder-{{plant.acceptedSymbol}}">
 
     <span class="splitter">
-        <h3 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
-        </h3>
+        <h2 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
+        </h2>
         <!-- TODO insert inaturalist stuff here -->
         <!-- TODO get taxonId from plant -->
         @if(plant.taxonId !== null && plant.taxonId !== undefined){

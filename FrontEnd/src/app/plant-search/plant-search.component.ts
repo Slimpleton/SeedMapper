@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal } from '@angular/core';
 import { combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { AsyncPipe, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
@@ -12,13 +12,31 @@ import { combineLatest, Subject } from 'rxjs';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { buildRoute, Route, SearchRouteParam } from '../app.routes';
+import { Combobox, ComboboxInput, ComboboxPopupContainer } from '@angular/aria/combobox';
+import { Listbox, Option } from '@angular/aria/listbox';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { FormsModule } from '@angular/forms';
+import {
+  afterRenderEffect,
+  computed,
+  signal,
+  viewChild,
+  viewChildren,
+} from '@angular/core';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-search',
-  imports: [TranslocoPipe, UpperCasePipe, AsyncPipe],
+  imports: [TranslocoPipe, UpperCasePipe,
+    Combobox,
+    ComboboxInput,
+    ComboboxPopupContainer,
+    Listbox,
+    Option,
+    OverlayModule,
+    FormsModule],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })
@@ -55,13 +73,18 @@ export class PlantSearchComponent implements OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject<void>();
 
   @Output() public filterInProgress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  @ViewChild('countiesDataList') public readonly countiesDataList!: ElementRef<HTMLDataListElement>;
 
   // Delegated to CountyService — survives navigation and SSR hydration
   public get counties$(): Observable<CountyCSVItem[]> { return this.countyService.counties$; }
+  public get countiesSignal(): Signal<CountyCSVItem[] | undefined> { return this.countyService.countiesSignal; }
   public trackCountyByCombinedFIP(county: CountyCSVItem): string { return this.countyService.trackCountyByCombinedFIP(county); }
 
-  public geolocationCountyName: string = '';
+  public geolocationCountyNewQuery = signal('');
+  public filteredCounties = computed(() => this.countiesSignal()?.filter((county) => county.countyName.toLowerCase().includes(this.geolocationCountyNewQuery().toLowerCase()) || this.geolocationCountyNewQuery().toLowerCase().includes(county.stateAbbrev.toLowerCase())));
+
+  protected listbox = viewChild<Listbox<string>>(Listbox);
+  protected options = viewChildren<Option<string>>(Option);
+  protected combobox = viewChild<Combobox<string>>(Combobox);
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
@@ -115,6 +138,26 @@ export class PlantSearchComponent implements OnDestroy {
     private readonly _activatedRoute: ActivatedRoute,
     private readonly _router: Router) {
 
+    afterRenderEffect(() => {
+      const option = this.options().find((opt) => opt.active());
+      setTimeout(() => option?.element.scrollIntoView({ block: 'nearest' }), 50);
+    });
+    // Resets the listbox scroll position when the combobox is closed.
+    afterRenderEffect(() => {
+      if (!this.combobox()?.expanded()) {
+        setTimeout(() => this.listbox()?.element.scrollTo(0, 0), 150);
+      }
+    });
+
+    afterRenderEffect(() => {
+      if (!this.combobox()?.expanded()) {
+        const values = this.listbox()?.values();
+        if (values?.length) {
+          this.handleNameInput(values[0]);
+        }
+      }
+    });
+
     this._fullyFilteredNativePlants.subscribe((plants) => this.filteredDataBatch.emit(plants));
 
     this._positionService.countyEmitter$
@@ -134,7 +177,7 @@ export class PlantSearchComponent implements OnDestroy {
       )
       .subscribe((county) => {
         const combinedName = this.countyService.getCountyAndStateAbbrev(county);
-        this.geolocationCountyName = combinedName;
+        this.geolocationCountyNewQuery.set(combinedName);
         this._countyRenavigate$.next(combinedName);
       });
 
@@ -152,7 +195,7 @@ export class PlantSearchComponent implements OnDestroy {
       filter((county): county is CountyCSVItem => !!county),
       takeUntil(this._destroy$)
     ).subscribe((county) => {
-      this.geolocationCountyName = this.countyService.getCountyAndStateAbbrev(county);
+      this.geolocationCountyNewQuery.set(this.countyService.getCountyAndStateAbbrev(county));
       this._positionService.manualCounty = county;
     });
 
@@ -189,7 +232,8 @@ export class PlantSearchComponent implements OnDestroy {
     this._durationEmitter$.next(duration as Duration);
   }
 
-  public handleNameInput(name: string | null): void {
+  public handleNameInput(name: string | undefined): void {
     if (name) this._countyRenavigate$.next(name);
   }
+
 }
