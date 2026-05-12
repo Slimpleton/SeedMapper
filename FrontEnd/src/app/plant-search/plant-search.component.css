@@ -19,6 +19,8 @@ h1 {
     justify-content: center;
     gap: .3em;
     flex-wrap: wrap;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .filter-title {
@@ -87,12 +89,13 @@ h1 {
 
 .input-counties {
     background-color: var(--grass-light-green);
-    width: min(100%, 32ch);
+    width: min(100%, 30ch);
     max-width: 40ch;
     font-weight: 600;
     text-overflow: ellipsis;
-    margin-left: .3em;
+    margin-left: .2em;
     font-size: clamp(1rem, 2cqi, 3rem);
+    box-sizing: border-box;
 }
 
 [ngCombobox]:has([aria-expanded='false']) .popup {
@@ -100,19 +103,19 @@ h1 {
 }
 
 [ngListbox] {
-    gap: .1em;
-    height: 100%;
+    gap: .15em;
     display: flex;
-    overflow: auto;
     flex-direction: column;
     background-color: var(--grass-green);
+    border-left: .2em solid var(--wood-dark-brown);
+    border-right: .2em solid var(--wood-dark-brown);
 }
 
 [ngOption] {
     display: flex;
     cursor: pointer;
     align-items: center;
-    padding: 0 1rem;
+    padding: 0 .5em;
     min-height: 2em;
 }
 
@@ -127,5 +130,6 @@ h1 {
 .county-popup {
     max-height: 12em;
     font-size: .9em;
+    overflow-y: auto;
     width: 100%;
 }
