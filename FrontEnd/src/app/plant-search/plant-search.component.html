@@ -45,14 +45,33 @@
 
     <div class="filter-title-container">
         <h1 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h1>
-        <input (input)="handleNameInput(countyNameInput.value)" [value]="geolocationCountyName" #countyNameInput
-            [placeholder]="'COUNTY_PLACEHOLDER' | transloco" type="text" id="county-choice" class="input-counties"
-            aria-labelledby="filter-search-title" list="counties" />
+        <div ngCombobox filterMode="auto-select" >
+            <div class="autocomplete" #countyOrigin>
+                <input #countyNameInput="ngComboboxInput" ngComboboxInput  [(ngModel)]="geolocationCountyNewQuery"
+                    [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice" class="input-counties"
+                    aria-labelledby="filter-search-title"  />
+            </div>
+            <ng-template ngComboboxPopupContainer>
+                <ng-template [cdkConnectedOverlay]="{origin: countyOrigin,  usePopover: 'inline', matchWidth: true}"
+                    [cdkConnectedOverlayOpen]="true">
+                    <div class="county-popup">
+                        @if(filteredCounties()?.length === 0)
+                        {
+                        <div class="no-results">{{'NO_COUNTRIES_FOUND' | transloco}}</div>
+                        }
+
+                        <div class="listbox" ngListbox>
+                            @for(county of filteredCounties(); track county.countyFip){
+                            <div class="option" ngOption [value]="county.countyName + ' - ' + county.stateAbbrev"
+                                [label]="county.countyName + ' - ' + county.stateAbbrev">
+                                <span class="option-label"> {{county.countyName + ' - ' + county.stateAbbrev}}</span>
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                </ng-template>
+            </ng-template>
+        </div>
     </div>
-    <datalist id="counties" #countiesDataList>
-        @for(county of counties$ | async; track trackCountyByCombinedFIP(county)){
-        <option [value]="countyService.getCountyAndStateAbbrev(county)"></option>
-        }
-    </datalist>
-    <input #countyFipInput type="hidden" name="county-fip-choice" id="county-fip-choice" aria-hidden="true">
 </section>

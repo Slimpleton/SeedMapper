@@ -35,6 +35,7 @@
     "DURATION": "Duration",
     "ACTIVE_GROWTH_PERIOD": "Active Growth Seasons",
     "SHAPE_AND_ORIENTATION": "Shape & Orientation",
+    "NO_COUNTRIES_FOUND": "No countries found",
     "DURATIONS": {
         "ANY": "-- Durations --",
         "AN": "Annual",
