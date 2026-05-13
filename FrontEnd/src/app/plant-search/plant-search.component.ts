@@ -48,10 +48,10 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
   styleUrl: './plant-search.component.css'
 })
 export class PlantSearchComponent implements OnDestroy {
-  public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
+  public growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
   private readonly _growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
-  public durations: Duration[] = ['Any', 'Annual', 'Perennial', 'Biennial'];
+  public durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
   private readonly _durationEmitter$: BehaviorSubject<Duration> = new BehaviorSubject<Duration>('Any');
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
@@ -96,8 +96,9 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly listbox = viewChild<Listbox<string>>(Listbox);
   protected readonly options = viewChildren<Option<string>>(Option);
   protected readonly combobox = viewChild<Combobox<string>>(Combobox);
-  protected filterMenu = viewChild<Menu<string>>('filterMenu');
-  protected durationMenu = viewChild<Menu<Duration>>('durationMenu');
+  protected filterMenu = viewChild<Menu<string | Duration>>('filterMenu');
+  protected durationMenu = viewChild<Menu<string>>('durationMenu');
+  protected growthHabitMenu = viewChild<Menu<string>>('growthHabitMenu');
 
 
   private readonly _countyRenavigate$ = new Subject<string>();
@@ -243,6 +244,7 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   public changeDuration(duration: string): void {
+    console.log(duration);
     this._durationEmitter$.next(duration as Duration);
   }
 

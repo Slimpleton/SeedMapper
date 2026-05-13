@@ -148,42 +148,54 @@ h1 {
 }
 
 [ngMenuTrigger] {
-  display: flex;
-  cursor: pointer;
-  align-items: center;
-  padding: 0.5em 1em;
-  border-radius: 0.5em;
-  color: var(--wood-dark-brown);
-  border: 1px solid var(--wood-dark-brown);
-  background-color: var(--grass-light-green);
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    padding: 0.5em 1em;
+    border-radius: 0.5em;
+    border: .15em solid var(--wood-dark-brown);
+    background-color: var(--grass-light-green);
+    width: fit-content;
 }
 
 [ngMenu] {
-  margin: 0;
-  width: 15em;
-  padding: 0.25em;
-  border-radius: 0.5em;
-  border: 1px solid var(--wood-dark-brown);
-  background-color: var(--grass-light-green);
+    margin: 0;
+    width: fit-content;
+    padding: 0.25em;
+    box-sizing: border-box;
+    border-radius: 0.5em;
+    border: .15em solid var(--wood-dark-brown);
+    background-color: var(--grass-light-green);
+    font-weight: bold;
 }
 
 [ngMenu][data-visible='false'] {
-  display: none;
+    display: none;
 }
 
 [ngMenuItem] {
-  outline: none;
-  display: flex;
-  cursor: pointer;
-  align-items: center;
-  gap: 0.5em;
-  padding: 0.5em;
-  font-size: 0.875em;
-  border-radius: 0.25em;
+    outline: none;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em;
+    font-size: 0.875em;
+    border-radius: 0.25em;
+    justify-content: space-between;
 }
 
 [ngMenu] .separator {
-  border-top: 1px solid var(--border-color);
-  margin: 0.25rem 0;
-  opacity: 0.25;
+    border-top: .1em solid var(--wood-dark-brown);
+    margin: 0.25em 0;
+    opacity: 0.25;
+}
+
+.menu-arrow {
+    transform: rotate(180deg) scale(.75);
+}
+
+[ngMenuTrigger]:hover,
+[ngMenuItem][data-active='true'] {
+    background: var(--grass-green);
 }
