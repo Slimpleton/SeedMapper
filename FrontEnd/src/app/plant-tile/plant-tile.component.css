@@ -4,13 +4,14 @@
 
 :host {
     --splitter-gap: .85em;
+    --tile-padding: .5em;
 }
 
 .plant-holder-tile {
-    height: calc(100% - 1em);
-    width: calc(100% - 1em);
+    height: calc(100% - 2 * var(--tile-padding));
+    width: calc(100% - 2 * var(--tile-padding));
     display: flex;
-    padding: .5em;
+    padding: var(--tile-padding);
     flex-direction: column;
     background-color: var(--grass-light-green);
 }
@@ -130,7 +131,7 @@ h4 {
 .img {
     display: block;
     width: fit-content;
-    max-width: 100vw;
+    max-width: calc(100% - 2 * var(--tile-padding));
     object-fit: contain;
 }
 

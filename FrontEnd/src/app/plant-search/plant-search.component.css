@@ -102,15 +102,15 @@ h1 {
 }
 
 [ngListbox] {
-    gap: .15em;
     display: flex;
     flex-direction: column;
-    background-color: var(--grass-green);
+    background-color: var(--grass-light-green);
     border-left: .2em solid var(--wood-dark-brown);
     border-right: .2em solid var(--wood-dark-brown);
     border-bottom: .2em solid var(--wood-dark-brown);
     overflow-y: auto;
     height: 100%;
+    box-sizing: border-box;
 }
 
 [ngOption] {
@@ -121,6 +121,7 @@ h1 {
     min-height: 2em;
     height: auto;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 [ngOption]:not(:last-child) {
@@ -128,7 +129,7 @@ h1 {
 }
 
 [ngOption][aria-selected='true'] {
-    background-color: var(--grass-light-green);
+    background-color: var(--grass-green);
 }
 
 .county-popup {
@@ -143,5 +144,46 @@ h1 {
     box-sizing: border-box;
     width: 100%;
     height: auto;
-    background-color: var(--grass-green);
+    background-color: var(--grass-light-green);
+}
+
+[ngMenuTrigger] {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
+  color: var(--wood-dark-brown);
+  border: 1px solid var(--wood-dark-brown);
+  background-color: var(--grass-light-green);
+}
+
+[ngMenu] {
+  margin: 0;
+  width: 15em;
+  padding: 0.25em;
+  border-radius: 0.5em;
+  border: 1px solid var(--wood-dark-brown);
+  background-color: var(--grass-light-green);
+}
+
+[ngMenu][data-visible='false'] {
+  display: none;
+}
+
+[ngMenuItem] {
+  outline: none;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5em;
+  font-size: 0.875em;
+  border-radius: 0.25em;
+}
+
+[ngMenu] .separator {
+  border-top: 1px solid var(--border-color);
+  margin: 0.25rem 0;
+  opacity: 0.25;
 }

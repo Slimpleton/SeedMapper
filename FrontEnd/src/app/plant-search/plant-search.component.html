@@ -22,6 +22,38 @@
                 </select>
             </div>
         </div>
+
+        <button ngMenuTrigger #filterMenuTrigger #trigger="ngMenuTrigger" [menu]="filterMenu()">{{'FILTERS' |
+            transloco}}</button>
+        <ng-template [cdkConnectedOverlayOpen]="trigger.expanded()"
+            [cdkConnectedOverlay]="{origin: filterMenuTrigger, usePopover: 'inline'}" [cdkConnectedOverlayPositions]="[
+    {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4},
+  ]" cdkAttachPopoverAsChild>
+            <div class="menu" id="filter-menu" ngMenu #filterMenu="ngMenu">
+                <ng-template ngMenuContent>
+                    <div class="menu-item" value="duration" ngMenuItem #durationItem [submenu]="durationMenu()">
+                        <span class="label">{{'DURATION' | transloco}}</span>
+                        <app-icon stroke="white" name="arrow"></app-icon>
+                    </div>
+
+                    <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                        [cdkConnectedOverlay]="{origin: durationItem , usePopover: 'inline'}"
+                        [cdkConnectedOverlayPositions]="[
+          {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
+        ]" cdkAttachPopoverAsChild>
+                        <div class="menu" id="duration-menu" ngMenu #durationMenu="ngMenu">
+                            <ng-template ngMenuContent>
+                                
+                            </ng-template>
+                        </div>
+                    </ng-template>
+                    <div role="separator" aria-orientation="horizontal" class="separator"></div>
+
+                </ng-template>
+            </div>
+
+        </ng-template>
+
     </div>
     <div class="col">
         <div name="sort-container" id="sort-container" class="sort-container col">
@@ -41,15 +73,15 @@
 
     <div class="filter-title-container">
         <h1 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h1>
-        <div ngCombobox filterMode="auto-select" >
+        <div ngCombobox filterMode="auto-select">
             <div class="autocomplete" #countyOrigin>
-                <input #countyNameInput="ngComboboxInput" ngComboboxInput  [(ngModel)]="geolocationCountyNewQuery" #countyInput
-                    [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice" class="input-counties" (focus)="countyInput.select()"
-                    aria-labelledby="filter-search-title"  />
+                <input #countyNameInput="ngComboboxInput" ngComboboxInput [(ngModel)]="geolocationCountyNewQuery"
+                    #countyInput [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice"
+                    class="input-counties" (focus)="countyInput.select()" aria-labelledby="filter-search-title" />
             </div>
             <ng-template ngComboboxPopupContainer>
                 <ng-template [cdkConnectedOverlay]="{origin: countyOrigin,  usePopover: 'inline', matchWidth: true}"
-                    [cdkConnectedOverlayOpen]="true">
+                    [cdkConnectedOverlayOpen]="geolocationCountyNewQuery().length > 0">
                     <div class="county-popup">
                         @if(filteredCounties()?.length === 0)
                         {

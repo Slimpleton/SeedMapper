@@ -23,6 +23,8 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@angular/aria/menu';
+import { IconComponent } from '../icon/icon.component';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
@@ -36,7 +38,12 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
     Listbox,
     Option,
     OverlayModule,
-    FormsModule],
+    FormsModule,
+    Menu,
+    MenuContent,
+    MenuItem,
+    MenuTrigger,
+    IconComponent],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })
@@ -86,9 +93,12 @@ export class PlantSearchComponent implements OnDestroy {
       .includes(query));
   });
 
-  protected listbox = viewChild<Listbox<string>>(Listbox);
-  protected options = viewChildren<Option<string>>(Option);
-  protected combobox = viewChild<Combobox<string>>(Combobox);
+  protected readonly listbox = viewChild<Listbox<string>>(Listbox);
+  protected readonly options = viewChildren<Option<string>>(Option);
+  protected readonly combobox = viewChild<Combobox<string>>(Combobox);
+  protected filterMenu = viewChild<Menu<string>>('filterMenu');
+  protected durationMenu = viewChild<Menu<Duration>>('durationMenu');
+
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
