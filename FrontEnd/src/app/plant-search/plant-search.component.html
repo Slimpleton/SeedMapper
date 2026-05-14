@@ -1,26 +1,71 @@
 <section id="plant-search-container">
     <div class="col">
-        <!-- TODO angular multiselect for this kinda filtering -->
-        <span class="label">{{'FILTERS' | transloco}}</span>
-        <div id="search-container" name="search-container" class="search-container col">
-            <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
-                [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
-            <div class="search-container row">
-                <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector"
-                    [attr.aria-label]="'GROWTH_HABIT' | transloco" class="selector" id="growthHabitSelector"
-                    #growthHabitSelector>
-                    @for (growthHabit of growthHabits; track growthHabit) {
-                    <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>
-                    }
-                </select>
-                <!-- TODO allow for multi select -->
-                <select (change)="changeDuration(durationSelector.value)" name="durationSelector" id="durationSelector"
-                    [attr.aria-label]="'DURATION' | transloco" class="selector" #durationSelector>
-                    @for(duration of durations; track duration){
-                    <option [value]="duration">{{'DURATIONS.' + duration| uppercase | transloco}}</option>
-                    }
-                </select>
-            </div>
+        <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
+            [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
+        <div class="row">
+            <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #trigger="ngMenuTrigger"
+                [menu]="filterMenu()">{{'FILTERS' |
+                transloco}}</button>
+            <ng-template [cdkConnectedOverlayOpen]="trigger.expanded()"
+                [cdkConnectedOverlay]="{origin: filterMenuTrigger, usePopover: 'inline'}"
+                [cdkConnectedOverlayPositions]="[
+    {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4},
+  ]" cdkAttachPopoverAsChild>
+                <div class="menu" id="filter-menu" ngMenu #filterMenu="ngMenu"
+                    (itemSelected)="onFilterItemSelected($event)">
+                    <ng-template ngMenuContent>
+                        <div class="menu-item" value="duration" ngMenuItem #durationItem [submenu]="durationMenu()">
+                            <span class="label">{{'DURATION' | transloco}}</span>
+                            <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
+                        </div>
+
+                        <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                            [cdkConnectedOverlay]="{origin: durationItem , usePopover: 'inline'}"
+                            [cdkConnectedOverlayPositions]="[
+          {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
+        ]" cdkAttachPopoverAsChild>
+                            <div class="menu" id="duration-menu" ngMenu #durationMenu="ngMenu">
+                                <ng-template ngMenuContent>
+                                    @for(duration of durations; track duration){
+                                    <div ngMenuItem [value]="duration" [disabled]="durationEmitter$.value === duration"
+                                    [class.chosen-item]="(durationEmitter$ | async) === duration">
+                                        <span class="label">{{'DURATIONS.' + duration| uppercase | transloco}}</span>
+                                    </div>
+                                    }
+                                </ng-template>
+                            </div>
+                        </ng-template>
+                        <div role="separator" aria-orientation="horizontal" class="separator"></div>
+
+                        <div class="menu-item" value="growthHabits" ngMenuItem #growthHabitItem
+                            [submenu]="growthHabitMenu()">
+                            <span class="label">{{'GROWTH_HABIT' | transloco}}</span>
+                            <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
+                        </div>
+
+                        <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                            [cdkConnectedOverlay]="{origin: growthHabitItem , usePopover: 'inline'}"
+                            [cdkConnectedOverlayPositions]="[
+          {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
+        ]" cdkAttachPopoverAsChild>
+                            <div class="menu" id="growth-habit-menu" ngMenu #growthHabitMenu="ngMenu">
+                                <ng-template ngMenuContent>
+                                    @for(growthHabit of growthHabits; track growthHabit){
+                                    <div ngMenuItem [value]="growthHabit" [disabled]="(growthHabitEmitter$ | async) === growthHabit"
+                                    [class.chosen-item]="(growthHabitEmitter$ | async) === growthHabit">
+                                        <span class="label">{{'GROWTH_HABITS.' + growthHabit| uppercase |
+                                            transloco}}</span>
+
+                                    </div>
+                                    }
+                                </ng-template>
+                            </div>
+                        </ng-template>
+                    </ng-template>
+                </div>
+
+            </ng-template>
+            <button class="clear-btn" (click)="clearFilters()">{{'CLEAR' | transloco}}</button>
         </div>
     </div>
     <div class="col">
@@ -34,22 +79,23 @@
             </select>
             <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()"
                 [attr.aria-label]="('SORT' | transloco) + ' ' + sortOptionDirection">
-                {{sortOptionDirection}}
+                {{sortOptionDirection()}}
             </button>
         </div>
     </div>
 
     <div class="filter-title-container">
         <h1 class="filter-title" id="filter-search-title">{{'NATIVE_PLANTS_IN' | transloco}} </h1>
-        <div ngCombobox filterMode="auto-select" >
+        <div ngCombobox filterMode="auto-select">
             <div class="autocomplete" #countyOrigin>
-                <input #countyNameInput="ngComboboxInput" ngComboboxInput  [(ngModel)]="geolocationCountyNewQuery" #countyInput
-                    [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice" class="input-counties" (focus)="countyInput.select()"
-                    aria-labelledby="filter-search-title"  />
+                <input #countyNameInput="ngComboboxInput" ngComboboxInput [(ngModel)]="geolocationCountyNewQuery"
+                    #countyInput [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice"
+                    class="input-counties" (focus)="countyInput.select()" aria-labelledby="filter-search-title"
+                    autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
             </div>
             <ng-template ngComboboxPopupContainer>
                 <ng-template [cdkConnectedOverlay]="{origin: countyOrigin,  usePopover: 'inline', matchWidth: true}"
-                    [cdkConnectedOverlayOpen]="true">
+                    [cdkConnectedOverlayOpen]="geolocationCountyNewQuery().length > 0">
                     <div class="county-popup">
                         @if(filteredCounties()?.length === 0)
                         {

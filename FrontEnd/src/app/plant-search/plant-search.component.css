@@ -59,7 +59,6 @@ h1 {
 }
 
 .sortOrderButton {
-    background-color: var(--grass-light-green);
     color: black;
     font-weight: bold;
     width: 6ch;
@@ -88,7 +87,6 @@ h1 {
 }
 
 .input-counties {
-    background-color: var(--grass-light-green);
     width: min(100%, 30ch);
     max-width: 40ch;
     font-weight: 600;
@@ -102,15 +100,15 @@ h1 {
 }
 
 [ngListbox] {
-    gap: .15em;
     display: flex;
     flex-direction: column;
-    background-color: var(--grass-green);
+    background-color: var(--grass-light-green);
     border-left: .2em solid var(--wood-dark-brown);
     border-right: .2em solid var(--wood-dark-brown);
     border-bottom: .2em solid var(--wood-dark-brown);
     overflow-y: auto;
     height: 100%;
+    box-sizing: border-box;
 }
 
 [ngOption] {
@@ -121,6 +119,7 @@ h1 {
     min-height: 2em;
     height: auto;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 [ngOption]:not(:last-child) {
@@ -128,7 +127,7 @@ h1 {
 }
 
 [ngOption][aria-selected='true'] {
-    background-color: var(--grass-light-green);
+    background-color: var(--grass-green);
 }
 
 .county-popup {
@@ -137,11 +136,69 @@ h1 {
     width: 100%;
 }
 
+.no-results, [ngMenuTrigger], .clear-btn, [ngMenu], .input-counties, .sortOrderButton {
+    background-color: var(--grass-light-green);
+}
+
 .no-results {
     border-left: .2em solid var(--wood-dark-brown);
     border-right: .2em solid var(--wood-dark-brown);
     box-sizing: border-box;
     width: 100%;
     height: auto;
-    background-color: var(--grass-green);
+}
+
+[ngMenuTrigger], .clear-btn {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    padding: 0.5em 1em;
+    border-radius: 0.5em;
+    border: .15em solid var(--wood-dark-brown);
+    width: fit-content;
+}
+
+[ngMenu] {
+    margin: 0;
+    width: fit-content;
+    box-sizing: border-box;
+    border-radius: 0.5em;
+    border: .15em solid var(--wood-dark-brown);
+    font-weight: bold;
+}
+
+[ngMenu][data-visible='false'] {
+    display: none;
+}
+
+[ngMenuItem] {
+    outline: none;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em;
+    font-size: 0.875em;
+    border-radius: 0.25em;
+    justify-content: space-between;
+}
+
+[ngMenuItem].chosen-item{
+    cursor:default;
+    background-color: var(--wood-light-brown);
+}
+
+[ngMenu] .separator {
+    border-top: .2em solid var(--wood-dark-brown);
+    margin: 0.25em 0;
+    opacity: 0.5;
+}
+
+.menu-arrow {
+    transform: rotate(180deg) scale(.75);
+}
+
+[ngMenuTrigger]:hover,
+[ngMenuItem]:not(.chosen-item)[data-active='true'] {
+    background: var(--grass-green);
 }
