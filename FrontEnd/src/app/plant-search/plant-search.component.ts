@@ -64,14 +64,11 @@ export class PlantSearchComponent implements OnDestroy {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
   }
 
-  private _sortOptionDirection: 'A-Z' | 'Z-A' = 'A-Z';
-  public get sortOptionDirection(): 'A-Z' | 'Z-A' {
-    return this._sortOptionDirection;
-  }
+  protected sortOptionDirection = signal('A-Z');
 
   public toggleSortOptionDirection(): void {
-    this._sortOptionDirection = this._sortOptionDirection == 'Z-A' ? 'A-Z' : 'Z-A';
-    this._isSortOptionAlphabeticOrderEmitter$.next(this._sortOptionDirection === 'A-Z');
+    this.sortOptionDirection.update((val) => val == 'Z-A' ? 'A-Z' : 'Z-A');
+    this._isSortOptionAlphabeticOrderEmitter$.next(this.sortOptionDirection() === 'A-Z');
   }
 
   public sortOptions: SortOption[] = ['commonName', 'scientificName'];

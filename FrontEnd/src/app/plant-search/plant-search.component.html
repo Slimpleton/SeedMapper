@@ -79,7 +79,7 @@
             </select>
             <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()"
                 [attr.aria-label]="('SORT' | transloco) + ' ' + sortOptionDirection">
-                {{sortOptionDirection}}
+                {{sortOptionDirection()}}
             </button>
         </div>
     </div>
