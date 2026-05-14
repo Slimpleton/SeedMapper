@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal } from '@angular/core';
+import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal, OutputRefSubscription } from '@angular/core';
 import { combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { UpperCasePipe } from '@angular/common';
+import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
@@ -43,19 +43,22 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
     MenuContent,
     MenuItem,
     MenuTrigger,
-    IconComponent],
+    IconComponent,
+    AsyncPipe],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })
 export class PlantSearchComponent implements OnDestroy {
   public growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
-  private readonly _growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
+  protected readonly growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
   public durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
-  private readonly _durationEmitter$: BehaviorSubject<Duration> = new BehaviorSubject<Duration>('Any');
+  protected readonly durationEmitter$: BehaviorSubject<Duration> = new BehaviorSubject<Duration>('Any');
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
+  private _durationMenuSub: OutputRefSubscription | undefined;
+  private _growthHabitMenuSub: OutputRefSubscription | undefined;
 
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
@@ -126,8 +129,8 @@ export class PlantSearchComponent implements OnDestroy {
   );
 
   private readonly _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
-    this._growthHabitEmitter$,
-    this._durationEmitter$,
+    this.growthHabitEmitter$,
+    this.durationEmitter$,
     this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
     this._search$,
     this.sortOptionsEmitter$,
@@ -161,6 +164,24 @@ export class PlantSearchComponent implements OnDestroy {
     afterRenderEffect(() => {
       if (!this.combobox()?.expanded()) {
         setTimeout(() => this.listbox()?.element.scrollTo(0, 0), 150);
+      }
+    });
+
+    afterRenderEffect(() => {
+      const durMenu = this.durationMenu();
+      if (durMenu) {
+        this._durationMenuSub = durMenu.itemSelected.subscribe((val) => {
+          this.changeDuration(val as string);
+        });
+      }
+    });
+
+    afterRenderEffect(() => {
+      const ghMenu = this.growthHabitMenu();
+      if (ghMenu) {
+        this._growthHabitMenuSub = ghMenu.itemSelected.subscribe((val) => {
+          this.changeGrowthHabit(val as string);
+        });
       }
     });
 
@@ -229,6 +250,8 @@ export class PlantSearchComponent implements OnDestroy {
   public ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
+    this._durationMenuSub?.unsubscribe();
+    this._growthHabitMenuSub?.unsubscribe();
   }
 
   public search(searchValue: string): void {
@@ -239,13 +262,34 @@ export class PlantSearchComponent implements OnDestroy {
     this._sortOptionsEmitter$.next(option as SortOption);
   }
 
+  private isDuration(value: string): value is Duration {
+    return this.durations.includes(value as Duration);
+  }
+
+  private isGrowthHabit(value: string): value is GrowthHabit {
+    return this.growthHabits.includes(value as GrowthHabit);
+  }
+
+  public onFilterItemSelected(value: string): void {
+    if (this.isDuration(value)) {
+      this.changeDuration(value); 
+    } else if (this.isGrowthHabit(value)) {
+      this.changeGrowthHabit(value); 
+    }
+  }
+
+  public clearFilters(): void{
+    this.changeDuration('Any');
+    this.changeGrowthHabit('Any');
+  }
+
   public changeGrowthHabit(habit: string): void {
-    this._growthHabitEmitter$.next(habit as GrowthHabit);
+    this.growthHabitEmitter$.next(habit as GrowthHabit);
   }
 
   public changeDuration(duration: string): void {
     console.log(duration);
-    this._durationEmitter$.next(duration as Duration);
+    this.durationEmitter$.next(duration as Duration);
   }
 
   public handleNameInput(name: string | undefined): void {

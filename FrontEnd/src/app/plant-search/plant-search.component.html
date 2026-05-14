@@ -2,66 +2,71 @@
     <div class="col">
         <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
             [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
-        <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #trigger="ngMenuTrigger"
-            [menu]="filterMenu()">{{'FILTERS' |
-            transloco}}</button>
-        <ng-template [cdkConnectedOverlayOpen]="trigger.expanded()"
-            [cdkConnectedOverlay]="{origin: filterMenuTrigger, usePopover: 'inline'}" [cdkConnectedOverlayPositions]="[
+        <div class="row">
+            <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #trigger="ngMenuTrigger"
+                [menu]="filterMenu()">{{'FILTERS' |
+                transloco}}</button>
+            <ng-template [cdkConnectedOverlayOpen]="trigger.expanded()"
+                [cdkConnectedOverlay]="{origin: filterMenuTrigger, usePopover: 'inline'}"
+                [cdkConnectedOverlayPositions]="[
     {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4},
   ]" cdkAttachPopoverAsChild>
-            <div class="menu" id="filter-menu" ngMenu #filterMenu="ngMenu">
-                <ng-template ngMenuContent>
-                    <div class="menu-item" value="duration" ngMenuItem #durationItem [submenu]="durationMenu()">
-                        <span class="label">{{'DURATION' | transloco}}</span>
-                        <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
-                    </div>
+                <div class="menu" id="filter-menu" ngMenu #filterMenu="ngMenu"
+                    (itemSelected)="onFilterItemSelected($event)">
+                    <ng-template ngMenuContent>
+                        <div class="menu-item" value="duration" ngMenuItem #durationItem [submenu]="durationMenu()">
+                            <span class="label">{{'DURATION' | transloco}}</span>
+                            <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
+                        </div>
 
-                    <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
-                        [cdkConnectedOverlay]="{origin: durationItem , usePopover: 'inline'}"
-                        [cdkConnectedOverlayPositions]="[
+                        <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                            [cdkConnectedOverlay]="{origin: durationItem , usePopover: 'inline'}"
+                            [cdkConnectedOverlayPositions]="[
           {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
         ]" cdkAttachPopoverAsChild>
-                        <div class="menu" id="duration-menu" ngMenu #durationMenu="ngMenu"
-                            (itemSelected)="changeDuration($event)">
-                            <ng-template ngMenuContent>
-                                @for(duration of durations; track duration){
-                                <div ngMenuItem [value]="duration">
-                                    <span class="label">{{'DURATIONS.' + duration| uppercase | transloco}}</span>
-                                </div>
-                                }
-                            </ng-template>
+                            <div class="menu" id="duration-menu" ngMenu #durationMenu="ngMenu">
+                                <ng-template ngMenuContent>
+                                    @for(duration of durations; track duration){
+                                    <div ngMenuItem [value]="duration" [disabled]="durationEmitter$.value === duration"
+                                    [class.chosen-item]="(durationEmitter$ | async) === duration">
+                                        <span class="label">{{'DURATIONS.' + duration| uppercase | transloco}}</span>
+                                    </div>
+                                    }
+                                </ng-template>
+                            </div>
+                        </ng-template>
+                        <div role="separator" aria-orientation="horizontal" class="separator"></div>
+
+                        <div class="menu-item" value="growthHabits" ngMenuItem #growthHabitItem
+                            [submenu]="growthHabitMenu()">
+                            <span class="label">{{'GROWTH_HABIT' | transloco}}</span>
+                            <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
                         </div>
-                    </ng-template>
-                    <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
-                    <div class="menu-item" value="growthHabits" ngMenuItem #growthHabitItem
-                        [submenu]="growthHabitMenu()">
-                        <span class="label">{{'GROWTH_HABIT' | transloco}}</span>
-                        <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
-                    </div>
-
-                    <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
-                        [cdkConnectedOverlay]="{origin: growthHabitItem , usePopover: 'inline'}"
-                        [cdkConnectedOverlayPositions]="[
+                        <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                            [cdkConnectedOverlay]="{origin: growthHabitItem , usePopover: 'inline'}"
+                            [cdkConnectedOverlayPositions]="[
           {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
         ]" cdkAttachPopoverAsChild>
-                        <div class="menu" id="growth-habit-menu" ngMenu #growthHabitMenu="ngMenu"
-                            (itemSelected)="changeGrowthHabit($event)">
-                            <ng-template ngMenuContent>
-                                @for(growthHabit of growthHabits; track growthHabit){
-                                <div ngMenuItem [value]="growthHabit">
-                                    <span class="label">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</span>
+                            <div class="menu" id="growth-habit-menu" ngMenu #growthHabitMenu="ngMenu">
+                                <ng-template ngMenuContent>
+                                    @for(growthHabit of growthHabits; track growthHabit){
+                                    <div ngMenuItem [value]="growthHabit" [disabled]="(growthHabitEmitter$ | async) === growthHabit"
+                                    [class.chosen-item]="(growthHabitEmitter$ | async) === growthHabit">
+                                        <span class="label">{{'GROWTH_HABITS.' + growthHabit| uppercase |
+                                            transloco}}</span>
 
-                                </div>
-                                }
-                            </ng-template>
-                        </div>
+                                    </div>
+                                    }
+                                </ng-template>
+                            </div>
+                        </ng-template>
                     </ng-template>
-                </ng-template>
-            </div>
+                </div>
 
-        </ng-template>
-
+            </ng-template>
+            <button class="clear-btn" (click)="clearFilters()">{{'CLEAR' | transloco}}</button>
+        </div>
     </div>
     <div class="col">
         <div name="sort-container" id="sort-container" class="sort-container col">

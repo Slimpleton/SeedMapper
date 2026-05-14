@@ -147,7 +147,7 @@ h1 {
     background-color: var(--grass-light-green);
 }
 
-[ngMenuTrigger] {
+[ngMenuTrigger], .clear-btn {
     display: flex;
     cursor: pointer;
     align-items: center;
@@ -161,7 +161,7 @@ h1 {
 [ngMenu] {
     margin: 0;
     width: fit-content;
-    padding: 0.25em;
+    /* padding: 0.25em; */
     box-sizing: border-box;
     border-radius: 0.5em;
     border: .15em solid var(--wood-dark-brown);
@@ -185,10 +185,15 @@ h1 {
     justify-content: space-between;
 }
 
+[ngMenuItem].chosen-item{
+    cursor:default;
+    background-color: var(--wood-light-brown);
+}
+
 [ngMenu] .separator {
-    border-top: .1em solid var(--wood-dark-brown);
+    border-top: .2em solid var(--wood-dark-brown);
     margin: 0.25em 0;
-    opacity: 0.25;
+    opacity: 0.5;
 }
 
 .menu-arrow {
@@ -196,6 +201,6 @@ h1 {
 }
 
 [ngMenuTrigger]:hover,
-[ngMenuItem][data-active='true'] {
+[ngMenuItem]:not(.chosen-item)[data-active='true'] {
     background: var(--grass-green);
 }
