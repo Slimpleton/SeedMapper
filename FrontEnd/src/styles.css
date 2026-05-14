@@ -1,11 +1,3 @@
-/* @font-face {
-  font-family: 'Roboto';
-  src: url('assets/fonts/roboto/Roboto-Light.ttf') format('truetype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-} */
-
 @font-face {
   font-family: 'Roboto';
   src: url('assets/fonts/roboto/Roboto-Regular.ttf') format('truetype');
@@ -14,15 +6,6 @@
   font-display: swap;
 }
 
-/* @font-face {
-  font-family: 'Roboto';
-  src: url('assets/fonts/roboto/Roboto-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-} */
-
-/* You can add global styles to this file, and also import other style files */
 :root {
   font-family: 'Roboto', 'Times New Roman', Times, serif;
   --wood-light-brown: rgb(190, 156, 104);
