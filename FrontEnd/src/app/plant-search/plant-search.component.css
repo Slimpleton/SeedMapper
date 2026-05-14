@@ -59,7 +59,6 @@ h1 {
 }
 
 .sortOrderButton {
-    background-color: var(--grass-light-green);
     color: black;
     font-weight: bold;
     width: 6ch;
@@ -88,7 +87,6 @@ h1 {
 }
 
 .input-counties {
-    background-color: var(--grass-light-green);
     width: min(100%, 30ch);
     max-width: 40ch;
     font-weight: 600;
@@ -138,13 +136,16 @@ h1 {
     width: 100%;
 }
 
+.no-results, [ngMenuTrigger], .clear-btn, [ngMenu], .input-counties, .sortOrderButton {
+    background-color: var(--grass-light-green);
+}
+
 .no-results {
     border-left: .2em solid var(--wood-dark-brown);
     border-right: .2em solid var(--wood-dark-brown);
     box-sizing: border-box;
     width: 100%;
     height: auto;
-    background-color: var(--grass-light-green);
 }
 
 [ngMenuTrigger], .clear-btn {
@@ -154,18 +155,15 @@ h1 {
     padding: 0.5em 1em;
     border-radius: 0.5em;
     border: .15em solid var(--wood-dark-brown);
-    background-color: var(--grass-light-green);
     width: fit-content;
 }
 
 [ngMenu] {
     margin: 0;
     width: fit-content;
-    /* padding: 0.25em; */
     box-sizing: border-box;
     border-radius: 0.5em;
     border: .15em solid var(--wood-dark-brown);
-    background-color: var(--grass-light-green);
     font-weight: bold;
 }
 
