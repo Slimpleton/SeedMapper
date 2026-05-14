@@ -28,7 +28,8 @@
                                 <ng-template ngMenuContent>
                                     @for(duration of durations; track duration){
                                     <div ngMenuItem [value]="duration" [disabled]="durationEmitter$.value === duration"
-                                    [class.chosen-item]="(durationEmitter$ | async) === duration">
+                                        class="submenu-item"
+                                        [class.chosen-item]="(durationEmitter$ | async) === duration">
                                         <span class="label">{{'DURATIONS.' + duration| uppercase | transloco}}</span>
                                     </div>
                                     }
@@ -51,8 +52,9 @@
                             <div class="menu" id="growth-habit-menu" ngMenu #growthHabitMenu="ngMenu">
                                 <ng-template ngMenuContent>
                                     @for(growthHabit of growthHabits; track growthHabit){
-                                    <div ngMenuItem [value]="growthHabit" [disabled]="(growthHabitEmitter$ | async) === growthHabit"
-                                    [class.chosen-item]="(growthHabitEmitter$ | async) === growthHabit">
+                                    <div ngMenuItem [value]="growthHabit" class="submenu-item"
+                                        [disabled]="(growthHabitEmitter$ | async) === growthHabit"
+                                        [class.chosen-item]="(growthHabitEmitter$ | async) === growthHabit">
                                         <span class="label">{{'GROWTH_HABITS.' + growthHabit| uppercase |
                                             transloco}}</span>
 
@@ -65,7 +67,7 @@
                 </div>
 
             </ng-template>
-            <button class="clear-btn" (click)="clearFilters()">{{'CLEAR' | transloco}}</button>
+            <button class="clear-btn" (click)="clearFilters()">{{ 'CLEAR' | transloco }}</button>
         </div>
     </div>
     <div class="col">
