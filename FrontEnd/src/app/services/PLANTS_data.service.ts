@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Duration, GrowthHabit, PlantData } from "../models/gov/models";
+import { Color, Duration, GrowthHabit, PlantData, Toxicity } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { map, switchMap } from "rxjs/operators";
 import { fromFetch } from 'rxjs/fetch';
@@ -32,7 +32,8 @@ export class GovPlantsDataService {
     // TODO store url, batch index, and batch in map for in-memory cache
 
     // TODO swap to supporting array of growthhabit/duration, other filters
-    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, duration: Duration, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
+    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, duration: Duration, toxicity: Toxicity | undefined, 
+        flowerColor: Color | undefined, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
         if (batchSize < GovPlantsDataService.MIN_BATCH_SIZE) batchSize = GovPlantsDataService.MIN_BATCH_SIZE;
 
         const params = new URLSearchParams({
@@ -44,6 +45,10 @@ export class GovPlantsDataService {
             ascending: isSortAlphabeticOrder.toString(),
             batchSize: batchSize.toString()
         });
+        if (toxicity)
+            params.set('toxicity', toxicity);
+        if(flowerColor)
+            params.set('flowerColor', flowerColor);
 
         const url = `${this._dataUrl}/search?${params}`;
 

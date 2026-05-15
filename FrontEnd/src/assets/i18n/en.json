@@ -8,7 +8,7 @@
     "COUNTY_PLACEHOLDER": "Search Counties",
     "FILTERS": "Filters",
     "SORT": "Sort",
-    "CLEAR":"Clear",
+    "CLEAR": "Clear",
     "PREVIOUS_IMG": "Previous Image",
     "NEXT_IMG": "Next Image",
     "SORT_OPTIONS": {
@@ -27,6 +27,14 @@
         "FORB/HERB": "Forb/Herb",
         "FORBHERB": "Forb/Herb"
     },
+    "TOXICITY": "Toxicity",
+    "TOXICITIES": {
+        "NONE": "None",
+        "SLIGHT": "Slight",
+        "MODERATE": "Moderate",
+        "SEVERE": "Severe"
+    },
+    "FLOWER_COLOR": "Flower Colors",
     "INATURALIST_OBSERVATION_LINK": "INaturalist link to observations for {{plantCommonName}} {{plantTaxonId}}, opens in new tab",
     "USDA_PROFILE_LINK": "USDA profile for {{plantCommonName}} ({{plantAcceptedSymbol}}), opens in new tab",
     "COUNTY_SEARCH_HINT": "Type to search counties...",
@@ -69,5 +77,20 @@
         "ME": "Who \"Me\"",
         "ME_CONTENT": "Currently working for SOTA Cloud as a developer, using this project to improve on my stack and skills. I was inspired by my own little native flowerbed I've guerrila garden'd from my landlord. I hope I can inspire you to guerrila garden effectively with my native region mapping so we can drive environmental change :)",
         "CONTENT": "What started as a passion project to deliver native plant info quickly evolved into an over-engineered mess built on delivering the fastest query results possible for native plants using the native geolocation api and SSR. Inspired by the design of McMaster-Carr, I was hoping to deliver public plant info to people with lower internet speeds. Please enjoy the fruits of my labor."
+    },
+    "COLORS": {
+        "BLACK": "Black",
+        "BLUE": "Blue",
+        "BROWN": "Brown",
+        "GREEN": "Green",
+        "ORANGE": "Orange",
+        "PURPLE": "Purple",
+        "RED": "Red",
+        "WHITE": "White",
+        "YELLOW": "Yellow",
+        "DARK GREEN": "Dark Green",
+        "GRAY-GREEN": "Gray-Green",
+        "WHITE-GRAY": "White-Gray",
+        "YELLOW-GREEN": "Yellow-Green"
     }
 }

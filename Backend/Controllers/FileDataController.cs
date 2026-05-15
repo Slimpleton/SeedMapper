@@ -50,7 +50,11 @@ namespace Backend.Controllers
         }
 
         [HttpGet("plantdata/search")]
-        public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption, [FromQuery] bool ascending, [FromQuery] int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, CancellationToken cancellationToken)
+        public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption,
+        [FromQuery] bool ascending, [FromQuery] int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit,
+        [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, [FromQuery] Toxicity? toxicity,
+        [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor,
+        CancellationToken cancellationToken)
         {
             Response.Headers.Append("Content-Encoding", "gzip");
             Response.ContentType = "application/json";
@@ -79,6 +83,12 @@ namespace Backend.Controllers
                     filtered = duration is Duration.AN or Duration.Annual
                         ? filtered.Where(x => x.Duration.Contains(Duration.AN) || x.Duration.Contains(Duration.Annual))
                         : filtered.Where(x => x.Duration.Contains((Duration)duration));
+
+                if (toxicity is not null)
+                    filtered = filtered.Where(x => x.Toxicity == toxicity);
+
+                if (flowerColor is not null)
+                    filtered = filtered.Where(x => x.FlowerColor == flowerColor);
 
                 if (!String.IsNullOrWhiteSpace(searchString))
                     filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));

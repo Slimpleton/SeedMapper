@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal, OutputRefSubscription } from '@angular/core';
-import { combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData } from '../models/gov/models';
+import { Color, combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData, Toxicity } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
@@ -25,8 +25,10 @@ import {
 } from '@angular/core';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@angular/aria/menu';
 import { IconComponent } from '../icon/icon.component';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
+export type FilterSelection = { key: string, value: string };
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,12 +51,18 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
   styleUrl: './plant-search.component.css'
 })
 export class PlantSearchComponent implements OnDestroy {
-
-  public growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
+  protected colors: Color[] = ['Black' , 'Blue' , 'Brown' , 'Green' , 'Orange' , 'Purple' , 'Red' , 'White' , 'Yellow' , 'Dark Green' , 'Gray-Green' , 'White-Gray' , 'Yellow-Green']
+  protected toxicities: Toxicity[] = ['None', 'Slight', 'Moderate', 'Severe'];
+  protected growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
   protected readonly growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
-  public durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
+  protected durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
   protected readonly durationEmitter$: BehaviorSubject<Duration> = new BehaviorSubject<Duration>('Any');
+  protected readonly toxicity = signal<Toxicity | undefined>(undefined);
+  private readonly _toxicity$ = toObservable(this.toxicity);
+
+  protected readonly flowerColor = signal<Color | undefined>(undefined);
+  private readonly _flowerColor$ = toObservable(this.flowerColor);
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
@@ -67,26 +75,24 @@ export class PlantSearchComponent implements OnDestroy {
 
   protected sortOptionDirection = signal('A-Z');
 
-  public toggleSortOptionDirection(): void {
+  protected toggleSortOptionDirection(): void {
     this.sortOptionDirection.update((val) => val == 'Z-A' ? 'A-Z' : 'Z-A');
     this._isSortOptionAlphabeticOrderEmitter$.next(this.sortOptionDirection() === 'A-Z');
   }
 
-  public sortOptions: SortOption[] = ['commonName', 'scientificName'];
+  protected sortOptions: SortOption[] = ['commonName', 'scientificName'];
   protected readonly sortOptionsEmitter$: BehaviorSubject<SortOption> = new BehaviorSubject<SortOption>('commonName');
-
 
   private readonly _destroy$: Subject<void> = new Subject<void>();
 
   @Output() public filterInProgress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  // Delegated to CountyService — survives navigation and SSR hydration
-  public get counties$(): Observable<CountyCSVItem[]> { return this.countyService.counties$; }
-  public get countiesSignal(): Signal<CountyCSVItem[] | undefined> { return this.countyService.countiesSignal; }
-  public trackCountyByCombinedFIP(county: CountyCSVItem): string { return this.countyService.trackCountyByCombinedFIP(county); }
+  protected get counties$(): Observable<CountyCSVItem[]> { return this.countyService.counties$; }
+  protected get countiesSignal(): Signal<CountyCSVItem[] | undefined> { return this.countyService.countiesSignal; }
+  protected trackCountyByCombinedFIP(county: CountyCSVItem): string { return this.countyService.trackCountyByCombinedFIP(county); }
 
-  public geolocationCountyNewQuery = signal('');
-  public filteredCounties = computed(() => {
+  protected geolocationCountyNewQuery = signal('');
+  protected filteredCounties = computed(() => {
     const query = this.geolocationCountyNewQuery().toLowerCase();
     return this.countiesSignal()?.filter((county) => `${county.countyName} - ${county.stateAbbrev}`.toLowerCase()
       .includes(query));
@@ -95,10 +101,13 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly listbox = viewChild<Listbox<string>>(Listbox);
   protected readonly options = viewChildren<Option<string>>(Option);
   protected readonly combobox = viewChild<Combobox<string>>(Combobox);
-  protected filterMenu = viewChild<Menu<string | Duration>>('filterMenu');
-  protected durationMenu = viewChild<Menu<string>>('durationMenu');
-  protected growthHabitMenu = viewChild<Menu<string>>('growthHabitMenu');
-  protected sortMenu = viewChild<Menu<string>>('sortMenu');
+  protected readonly filterMenu = viewChild<Menu<string | Duration>>('filterMenu');
+  protected readonly durationMenu = viewChild<Menu<string>>('durationMenu');
+  protected readonly growthHabitMenu = viewChild<Menu<string>>('growthHabitMenu');
+  protected readonly sortMenu = viewChild<Menu<string>>('sortMenu');
+  protected readonly toxicityMenu = viewChild<Menu<string>>('toxicityMenu');
+  protected readonly flowerColorMenu = viewChild<Menu<string>>('flowerColorMenu');
+
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
@@ -129,13 +138,16 @@ export class PlantSearchComponent implements OnDestroy {
     this.durationEmitter$,
     this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
     this._search$,
+    this._toxicity$,
+    this._flowerColor$,
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
     distinctUntilChanged((a, b) => a.every((v, i) => v === b[i])),
-    switchMap(([growthHabit, duration, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, Duration, string, string, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
+    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, sortOption, isSortAlphabeticOrder]: 
+      [GrowthHabit, Duration, string, string, Toxicity | undefined, Color | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, sortOption, isSortAlphabeticOrder)
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, sortOption, isSortAlphabeticOrder)
         .pipe(finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
@@ -240,23 +252,23 @@ export class PlantSearchComponent implements OnDestroy {
     this.sortOptionsEmitter$.next(option as SortOption);
   }
 
-  private isDuration(value: string): value is Duration {
-    return this.durations.includes(value as Duration);
-  }
-
-  private isGrowthHabit(value: string): value is GrowthHabit {
-    return this.growthHabits.includes(value as GrowthHabit);
-  }
-
   private isSortOption(value: string): value is SortOption {
     return this.sortOptions.includes(value as SortOption);
   }
 
-  public onFilterItemSelected(value: string): void {
-    if (this.isDuration(value)) {
-      this.changeDuration(value);
-    } else if (this.isGrowthHabit(value)) {
-      this.changeGrowthHabit(value);
+  protected getFilterItem(key: string, value: string): FilterSelection { return <FilterSelection>{ key, value }; }
+
+  protected onFilterItemSelected(item: FilterSelection): void {
+    if (item.key == 'duration')
+      this.changeDuration(item.value);
+    else if (item.key == 'growthHabit') {
+      this.changeGrowthHabit(item.value);
+    }
+    else if (item.key == 'toxicity') {
+      this.toxicity.set(item.value as Toxicity);
+    }
+    else if (item.key == 'flowerColor'){
+      this.flowerColor.set(item.value as Color);
     }
   }
 
@@ -269,9 +281,14 @@ export class PlantSearchComponent implements OnDestroy {
     }
   }
 
+  
+  private readonly filterSignals = [this.toxicity, this.flowerColor];
   public clearFilters(): void {
     this.changeDuration('Any');
     this.changeGrowthHabit('Any');
+    this.filterSignals.forEach(signal => {
+      signal.set(undefined);
+    });
   }
 
   public changeGrowthHabit(habit: string): void {
