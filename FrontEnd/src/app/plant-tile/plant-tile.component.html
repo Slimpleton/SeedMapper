@@ -42,6 +42,7 @@
             [style.cursor]="imageReady() ? 'pointer' : 'default'" [attr.loading]="isPriority ? 'eager' : 'lazy'"
             [attr.fetchpriority]="isPriority ? 'high' : 'auto'" decoding="async" sizes="240px"
             (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img crossorigin="anonymous"
+            (error)="invalidateSrc()"
             [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant.commonName, scientificName: plant.scientificName, family: plant.family}"
             tabindex="0">
 

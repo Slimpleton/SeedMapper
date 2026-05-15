@@ -3,10 +3,10 @@
         <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
             [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
         <div class="row">
-            <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #trigger="ngMenuTrigger"
+            <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #filterTrigger="ngMenuTrigger"
                 [menu]="filterMenu()">{{'FILTERS' |
                 transloco}}</button>
-            <ng-template [cdkConnectedOverlayOpen]="trigger.expanded()"
+            <ng-template [cdkConnectedOverlayOpen]="filterTrigger.expanded()"
                 [cdkConnectedOverlay]="{origin: filterMenuTrigger, usePopover: 'inline'}"
                 [cdkConnectedOverlayPositions]="[
     {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4},
@@ -68,21 +68,28 @@
 
             </ng-template>
             <button class="clear-btn" (click)="clearFilters()">{{ 'CLEAR' | transloco }}</button>
-        </div>
-    </div>
-    <div class="col">
-        <div name="sort-container" id="sort-container" class="sort-container col">
-            <span class="label sort-label">{{'SORT' | transloco}}</span>
-            <select name="sortSelector" id="sortSelector" #sortSelector class="selector"
-                [attr.aria-label]="'SORT' | transloco" (change)="changeSortOption(sortSelector.value)">
-                @for (option of sortOptions; track $index) {
-                <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>
-                }
-            </select>
-            <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()"
-                [attr.aria-label]="('SORT' | transloco) + ' ' + sortOptionDirection">
-                {{sortOptionDirection()}}
-            </button>
+            <button class="menu-trigger-btn" ngMenuTrigger #sortMenuTrigger #sortTrigger="ngMenuTrigger"
+                [menu]="sortMenu()">{{'SORT' | transloco}}</button>
+
+            <ng-template [cdkConnectedOverlayOpen]="sortTrigger.expanded()"
+                [cdkConnectedOverlay]="{origin: sortMenuTrigger, usePopover: 'inline'}" [cdkConnectedOverlayPositions]="[
+        {originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4},
+      ]" cdkAttachPopoverAsChild>
+
+                <div class="menu" id="sort-menu" ngMenu #sortMenu="ngMenu" (itemSelected)="onSortItemSelected($event)">
+                    <ng-template ngMenuContent>
+                        @for(option of sortOptions; track option){
+                        <div ngMenuItem [value]="option" [disabled]="(sortOptionsEmitter$ | async) === option"
+                            class="menu-item" [class.chosen-item]="(sortOptionsEmitter$ | async) === option">
+                            <span class="label">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</span>
+                        </div>
+                        }
+                        <div ngMenuItem [value]="'order'" class="menu-item">
+                            <span class="label">{{sortOptionDirection() }}</span>
+                        </div>
+                    </ng-template>
+                </div>
+            </ng-template>
         </div>
     </div>
 
