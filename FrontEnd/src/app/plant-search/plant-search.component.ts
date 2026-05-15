@@ -163,6 +163,14 @@ export class PlantSearchComponent implements OnDestroy {
       }
     });
 
+    afterRenderEffect(() => {
+      if (!this.combobox()?.expanded()) {
+        const values = this.listbox()?.values();
+        if (values?.length) {
+          this.handleNameInput(values[0]);
+        }
+      }
+    });
 
     this._fullyFilteredNativePlants.subscribe((plants) => this.filteredDataBatch.emit(plants));
 
