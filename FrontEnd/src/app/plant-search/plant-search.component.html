@@ -14,7 +14,8 @@
                 <div class="menu" id="filter-menu" ngMenu #filterMenu="ngMenu"
                     (itemSelected)="onFilterItemSelected($event)">
                     <ng-template ngMenuContent>
-                        <div class="menu-item" value="duration" ngMenuItem #durationItem [submenu]="durationMenu()"  [class.chosen-item]="(durationEmitter$ | async) !== 'Any'">
+                        <div class="menu-item" value="duration" ngMenuItem #durationItem [submenu]="durationMenu()"
+                            [class.chosen-item]="(durationEmitter$ | async) !== 'Any'">
                             <span class="label">{{'DURATION' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
                         </div>
@@ -38,8 +39,8 @@
                         </ng-template>
                         <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
-                        <div class="menu-item" value="growthHabits" ngMenuItem #growthHabitItem [class.chosen-item]="(growthHabitEmitter$ | async) !== 'Any'"
-                            [submenu]="growthHabitMenu()">
+                        <div class="menu-item" value="growthHabits" ngMenuItem #growthHabitItem
+                            [class.chosen-item]="(growthHabitEmitter$ | async) !== 'Any'" [submenu]="growthHabitMenu()">
                             <span class="label">{{'GROWTH_HABIT' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
                         </div>
@@ -66,7 +67,8 @@
 
                         <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
-                        <div class="menu-item" value="toxicity" ngMenuItem #toxicityItem [submenu]="toxicityMenu()" [class.chosen-item]="toxicity() !== undefined">
+                        <div class="menu-item" value="toxicity" ngMenuItem #toxicityItem [submenu]="toxicityMenu()"
+                            [class.chosen-item]="toxicity() !== undefined">
                             <span class="label">{{'TOXICITY' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
                         </div>
@@ -90,8 +92,8 @@
 
                         <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
-                        <div class="menu-item" value="flowerColor" ngMenuItem #flowerColorItem [class.chosen-item]="flowerColor() !== undefined"
-                            [submenu]="flowerColorMenu()">
+                        <div class="menu-item" value="flowerColor" ngMenuItem #flowerColorItem
+                            [class.chosen-item]="flowerColor() !== undefined" [submenu]="flowerColorMenu()">
                             <span class="label">{{'FLOWER_COLOR' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
                         </div>
@@ -174,9 +176,10 @@
         <div ngCombobox filterMode="auto-select">
             <div class="autocomplete" #countyOrigin>
                 <input #countyNameInput="ngComboboxInput" ngComboboxInput [(ngModel)]="geolocationCountyNewQuery"
-                    #countyInput [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice"
-                    class="input-counties" (focus)="countyInput.select()" aria-labelledby="filter-search-title"
-                    autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
+                    (valueChange)="handleNameInput($event)" #countyInput
+                    [placeholder]="'COUNTY_PLACEHOLDER' | transloco" id="county-choice" class="input-counties"
+                    (focus)="countyInput.select()" aria-labelledby="filter-search-title" autocomplete="off"
+                    autocorrect="off" autocapitalize="none" spellcheck="false" />
             </div>
             <ng-template ngComboboxPopupContainer>
                 <ng-template [cdkConnectedOverlay]="{origin: countyOrigin,  usePopover: 'inline', matchWidth: true}"
