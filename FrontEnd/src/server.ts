@@ -13,7 +13,6 @@ import rateLimit from 'express-rate-limit';
 import { readFile } from 'node:fs/promises';
 import { County, CountyCSVItem, StateCSVItem, StateInfo } from './app/models/gov/models';
 import { geoContains } from 'd3-geo';
-import { quadtree } from 'd3-quadtree';
 import { feature } from 'topojson-client';
 import { fileURLToPath } from 'node:url';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -75,7 +74,6 @@ async function preloadCSV() {
 }
 
 let usStatesGeometries: any[] = [];
-let usCountyQuadtree: any;
 let usCountiesGeometries: any[] = [];
 
 function getBBox(geometry: any) {
@@ -118,32 +116,7 @@ async function preloadGeometry() {
     county.centroid = centroid
   });
 
-  // Build quadtree using centroids
-  usCountyQuadtree = quadtree()
-    .x((d: any) => d.centroid[0])
-    .y((d: any) => d.centroid[1])
-    .addAll(usCountiesGeometries);
-
   console.log('US geometry preloaded');
-}
-
-function getCandidateCounties(pos: GeolocationCoordinates): any[] {
-  // Use accuracy or minimum 1km radius (whichever is larger)
-  const searchRadius = Math.min(Math.max(pos.accuracy || 0, 1000), 10_000); // cap at 10km
-  const radiusLat: number = searchRadius / 111_000; // meters → degrees latitude
-  const radiusLon: number = searchRadius / (111_000 * Math.cos(pos.latitude * Math.PI / 180)); // meters → degrees longitude
-
-  const candidates: any[] = [];
-  usCountyQuadtree.visit((node: { length: any; data: any; }, x0: number, y0: number, x1: number, y1: number) => {
-    if (x1 < pos.longitude - radiusLon || x0 > pos.longitude + radiusLon ||
-      y1 < pos.latitude - radiusLat || y0 > pos.latitude + radiusLat) {
-      return true; // skip node
-    }
-    if (!node.length && node.data) candidates.push(node.data);
-    return false;
-  });
-
-  return candidates;
 }
 
 /**
@@ -261,58 +234,118 @@ app.post('/api/geolocation/state', async (req, res) => {
   }
 });
 
-app.post<County | undefined>('/api/geolocation/county', async (req, res) => {
-  const pos: GeolocationCoordinates = req.body
-  if (!pos || isNaN(pos.latitude) || isNaN(pos.longitude)) {
-    return res.status(400).json({ error: 'Invalid coords' });
+app.post<County | undefined>(
+  '/api/geolocation/county',
+  async (req, res) => {
+
+    const pos = req.body;
+
+    if (
+      !pos ||
+      isNaN(pos.latitude) ||
+      isNaN(pos.longitude)
+    ) {
+      return res.status(400).json({
+        error: 'Invalid coords'
+      });
+    }
+
+    try {
+
+      // Small tolerance helps border precision
+      // GPS jitter can otherwise fail exact bbox
+      const tolerance = Math.max(
+        (pos.accuracy ?? 0) / 111_000,
+        0.002 // ~200m minimum
+      );
+
+      // =========================
+      // BBOX PREFILTER
+      // =========================
+
+      const bboxCandidates = usCountiesGeometries.filter(c => {
+
+        const {
+          minX,
+          minY,
+          maxX,
+          maxY
+        } = c.bbox;
+
+        return (
+          pos.longitude >= minX - tolerance &&
+          pos.longitude <= maxX + tolerance &&
+          pos.latitude >= minY - tolerance &&
+          pos.latitude <= maxY + tolerance
+        );
+      });
+
+      // =========================
+      // EXACT POLYGON TEST
+      // =========================
+
+      const county = bboxCandidates.find(c =>
+        geoContains(c, [
+          pos.longitude,
+          pos.latitude
+        ])
+      );
+
+      if (!county) {
+        return res.json(null);
+      }
+
+      // =========================
+      // LOOKUP COUNTY INFO
+      // =========================
+
+      const stateFip = parseInt(
+        county.id.substring(0, 2),
+        10
+      );
+
+      const countyFip = county.id.substring(2);
+
+      const countyCsvItem = getCountyCSVItem(
+        stateFip,
+        countyFip
+      );
+
+      return res.json(countyCsvItem ?? null);
+
+    } catch (error) {
+
+      console.error(
+        'County lookup error:',
+        error
+      );
+
+      return res.status(500).json({
+        error: 'County lookup failed'
+      });
+    }
   }
-
-  try {
-    // Step 1: get candidate counties using quadtree
-    const candidates: any[] = getCandidateCounties(pos);
-
-    // If quadtree returned nothing, retry with a larger radius
-    const effectiveCandidates = candidates.length > 0
-      ? candidates
-      : getCandidateCounties({ ...pos, accuracy: 50_000 }); // ~50km fallback
-
-    // Step 2: filter by bounding box
-    const BBOX_TOLERANCE = 0.001; // ~1000 meters
-    const bboxCandidates = effectiveCandidates.filter(c => {
-      const { minX, minY, maxX, maxY } = c.bbox;
-      return pos.longitude >= minX - BBOX_TOLERANCE &&
-        pos.longitude <= maxX + BBOX_TOLERANCE &&
-        pos.latitude >= minY - BBOX_TOLERANCE &&
-        pos.latitude <= maxY + BBOX_TOLERANCE;
-    });
-    const county = bboxCandidates.find(x => isPointInFeature(pos, x));
-    if (county == undefined || county == null)
-      return res.json(null);
-
-    const stateFip = parseInt(county.id.substring(0, 2));
-    const countyFip = county.id.substring(2);
-    const countyCsvItem: County | undefined = getCountyCSVItem(stateFip, countyFip);
-    // TODO this should almost always return a county but sometimes i get nothing or some bug in some areas? idk it breaks the site i think tho. some sort of check issue? or maybe a faulty county in the data
-
-    return res.json(countyCsvItem);
-  } catch (error) {
-    console.error('County lookup error:', error);
-    return res.status(500).json({ error: 'County lookup failed' });
-  }
-});
+);
 
 
 app.get('/sitemap.xml', async (_, res) => {
+  const plantIds = fetch('https://localhost:5273/api/FileData/plantdata/id');
+
   const countyUrls = countiesCSVCache.map(c =>
     `  <url><loc>https://whatgrowsnativehere.us.com/${c.stateAbbrev}/${encodeURIComponent(c.countyName)}</loc><priority>0.8</priority></url>`
   ).join('\n');
 
   // TODO every plant overview url
+  const plantUrls = (await (await plantIds).json()).map((val: string) =>
+    `  <url><loc>https://whatgrowsnativehere.us.com/plant/raw/${val}</loc><priority>0.6</priority></url>`
+  );
+
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://whatgrowsnativehere.us.com/</loc><priority>1.0</priority></url>
   <url><loc>https://whatgrowsnativehere.us.com/about</loc><priority>0.4</priority></url>
 ${countyUrls}
+${plantUrls}
 </urlset>`;
 
   res.header('Content-Type', 'application/xml');

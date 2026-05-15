@@ -5,6 +5,10 @@
     background-color: var(--wood-brown);
 }
 
+a:visited {
+    color: rebeccapurple;
+}
+
 .title-container,
 .link-container {
     display: inline-flex;
