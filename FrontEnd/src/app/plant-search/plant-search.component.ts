@@ -163,32 +163,6 @@ export class PlantSearchComponent implements OnDestroy {
       }
     });
 
-    afterRenderEffect(() => {
-      const durMenu = this.durationMenu();
-      if (durMenu) {
-        this._durationMenuSub = durMenu.itemSelected.subscribe((val) => {
-          this.changeDuration(val as string);
-        });
-      }
-    });
-
-    afterRenderEffect(() => {
-      const ghMenu = this.growthHabitMenu();
-      if (ghMenu) {
-        this._growthHabitMenuSub = ghMenu.itemSelected.subscribe((val) => {
-          this.changeGrowthHabit(val as string);
-        });
-      }
-    });
-
-    afterRenderEffect(() => {
-      if (!this.combobox()?.expanded()) {
-        const values = this.listbox()?.values();
-        if (values?.length) {
-          this.handleNameInput(values[0]);
-        }
-      }
-    });
 
     this._fullyFilteredNativePlants.subscribe((plants) => this.filteredDataBatch.emit(plants));
 

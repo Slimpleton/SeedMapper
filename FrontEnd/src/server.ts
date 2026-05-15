@@ -25,6 +25,13 @@ const browserDistFolder = join(__dirname, '../browser');
 let statesCSVCache: StateCSVItem[] = [];
 let countiesCSVCache: CountyCSVItem[] = [];
 
+const statesByFip = new Map<number, StateCSVItem>();
+const countiesByKey = new Map<string, CountyCSVItem>();
+
+function countyKey(stateFip: number, countyFip: string): string {
+  return `${stateFip}-${countyFip}`;
+}
+
 async function preloadCSV() {
   const statesContent = await readFile(join(browserDistFolder, 'assets/statesFipsInfo.csv'), 'utf-8');
   statesCSVCache = statesContent
@@ -33,7 +40,15 @@ async function preloadCSV() {
     .filter(Boolean)
     .map(line => {
       const [fip, abbrev, name, gnisid] = line.split(',');
-      return <StateCSVItem>{ fip: parseInt(fip, 10), abbrev, name, gnisid };
+      const state = <StateCSVItem>{
+        fip: parseInt(fip, 10),
+        abbrev,
+        name,
+        gnisid,
+      };
+
+      statesByFip.set(state.fip, state);
+      return state;
     });
 
   const countiesContent = await readFile(join(browserDistFolder, 'assets/countyInfo.csv'), 'utf-8');
@@ -43,12 +58,19 @@ async function preloadCSV() {
     .filter(Boolean)
     .map(line => {
       const fields = line.split(',');
-      return <CountyCSVItem>{
+      const county = <CountyCSVItem>{
         stateAbbrev: fields[0],
         stateFip: parseInt(fields[1], 10),
         countyFip: fields[2],
         countyName: fields[4],
       };
+
+      countiesByKey.set(
+        countyKey(county.stateFip, county.countyFip),
+        county
+      );
+
+      return county;
     });
 }
 
@@ -147,11 +169,11 @@ function isPointInFeature(point: GeolocationCoordinates, feature: any): boolean 
 }
 
 function getCountyCSVItem(requestedStateFip: number, requestedCountyFip: string): CountyCSVItem | undefined {
-  return countiesCSVCache.find(c => c.stateFip === requestedStateFip && c.countyFip == requestedCountyFip);
+  return countiesByKey.get(countyKey(requestedStateFip, requestedCountyFip));
 }
 
 function getStateCSVItem(requestedStateFip: number): StateCSVItem | undefined {
-  return statesCSVCache.find(c => c.fip === requestedStateFip);
+  return statesByFip.get(requestedStateFip);
 }
 
 const apiLimiter = rateLimit({
@@ -285,6 +307,7 @@ app.get('/sitemap.xml', async (_, res) => {
     `  <url><loc>https://whatgrowsnativehere.us.com/${c.stateAbbrev}/${encodeURIComponent(c.countyName)}</loc><priority>0.8</priority></url>`
   ).join('\n');
 
+  // TODO every plant overview url
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://whatgrowsnativehere.us.com/</loc><priority>1.0</priority></url>
