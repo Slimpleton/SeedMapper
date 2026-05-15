@@ -55,6 +55,10 @@ export class PlantTileComponent {
     return this.fullImageCredits !== null && this.fullImageCredits !== undefined && this.fullImageCredits !== ''
   }
 
+  public invalidateSrc(): void {
+    this._src.set('');
+    this._srcset.set('');
+  }
 
   private readonly _plant = signal<PlantData | null>(null);
   protected readonly imageReady = signal(false);

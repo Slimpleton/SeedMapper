@@ -49,6 +49,7 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
   styleUrl: './plant-search.component.css'
 })
 export class PlantSearchComponent implements OnDestroy {
+
   public growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
   protected readonly growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
@@ -72,10 +73,8 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   public sortOptions: SortOption[] = ['commonName', 'scientificName'];
-  private readonly _sortOptionsEmitter$: BehaviorSubject<SortOption> = new BehaviorSubject<SortOption>('commonName');
-  private get sortOptionsEmitter$(): Observable<SortOption> {
-    return this._sortOptionsEmitter$.asObservable();
-  }
+  protected readonly sortOptionsEmitter$: BehaviorSubject<SortOption> = new BehaviorSubject<SortOption>('commonName');
+
 
   private readonly _destroy$: Subject<void> = new Subject<void>();
 
@@ -99,7 +98,7 @@ export class PlantSearchComponent implements OnDestroy {
   protected filterMenu = viewChild<Menu<string | Duration>>('filterMenu');
   protected durationMenu = viewChild<Menu<string>>('durationMenu');
   protected growthHabitMenu = viewChild<Menu<string>>('growthHabitMenu');
-
+  protected sortMenu = viewChild<Menu<string>>('sortMenu');
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
@@ -256,7 +255,7 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   public changeSortOption(option: string): void {
-    this._sortOptionsEmitter$.next(option as SortOption);
+    this.sortOptionsEmitter$.next(option as SortOption);
   }
 
   private isDuration(value: string): value is Duration {
@@ -267,15 +266,28 @@ export class PlantSearchComponent implements OnDestroy {
     return this.growthHabits.includes(value as GrowthHabit);
   }
 
+  private isSortOption(value: string): value is SortOption {
+    return this.sortOptions.includes(value as SortOption);
+  }
+
   public onFilterItemSelected(value: string): void {
     if (this.isDuration(value)) {
-      this.changeDuration(value); 
+      this.changeDuration(value);
     } else if (this.isGrowthHabit(value)) {
-      this.changeGrowthHabit(value); 
+      this.changeGrowthHabit(value);
     }
   }
 
-  public clearFilters(): void{
+  public onSortItemSelected(value: string) {
+    if (this.isSortOption(value)) {
+      this.changeSortOption(value);
+    }
+    else {
+      this.toggleSortOptionDirection();
+    }
+  }
+
+  public clearFilters(): void {
     this.changeDuration('Any');
     this.changeGrowthHabit('Any');
   }

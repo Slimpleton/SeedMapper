@@ -34,12 +34,14 @@ h1 {
     align-self: flex-start;
     width: 100%;
     box-sizing: border-box;
+    font-size: clamp(1rem, 1.15cqi, 1.8rem);
 }
 
 .row {
     flex-direction: row;
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: max(.1em, 2vw);
 }
 
 .row,
@@ -141,7 +143,8 @@ h1 {
 .clear-btn,
 [ngMenu],
 .input-counties,
-.sortOrderButton {
+.sortOrderButton,
+.searchbar {
     background-color: var(--grass-light-green);
 }
 
@@ -202,7 +205,6 @@ h1 {
 
 .submenu-item:not(:last-child) {
     border-bottom: .1em solid var(--wood-dark-brown);
-    opacity: 0.5;
 }
 
 .menu-arrow {
