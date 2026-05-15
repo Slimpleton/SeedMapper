@@ -14,7 +14,7 @@
                 <div class="menu" id="filter-menu" ngMenu #filterMenu="ngMenu"
                     (itemSelected)="onFilterItemSelected($event)">
                     <ng-template ngMenuContent>
-                        <div class="menu-item" value="duration" ngMenuItem #durationItem [submenu]="durationMenu()">
+                        <div class="menu-item" value="duration" ngMenuItem #durationItem [submenu]="durationMenu()"  [class.chosen-item]="(durationEmitter$ | async) !== 'Any'">
                             <span class="label">{{'DURATION' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
                         </div>
@@ -38,7 +38,7 @@
                         </ng-template>
                         <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
-                        <div class="menu-item" value="growthHabits" ngMenuItem #growthHabitItem
+                        <div class="menu-item" value="growthHabits" ngMenuItem #growthHabitItem [class.chosen-item]="(growthHabitEmitter$ | async) !== 'Any'"
                             [submenu]="growthHabitMenu()">
                             <span class="label">{{'GROWTH_HABIT' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
@@ -66,7 +66,7 @@
 
                         <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
-                        <div class="menu-item" value="toxicity" ngMenuItem #toxicityItem [submenu]="toxicityMenu()">
+                        <div class="menu-item" value="toxicity" ngMenuItem #toxicityItem [submenu]="toxicityMenu()" [class.chosen-item]="toxicity() !== undefined">
                             <span class="label">{{'TOXICITY' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
                         </div>
@@ -90,7 +90,7 @@
 
                         <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
-                        <div class="menu-item" value="flowerColor" ngMenuItem #flowerColorItem
+                        <div class="menu-item" value="flowerColor" ngMenuItem #flowerColorItem [class.chosen-item]="flowerColor() !== undefined"
                             [submenu]="flowerColorMenu()">
                             <span class="label">{{'FLOWER_COLOR' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
@@ -116,7 +116,7 @@
                         <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
                         <div class="menu-item" value="foliageColor" ngMenuItem #foliageColorItem
-                            [submenu]="foliageColorMenu()">
+                            [submenu]="foliageColorMenu()" [class.chosen-item]="foliageColor() !== undefined">
                             <span class="label">{{'FOLIAGE_COLOR' | transloco}}</span>
                             <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
                         </div>
