@@ -329,7 +329,7 @@ app.post<County | undefined>(
 
 
 app.get('/sitemap.xml', async (_, res) => {
-  const plantIds = fetch('https://localhost:5273/api/FileData/plantdata/id');
+  const plantIds = fetch((process.env['API_URL'] || 'http://api:8080') + '/api/FileData/plantdata/id');
 
   const countyUrls = countiesCSVCache.map(c =>
     `  <url><loc>https://whatgrowsnativehere.us.com/${c.stateAbbrev}/${encodeURIComponent(c.countyName)}</loc><priority>0.8</priority></url>`
