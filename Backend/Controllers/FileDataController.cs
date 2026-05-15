@@ -90,6 +90,9 @@ namespace Backend.Controllers
                 if (flowerColor is not null)
                     filtered = filtered.Where(x => x.FlowerColor == flowerColor);
 
+                if (foliageColor is not null)
+                    filtered = filtered.Where(x => x.FoliageColor == foliageColor);
+
                 if (!String.IsNullOrWhiteSpace(searchString))
                     filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
 
