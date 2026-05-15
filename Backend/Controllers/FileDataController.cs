@@ -53,7 +53,7 @@ namespace Backend.Controllers
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption,
         [FromQuery] bool ascending, [FromQuery] int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit,
         [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, [FromQuery] Toxicity? toxicity,
-        [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor,
+        [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor, [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? foliageColor,
         CancellationToken cancellationToken)
         {
             Response.Headers.Append("Content-Encoding", "gzip");

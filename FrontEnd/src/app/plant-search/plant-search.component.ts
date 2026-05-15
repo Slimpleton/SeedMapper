@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal, OutputRefSubscription } from '@angular/core';
+import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal, OutputRefSubscription, WritableSignal } from '@angular/core';
 import { Color, combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData, Toxicity } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
@@ -64,10 +64,11 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly flowerColor = signal<Color | undefined>(undefined);
   private readonly _flowerColor$ = toObservable(this.flowerColor);
 
+  protected readonly foliageColor = signal<Color | undefined>(undefined);
+  private readonly _foliageColor$ = toObservable(this.foliageColor);
+
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
-  private _durationMenuSub: OutputRefSubscription | undefined;
-  private _growthHabitMenuSub: OutputRefSubscription | undefined;
 
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
@@ -107,7 +108,7 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly sortMenu = viewChild<Menu<string>>('sortMenu');
   protected readonly toxicityMenu = viewChild<Menu<string>>('toxicityMenu');
   protected readonly flowerColorMenu = viewChild<Menu<string>>('flowerColorMenu');
-
+  protected readonly foliageColorMenu = viewChild<Menu<string>>('foliageColorMenu');
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
@@ -140,14 +141,15 @@ export class PlantSearchComponent implements OnDestroy {
     this._search$,
     this._toxicity$,
     this._flowerColor$,
+    this._foliageColor$,
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
     distinctUntilChanged((a, b) => a.every((v, i) => v === b[i])),
-    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, sortOption, isSortAlphabeticOrder]: 
-      [GrowthHabit, Duration, string, string, Toxicity | undefined, Color | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
+    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, sortOption, isSortAlphabeticOrder]: 
+      [GrowthHabit, Duration, string, string, Toxicity | undefined, Color | undefined, Color | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, sortOption, isSortAlphabeticOrder)
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor,sortOption, isSortAlphabeticOrder)
         .pipe(finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
@@ -240,8 +242,6 @@ export class PlantSearchComponent implements OnDestroy {
   public ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
-    this._durationMenuSub?.unsubscribe();
-    this._growthHabitMenuSub?.unsubscribe();
   }
 
   public search(searchValue: string): void {
@@ -270,6 +270,9 @@ export class PlantSearchComponent implements OnDestroy {
     else if (item.key == 'flowerColor'){
       this.flowerColor.set(item.value as Color);
     }
+    else if(item.key == 'foliageColor'){
+      this.foliageColor.set(item.value as Color);
+    }
   }
 
   public onSortItemSelected(value: string) {
@@ -280,9 +283,8 @@ export class PlantSearchComponent implements OnDestroy {
       this.toggleSortOptionDirection();
     }
   }
-
   
-  private readonly filterSignals = [this.toxicity, this.flowerColor];
+  private readonly filterSignals : WritableSignal<unknown | undefined>[]= [this.toxicity, this.flowerColor, this.foliageColor];
   public clearFilters(): void {
     this.changeDuration('Any');
     this.changeGrowthHabit('Any');
@@ -303,5 +305,4 @@ export class PlantSearchComponent implements OnDestroy {
   public handleNameInput(name: string | undefined): void {
     if (name) this._countyRenavigate$.next(name);
   }
-
 }

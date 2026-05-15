@@ -33,7 +33,7 @@ export class GovPlantsDataService {
 
     // TODO swap to supporting array of growthhabit/duration, other filters
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, duration: Duration, toxicity: Toxicity | undefined, 
-        flowerColor: Color | undefined, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
+        flowerColor: Color | undefined, foliageColor: Color | undefined, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
         if (batchSize < GovPlantsDataService.MIN_BATCH_SIZE) batchSize = GovPlantsDataService.MIN_BATCH_SIZE;
 
         const params = new URLSearchParams({
@@ -49,6 +49,8 @@ export class GovPlantsDataService {
             params.set('toxicity', toxicity);
         if(flowerColor)
             params.set('flowerColor', flowerColor);
+        if(foliageColor)
+            params.set('foliageColor',foliageColor)
 
         const url = `${this._dataUrl}/search?${params}`;
 

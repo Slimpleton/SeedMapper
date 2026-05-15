@@ -92,5 +92,6 @@
         "GRAY-GREEN": "Gray-Green",
         "WHITE-GRAY": "White-Gray",
         "YELLOW-GREEN": "Yellow-Green"
-    }
+    },
+    "FOLIAGE_COLOR":"Foliage Color"
 }
