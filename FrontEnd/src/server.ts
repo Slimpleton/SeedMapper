@@ -332,19 +332,19 @@ app.get('/sitemap.xml', async (_, res) => {
   const plantIds = fetch((process.env['API_URL'] || 'http://api:8080') + '/api/FileData/plantdata/id');
 
   const countyUrls = countiesCSVCache.map(c =>
-    `  <url><loc>https://whatgrowsnativehere.us.com/${c.stateAbbrev}/${encodeURIComponent(c.countyName)}</loc><priority>0.8</priority></url>`
+    `  <url><loc>https://whatgrowsnativehere.com/${c.stateAbbrev}/${encodeURIComponent(c.countyName)}</loc><priority>0.8</priority></url>`
   ).join('\n');
 
   // TODO every plant overview url
   const plantUrls = (await (await plantIds).json()).map((val: string) =>
-    `  <url><loc>https://whatgrowsnativehere.us.com/plant/raw/${val}</loc><priority>0.6</priority></url>`
+    `  <url><loc>https://whatgrowsnativehere.com/plant/raw/${val}</loc><priority>0.6</priority></url>`
   );
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://whatgrowsnativehere.us.com/</loc><priority>1.0</priority></url>
   <url><loc>https://whatgrowsnativehere.com/</loc><priority>1.0</priority></url>
-  <url><loc>https://whatgrowsnativehere.us.com/about</loc><priority>0.4</priority></url>
+  <url><loc>https://whatgrowsnativehere.com/about</loc><priority>0.4</priority></url>
 ${countyUrls}
 ${plantUrls}
 </urlset>`;
