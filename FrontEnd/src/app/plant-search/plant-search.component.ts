@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal, WritableSignal } from '@angular/core';
-import { Color, combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, PlantData, Toxicity } from '../models/gov/models';
+import { Color, combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, Lifespan, PlantData, ShadeTolerance, Toxicity } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
@@ -51,13 +51,16 @@ export type FilterSelection = { key: string, value: string };
   styleUrl: './plant-search.component.css'
 })
 export class PlantSearchComponent implements OnDestroy {
-  protected colors: Color[] = ['Black', 'Blue', 'Brown', 'Green', 'Orange', 'Purple', 'Red', 'White', 'Yellow', 'Dark Green', 'Gray-Green', 'White-Gray', 'Yellow-Green']
-  protected toxicities: Toxicity[] = ['None', 'Slight', 'Moderate', 'Severe'];
-  protected growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
-  protected readonly growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
+  protected readonly colors: Color[] = ['Black', 'Blue', 'Brown', 'Green', 'Orange', 'Purple', 'Red', 'White', 'Yellow', 'Dark Green', 'Gray-Green', 'White-Gray', 'Yellow-Green']
+  protected readonly toxicities: Toxicity[] = ['None', 'Slight', 'Moderate', 'Severe'];
+  protected readonly growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
+  protected readonly shadeTolerances: ShadeTolerance[] = ['Tolerant', 'Intermediate', 'Intolerant'];
+  protected readonly lifespans: Lifespan[] = ['Short', 'Moderate', 'Long'];
+  protected readonly durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
 
-  protected durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
+  protected readonly growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
   protected readonly durationEmitter$: BehaviorSubject<Duration> = new BehaviorSubject<Duration>('Any');
+
   protected readonly toxicity = signal<Toxicity | undefined>(undefined);
   private readonly _toxicity$ = toObservable(this.toxicity);
 
@@ -66,6 +69,12 @@ export class PlantSearchComponent implements OnDestroy {
 
   protected readonly foliageColor = signal<Color | undefined>(undefined);
   private readonly _foliageColor$ = toObservable(this.foliageColor);
+
+  protected readonly shadeTolerance = signal<ShadeTolerance | undefined>(undefined);
+  private readonly _shadeTolerance$ = toObservable(this.shadeTolerance);
+
+  protected readonly lifespan = signal<Lifespan | undefined>(undefined);
+  private readonly _lifespan$ = toObservable(this.lifespan);
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
@@ -109,6 +118,8 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly toxicityMenu = viewChild<Menu<string>>('toxicityMenu');
   protected readonly flowerColorMenu = viewChild<Menu<string>>('flowerColorMenu');
   protected readonly foliageColorMenu = viewChild<Menu<string>>('foliageColorMenu');
+  protected readonly shadeToleranceMenu = viewChild<Menu<string>>('shadeToleranceMenu');
+  protected readonly lifespanMenu = viewChild<Menu<string>>('lifespanMenu');
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
@@ -142,14 +153,16 @@ export class PlantSearchComponent implements OnDestroy {
     this._toxicity$,
     this._flowerColor$,
     this._foliageColor$,
+    this._shadeTolerance$,
+    this._lifespan$,
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
     distinctUntilChanged((a, b) => a.every((v, i) => v === b[i])),
-    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, sortOption, isSortAlphabeticOrder]:
-      [GrowthHabit, Duration, string, string, Toxicity | undefined, Color | undefined, Color | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
+    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, sortOption, isSortAlphabeticOrder]:
+      [GrowthHabit, Duration, string, string, Toxicity | undefined, Color | undefined, Color | undefined, ShadeTolerance | undefined,Lifespan | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor, sortOption, isSortAlphabeticOrder)
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, sortOption, isSortAlphabeticOrder)
         .pipe(finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
@@ -266,6 +279,12 @@ export class PlantSearchComponent implements OnDestroy {
     else if (item.key == 'foliageColor') {
       this.foliageColor.set(item.value as Color);
     }
+    else if (item.key == 'shadeTolerance'){
+      this.shadeTolerance.set(item.value as ShadeTolerance);
+    }
+    else if(item.key == 'lifespan'){
+      this.lifespan.set(item.value as Lifespan);
+    }
   }
 
   public onSortItemSelected(value: string) {
@@ -277,7 +296,7 @@ export class PlantSearchComponent implements OnDestroy {
     }
   }
 
-  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.toxicity, this.flowerColor, this.foliageColor];
+  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.toxicity, this.flowerColor, this.foliageColor, this.shadeTolerance, this.lifespan];
   public clearFilters(): void {
     this.changeDuration('Any');
     this.changeGrowthHabit('Any');

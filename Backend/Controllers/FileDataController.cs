@@ -51,9 +51,12 @@ namespace Backend.Controllers
 
         [HttpGet("plantdata/search")]
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption,
-        [FromQuery] bool ascending, [FromQuery] int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit,
+        [FromQuery] bool ascending, [FromQuery] int batchSize, 
+        [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit,
         [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, [FromQuery] Toxicity? toxicity,
-        [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor, [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? foliageColor,
+        [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor, 
+        [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? foliageColor,
+        [FromQuery] ShadeTolerance? shadeTolerance, [FromQuery]Lifespan? lifespan,
         CancellationToken cancellationToken)
         {
             Response.Headers.Append("Content-Encoding", "gzip");
@@ -92,6 +95,12 @@ namespace Backend.Controllers
 
                 if (foliageColor is not null)
                     filtered = filtered.Where(x => x.FoliageColor == foliageColor);
+
+                if(shadeTolerance is not null)
+                    filtered = filtered.Where(x => x.ShadeTolerance == shadeTolerance);
+                
+                if(lifespan is not null)
+                    filtered = filtered.Where(x => x.Lifespan == lifespan);
 
                 if (!String.IsNullOrWhiteSpace(searchString))
                     filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));

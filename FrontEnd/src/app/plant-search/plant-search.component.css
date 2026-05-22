@@ -188,8 +188,17 @@ h1 {
     gap: 0.5em;
     padding: 0.5em;
     font-size: 0.875em;
-    border-radius: 0.25em;
     justify-content: space-between;
+}
+
+[ngMenuItem]:first-of-type {
+    border-top-left-radius: .5em;
+    border-top-right-radius: .5em;
+}
+
+[ngMenuItem]:last-of-type {
+    border-bottom-left-radius: .5em;
+    border-bottom-right-radius: .5em;
 }
 
 [ngMenuItem].chosen-item {

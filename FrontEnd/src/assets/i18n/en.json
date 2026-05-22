@@ -41,6 +41,11 @@
     "COUNTY_NO_RESULTS": "No counties found",
     "GROWTH_HABIT": "Growth Habits",
     "SHADE_TOLERANCE": "Shade Tolerance",
+    "SHADE_TOLERANCES": {
+        "TOLERANT":"Tolerant",
+        "INTERMEDIATE":"Intermediate",
+        "INTOLERANT":"Intolerant"
+    },
     "DURATION": "Duration",
     "ACTIVE_GROWTH_PERIOD": "Active Growth Seasons",
     "SHAPE_AND_ORIENTATION": "Shape & Orientation",
@@ -93,5 +98,11 @@
         "WHITE-GRAY": "White-Gray",
         "YELLOW-GREEN": "Yellow-Green"
     },
-    "FOLIAGE_COLOR":"Foliage Color"
+    "FOLIAGE_COLOR": "Foliage Color",
+    "LIFESPAN":"Lifespan",
+    "LIFESPANS":{
+        "SHORT":"Short",
+        "LONG":"Long",
+        "MODERATE":"Moderate"
+    }
 }

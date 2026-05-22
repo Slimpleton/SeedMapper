@@ -140,6 +140,61 @@
                             </div>
                         </ng-template>
 
+                        <div role="separator" aria-orientation="horizontal" class="separator"></div>
+
+                        <div class="menu-item" ngMenuItem value="shadeTolerance" #shadeToleranceItem
+                            [submenu]="shadeToleranceMenu()" [class.chosen-item]="shadeTolerance() !== undefined">
+                            <span class="label">{{'SHADE_TOLERANCE' | transloco}}</span>
+                            <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
+                        </div>
+
+                        <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                            [cdkConnectedOverlay]="{origin: shadeToleranceItem, usePopover:'inline'}"
+                            [cdkConnectedOverlayPositions]="[
+          {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
+        ]" cdkAttachPopoverAsChild>
+                            <div class="menu" ngMenu #shadeToleranceMenu="ngMenu" id="shade-tolerance-menu">
+                                <ng-template ngMenuContent>
+                                    @for(shade of shadeTolerances; track shade){
+                                    <div class="submenu-item" ngMenuItem
+                                        [value]="getFilterItem('shadeTolerance', shade)"
+                                        [disabled]="shadeTolerance() === shade"
+                                        [class.chosen-item]="shadeTolerance() === shade">
+                                        <span class="label">{{'SHADE_TOLERANCES.' + shade | uppercase |
+                                            transloco}}</span>
+                                    </div>
+                                    }
+                                </ng-template>
+                            </div>
+
+                        </ng-template>
+
+                        <div role="separator" aria-orientation="horizontal" class="separator"></div>
+
+                        <div class="menu-item" ngMenuItem value="lifespan" #lifespanItem [submenu]="lifespanMenu()"
+                            [class.chosen-item]="lifespan() !== undefined">
+                            <span class="label">{{'LIFESPAN' | transloco}}</span>
+                            <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
+                        </div>
+
+                        <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                            [cdkConnectedOverlay]="{origin: lifespanItem, usePopover: 'inline'}"
+                            [cdkConnectedOverlayPositions]="[
+          {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
+        ]" cdkAttachPopoverAsChild>
+
+                            <div class="menu" ngMenu #lifespanMenu="ngMenu" id="lifespan-menu">
+                                <ng-template ngMenuContent>
+                                    @for(life of lifespans; track life){
+                                    <div class="submenu-item" ngMenuItem [value]="getFilterItem('lifespan', life)"
+                                        [disabled]="lifespan() === life" [class.chosen-item]="lifespan()===life">
+                                        <span class="label">{{'LIFESPANS.' + life | uppercase |
+                                            transloco}}</span>
+                                    </div>
+                                    }
+                                </ng-template>
+                            </div>
+                        </ng-template>
 
                     </ng-template>
                 </div>
