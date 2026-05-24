@@ -37,12 +37,22 @@ export class HomeComponent {
   public get PLANT_TILE_MAP_HEIGHT(): number { return MapService.PLANT_TILE_MAP_HEIGHT; }
   public readonly countiesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.countiesPaths$(this.PLANT_TILE_MAP_WIDTH, this.PLANT_TILE_MAP_HEIGHT) : of([]);
 
+  // Possible future data sources
+  // GBIF
+  // Calflora
+  // https://edac.unm.edu/
+  // trefle api
+  // The Lady Bird Johnson Wildflower Center in TX 
+  // National wildlife federation / nwf
+  // Flora data out of UNC,
+  // NC Native Plant Society maintains nice lists of natives by region; I imagine other state NPSs do as well. 
+  // https://vaplantatlas.org/index.php?do=start&search=Search
+
+
   // PRIORITIES 
   // MEDIUM 
   // TODO make a calflora service cuz their db is extensive possibly with many records
   // TODO  display gbif occurence data and other occurence data??? 
-  // TODO use inaturalist api for occurrences as well, research grade only, use for occurrences because its community driven
-  // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
   // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
 
 
