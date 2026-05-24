@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal, WritableSignal } from '@angular/core';
-import { Color, combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, Lifespan, PlantData, ShadeTolerance, Toxicity } from '../models/gov/models';
+import { Color, combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, Lifespan, PlantData, Rate, ShadeTolerance, Toxicity } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
@@ -57,6 +57,7 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly shadeTolerances: ShadeTolerance[] = ['Tolerant', 'Intermediate', 'Intolerant'];
   protected readonly lifespans: Lifespan[] = ['Short', 'Moderate', 'Long'];
   protected readonly durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
+  protected readonly rates: Rate[] = ['None', 'Slow', 'Moderate', 'Rapid'];
 
   protected readonly growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
   protected readonly durationEmitter$: BehaviorSubject<Duration> = new BehaviorSubject<Duration>('Any');
@@ -75,6 +76,9 @@ export class PlantSearchComponent implements OnDestroy {
 
   protected readonly lifespan = signal<Lifespan | undefined>(undefined);
   private readonly _lifespan$ = toObservable(this.lifespan);
+
+  protected readonly growthRate = signal<Rate | undefined>(undefined);
+  private readonly _growthRate$ = toObservable(this.growthRate);
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
@@ -120,6 +124,7 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly foliageColorMenu = viewChild<Menu<string>>('foliageColorMenu');
   protected readonly shadeToleranceMenu = viewChild<Menu<string>>('shadeToleranceMenu');
   protected readonly lifespanMenu = viewChild<Menu<string>>('lifespanMenu');
+  protected readonly growthRateMenu = viewChild<Menu<string>>('growthRateMenu');
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
@@ -155,14 +160,15 @@ export class PlantSearchComponent implements OnDestroy {
     this._foliageColor$,
     this._shadeTolerance$,
     this._lifespan$,
+    this._growthRate$,
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
     distinctUntilChanged((a, b) => a.every((v, i) => v === b[i])),
-    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, sortOption, isSortAlphabeticOrder]:
-      [GrowthHabit, Duration, string, string, Toxicity | undefined, Color | undefined, Color | undefined, ShadeTolerance | undefined,Lifespan | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
+    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, sortOption, isSortAlphabeticOrder]:
+      [GrowthHabit, Duration, string, string, Toxicity | undefined, Color | undefined, Color | undefined, ShadeTolerance | undefined, Lifespan | undefined, Rate | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, sortOption, isSortAlphabeticOrder)
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, sortOption, isSortAlphabeticOrder)
         .pipe(finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
@@ -279,11 +285,14 @@ export class PlantSearchComponent implements OnDestroy {
     else if (item.key == 'foliageColor') {
       this.foliageColor.set(item.value as Color);
     }
-    else if (item.key == 'shadeTolerance'){
+    else if (item.key == 'shadeTolerance') {
       this.shadeTolerance.set(item.value as ShadeTolerance);
     }
-    else if(item.key == 'lifespan'){
+    else if (item.key == 'lifespan') {
       this.lifespan.set(item.value as Lifespan);
+    }
+    else if (item.key == 'growthRate'){
+      this.growthRate.set(item.value as Rate);
     }
   }
 
@@ -296,7 +305,7 @@ export class PlantSearchComponent implements OnDestroy {
     }
   }
 
-  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.toxicity, this.flowerColor, this.foliageColor, this.shadeTolerance, this.lifespan];
+  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.toxicity, this.flowerColor, this.foliageColor, this.shadeTolerance, this.lifespan, this.growthRate];
   public clearFilters(): void {
     this.changeDuration('Any');
     this.changeGrowthHabit('Any');

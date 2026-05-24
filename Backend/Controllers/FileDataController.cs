@@ -57,6 +57,7 @@ namespace Backend.Controllers
         [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor, 
         [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? foliageColor,
         [FromQuery] ShadeTolerance? shadeTolerance, [FromQuery]Lifespan? lifespan,
+        [FromQuery] Rate? growthRate,
         CancellationToken cancellationToken)
         {
             Response.Headers.Append("Content-Encoding", "gzip");
@@ -101,6 +102,9 @@ namespace Backend.Controllers
                 
                 if(lifespan is not null)
                     filtered = filtered.Where(x => x.Lifespan == lifespan);
+
+                if(growthRate is not null)
+                    filtered = filtered.Where( x => x.GrowthRate == growthRate);
 
                 if (!String.IsNullOrWhiteSpace(searchString))
                     filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));

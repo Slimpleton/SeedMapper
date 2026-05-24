@@ -196,6 +196,31 @@
                             </div>
                         </ng-template>
 
+                        <div role="separator" aria-orientation="horizontal" class="separator"></div>
+
+                        <div class="menu-item" ngMenuItem value="growthRate" #growthRateItem
+                            [submenu]="growthRateMenu()" [class.chosen-item]="growthRate() !== undefined">
+                            <span class="label">{{'GROWTH_RATE' | transloco}}</span>
+                            <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
+                        </div>
+
+                        <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                            [cdkConnectedOverlay]="{origin: growthRateItem, usePopover:'inline'}"
+                            [cdkConnectedOverlayPositions]="[
+          {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
+                        ]" cdkAttachPopoverAsChild>
+                            <div class="menu" ngMenu #growthRateMenu="ngMenu" id="growth-rate-menu">
+                                <ng-template ngMenuContent>
+                                    @for(rate of rates; track rate){
+                                    <div class="submenu-item" ngMenuItem [value]="getFilterItem('growthRate', rate)"
+                                        [disabled]="growthRate() === rate" [class.chosen-item]="growthRate() === rate">
+                                        <span class="label">{{'RATES.' + rate | uppercase | transloco}}</span>
+                                    </div>
+                                    }
+                                </ng-template>
+                            </div>
+                        </ng-template>
+
                     </ng-template>
                 </div>
 
