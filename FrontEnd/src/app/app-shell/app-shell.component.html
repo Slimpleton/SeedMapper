@@ -4,6 +4,9 @@
             [alt]="'APP_ICON' | transloco" />
         <h2 class="title">{{'TITLE' | transloco}}</h2>
     </div>
+
+    <!-- TODO language swap icon btn / dropdown here -->
+
     <nav class="link-container" [attr.aria-label]="'NAVIGATION' | transloco">
         <a class="text" [routerLink]="''" routerLinkActive #searchLink="routerLinkActive"
             [routerLinkActiveOptions]="{ exact: false }" [attr.aria-current]="searchLink.isActive ? 'page' : null">

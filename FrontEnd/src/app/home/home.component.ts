@@ -41,7 +41,6 @@ export class HomeComponent {
   // GBIF
   // Calflora
   // https://edac.unm.edu/
-  // trefle api
   // The Lady Bird Johnson Wildflower Center in TX 
   // National wildlife federation / nwf
   // Flora data out of UNC,
@@ -60,6 +59,8 @@ export class HomeComponent {
   // TODO make a reader for the gbif occurrence download records
   // TODO inaturalist images from occurrences, look for non copyright 
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
+  // https://www.gbif.org/citation-guidelines
+  // https://www.gbif.org/terms/data-user
 
   // TODO group the plant items into column rows based on the generated column number / result size
 

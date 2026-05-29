@@ -1,6 +1,12 @@
+:host {
+  display: flex;
+  justify-content: center;
+}
+
 .container {
   background-color: var(--grass-light-green);
   padding-bottom: 2em;
+  width: 100%;
 }
 
 .text {
@@ -50,4 +56,81 @@ h1 {
 .state-mesh {
   stroke: var(--wood-dark-brown);
   stroke-width: 1;
+}
+
+
+[ngTabs] {
+  overflow: hidden;
+  width: 100%;
+  border-radius: 0.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--wood-brown) 40%, transparent);
+}
+
+[ngTabList] {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  list-style: none;
+  position: relative;
+  border-bottom: 1px solid color-mix(in srgb, var(--wood-brown) 40%, transparent);
+}
+
+[ngTab] {
+  flex: 1;
+  outline: none;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  text-align: center;
+  color: color-mix(in srgb, var(--wood-brown) 60%, transparent);
+}
+
+[ngTab][aria-selected='false']:focus {
+  outline-offset: -8px;
+  border-radius: 0.7rem;
+  outline: 2px solid var(--grass-light-green);
+}
+
+[ngTab]:hover {
+  background-color: color-mix(in srgb, var(--grass-green) 25%, transparent);
+}
+
+[ngTab][aria-selected='true'] {
+  color: black;
+  background-color: var(--wood-light-brown);
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.sliding-window {
+  width: 300%;
+  display: flex;
+  transition: all 0.2s ease-in-out;
+}
+
+[ngTabList]:has([ngTab]:nth-child(1)[aria-selected='true'])~.sliding-window {
+  transform: translateX(0%);
+}
+
+[ngTabList]:has([ngTab]:nth-child(2)[aria-selected='true'])~.sliding-window {
+  transform: translateX(-33.333%);
+}
+
+[ngTabList]:has([ngTab]:nth-child(3)[aria-selected='true'])~.sliding-window {
+  transform: translateX(-66.666%);
+}
+
+[ngTabPanel] {
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  min-height: 100px;
+  flex: 1;
+  border-bottom-right-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+}
+
+[ngTabPanel]:focus {
+  outline-offset: -4px;
+  border-radius: 0.5rem;
+  outline: 2px solid var(--grass-light-green);
 }

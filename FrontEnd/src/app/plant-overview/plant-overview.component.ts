@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, input, OnInit, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, input, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { AsyncPipe, isPlatformBrowser, KeyValuePipe, TitleCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -9,11 +9,12 @@ import { Observable, of } from 'rxjs';
 import { TooltipDirective } from "../directives/tooltip.directive";
 import { Meta, Title } from '@angular/platform-browser';
 import { INaturalistService } from '../services/inaturalist.service';
+import {Tab, Tabs, TabList, TabPanel, TabContent} from '@angular/aria/tabs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-plant-overview',
-  imports: [TranslocoPipe, TitleCasePipe, KeyValuePipe, CamelSplitPipe, AsyncPipe, TooltipDirective],
+  imports: [TranslocoPipe, TitleCasePipe, KeyValuePipe, CamelSplitPipe, AsyncPipe, TooltipDirective, TabList, Tab, Tabs, TabPanel, TabContent],
   providers: [TitleCasePipe],
   templateUrl: './plant-overview.component.html',
   styleUrl: './plant-overview.component.css'
@@ -26,6 +27,7 @@ export class PlantOverviewComponent implements OnInit {
   public plant = input.required<PlantData>();
   public readonly countiesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.countiesPaths$(this.PLANT_MAP_WIDTH, this.PLANT_MAP_HEIGHT) : of([]);
   public readonly statesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.statesPaths$(this.PLANT_MAP_WIDTH, this.PLANT_MAP_HEIGHT) : of([]);
+  protected selectedTab = signal<string>('Images');
   public constructor(public readonly mapService: MapService,
     @Inject(PLATFORM_ID) private readonly _platformId: object,
     private readonly _title: Title, private readonly _meta: Meta,
