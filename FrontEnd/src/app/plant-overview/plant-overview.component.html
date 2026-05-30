@@ -29,7 +29,7 @@
         </ul>
 
         <div class="sliding-window">
-            <div ngTabPanel value="Overview">
+            <div ngTabPanel value="Overview" [preserveContent]="true">
                 <ng-template ngTabContent>
                     <ul class="key-value-list">
                         @for(item of plant() | keyvalue; track item.key){
@@ -43,7 +43,7 @@
                 </ng-template>
 
             </div>
-            <div ngTabPanel value="Map">
+            <div ngTabPanel value="Map" [preserveContent]="true">
                 <ng-template ngTabContent>
                     <!-- TODO zoomable county map -->
                     @if(isBrowser){
@@ -77,12 +77,14 @@
 
             </div>
 
-            <div ngTabPanel value="Images">
+            <div ngTabPanel value="Images" [preserveContent]="true">
                 <ng-template ngTabContent>
                     @if(plant().photos != null && plant().photos!.length > 0){
                     <div class="img-container" [class.img-container-empty]="!src()"
-                        id="img-container-{{plant().acceptedSymbol}}">
-                        <button [class.hidden]="!imageReady()"  [disabled]="!imageReady()" class="img-btn img-btn-prev"
+                        id="img-container-{{plant().acceptedSymbol}}" tabindex="0" 
+                        (keydown.arrowleft)="prevImage()"
+                        (keydown.arrowright)="nextImage()">
+                        <button [class.hidden]="!imageReady()" [disabled]="!imageReady()" class="img-btn img-btn-prev"
                             id="img-btn-prev-{{plant().acceptedSymbol}}" (click)="prevImage()"
                             [style.cursor]="imageReady() ? 'pointer' : 'default'"
                             [attr.aria-label]="'PREVIOUS_IMG' | transloco">
@@ -95,9 +97,11 @@
 
                         <img class="img" id="plant-img-{{plant().acceptedSymbol}}" [src]="src()" [srcset]="srcset()"
                             [class.hidden]="!showImage()" (load)="onImageLoad()"
-                            [style.cursor]="imageReady() ? 'pointer' : 'default'" loading="lazy" fetchpriority="high"
-                            decoding="async" sizes="(max-height: 600px) min(500px, 100vw), (max-height: 1400px) min(1080px, 100vw), min(2048px, 100vw)" (click)="openFullscreen(img)"
-                            (keydown.enter)="openFullscreen(img)" #img crossorigin="anonymous" (error)="invalidateSrc()"
+                            [style.cursor]="imageReady() ? 'pointer' : 'default'" loading="eager" fetchpriority="high"
+                            decoding="async"
+                            sizes="(max-height: 600px) min(500px, 100vw), (max-height: 1600px) min(1080px, 100vw), min(2048px, 100vw)"
+                            (click)="openFullscreen(img)" (keydown.enter)="openFullscreen(img)" #img
+                            crossorigin="anonymous" (error)="invalidateSrc()"
                             [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant().commonName, scientificName: plant().scientificName, family: plant().family}"
                             tabindex="0">
 
