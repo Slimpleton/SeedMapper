@@ -134,3 +134,63 @@ h1 {
   border-radius: 0.5rem;
   outline: 2px solid var(--grass-light-green);
 }
+
+.img {
+  display: block;
+  width: fit-content;
+  max-width: calc(100% - 2 * var(--tile-padding));
+  object-fit: contain;
+}
+
+.credits {
+  font-size: .9em;
+  margin: 0 .2em;
+}
+
+.img-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  min-width: 4em;
+  width: 75%;
+  margin-bottom: 1em;
+}
+
+.img-btn {
+  border: solid .1em var(--wood-brown);
+  z-index: 2;
+  width: 5em;
+  top: 0;
+  bottom: 0;
+  background-color: transparent;
+  position: absolute;
+  padding: 0;
+  border-radius: .5em;
+}
+
+.img-btn-prev {
+  left: 0;
+  margin-right: 0;
+}
+
+.img-btn-next {
+  right: 0;
+  margin-left: 0;
+}
+
+.img-btn-next>* {
+  transform: rotate(180deg);
+}
+
+.hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.img-container-empty {
+  flex: 0;
+  max-height: 0;
+  overflow: hidden;
+}

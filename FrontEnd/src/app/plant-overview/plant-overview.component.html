@@ -17,23 +17,31 @@
 
     <div ngTabs>
         <ul ngTabList [(selectedTab)]="selectedTab">
-            <li ngTab value="Images">
-                {{'IMAGES' | transloco}}
+            <li ngTab value="Overview">
+                {{'PLANT_OVERVIEW' | transloco}}
             </li>
             <li ngTab value="Map">
                 {{'NATIVE_REGION_MAP' | transloco}}
             </li>
-            <li ngTab value="Overview">
-                {{'PLANT_OVERVIEW' | transloco}}
+            <li ngTab value="Images">
+                {{'IMAGES' | transloco}}
             </li>
         </ul>
 
         <div class="sliding-window">
-            <div ngTabPanel value="Images">
+            <div ngTabPanel value="Overview">
                 <ng-template ngTabContent>
-                    <!-- TODO make images -->
-
+                    <ul class="key-value-list">
+                        @for(item of plant() | keyvalue; track item.key){
+                        @if(item.key !== 'photos' && item.value){
+                        <li class="text"><strong>{{item.key | camelSplit | titlecase}}</strong>:
+                            {{isIterableNotString(item.value) ? getIterableString(item.value) : item.value}}
+                        </li>
+                        }
+                        }
+                    </ul>
                 </ng-template>
+
             </div>
             <div ngTabPanel value="Map">
                 <ng-template ngTabContent>
@@ -68,20 +76,51 @@
                 </ng-template>
 
             </div>
-            <div ngTabPanel value="Overview">
-                <ng-template ngTabContent>
-                    <ul class="key-value-list">
-                        @for(item of plant() | keyvalue; track item.key){
-                        @if(item.key !== 'photos' && item.value){
-                        <li class="text"><strong>{{item.key | camelSplit | titlecase}}</strong>:
-                            {{isIterableNotString(item.value) ? getIterableString(item.value) : item.value}}
-                        </li>
-                        }
-                        }
-                    </ul>
-                </ng-template>
 
+            <div ngTabPanel value="Images">
+                <ng-template ngTabContent>
+                    @if(plant().photos != null && plant().photos!.length > 0){
+                    <div class="img-container" [class.img-container-empty]="!src()"
+                        id="img-container-{{plant().acceptedSymbol}}">
+                        <button [class.hidden]="!imageReady()"  [disabled]="!imageReady()" class="img-btn img-btn-prev"
+                            id="img-btn-prev-{{plant().acceptedSymbol}}" (click)="prevImage()"
+                            [style.cursor]="imageReady() ? 'pointer' : 'default'"
+                            [attr.aria-label]="'PREVIOUS_IMG' | transloco">
+                            <app-icon stroke="white" name="arrow"></app-icon>
+                        </button>
+
+                        @if(!showImage()){
+                        <app-loader></app-loader>
+                        }
+
+                        <img class="img" id="plant-img-{{plant().acceptedSymbol}}" [src]="src()" [srcset]="srcset()"
+                            [class.hidden]="!showImage()" (load)="onImageLoad()"
+                            [style.cursor]="imageReady() ? 'pointer' : 'default'" loading="lazy" fetchpriority="high"
+                            decoding="async" sizes="(max-height: 600px) min(500px, 100vw), (max-height: 1400px) min(1080px, 100vw), min(2048px, 100vw)" (click)="openFullscreen(img)"
+                            (keydown.enter)="openFullscreen(img)" #img crossorigin="anonymous" (error)="invalidateSrc()"
+                            [alt]="'PLANT_TILE_COMPONENT.PICTURE_ALT_TEXT' | transloco : {commonName: plant().commonName, scientificName: plant().scientificName, family: plant().family}"
+                            tabindex="0">
+
+                        <button [class.hidden]="!imageReady()" [disabled]="!imageReady()" class="img-btn img-btn-next"
+                            id="img-btn-next-{{plant().acceptedSymbol}}" (click)="nextImage()"
+                            [style.cursor]="imageReady() ? 'pointer' : 'default'"
+                            [attr.aria-label]="'NEXT_IMG'|transloco">
+                            <app-icon stroke="white" name="arrow"></app-icon>
+                        </button>
+
+                    </div>
+                    <a class="credits" id="credits-{{plant().acceptedSymbol}}" target="_blank"
+                        rel="noopener noreferrer license" [attr.aria-label]="this.fullImageCredits"
+                        [href]="'https://www.inaturalist.org/people/' + observerId">
+                        {{this.fullImageCredits}}
+                    </a>
+                    }
+                    @else{
+                    {{'NO_IMAGES' | transloco}}
+                    }
+                </ng-template>
             </div>
+
         </div>
     </div>
     }

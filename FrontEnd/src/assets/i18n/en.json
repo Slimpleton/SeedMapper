@@ -10,6 +10,7 @@
     "SORT": "Sort",
     "CLEAR": "Clear",
     "IMAGES":"Images",
+    "NO_IMAGES":"No Images Available",
     "PREVIOUS_IMG": "Previous Image",
     "NEXT_IMG": "Next Image",
     "SORT_OPTIONS": {
