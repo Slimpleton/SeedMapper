@@ -32,20 +32,24 @@ export class GovPlantsDataService {
     // TODO store url, batch index, and batch in map for in-memory cache
 
     // TODO swap to supporting array of growthhabit/duration, other filters
-    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, duration: Duration, toxicity: Toxicity | undefined, 
+    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit | undefined, duration: Duration | undefined, toxicity: Toxicity | undefined, 
         flowerColor: Color | undefined, foliageColor: Color | undefined, shadeTolerance: ShadeTolerance | undefined, lifespan: Lifespan | undefined, growthRate: Rate | undefined,
+        humanPalatable: boolean | undefined,
         sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
         if (batchSize < GovPlantsDataService.MIN_BATCH_SIZE) batchSize = GovPlantsDataService.MIN_BATCH_SIZE;
 
         const params = new URLSearchParams({
             searchString,
             combinedFIP,
-            growthHabit: growthHabit.toString(),
-            duration: duration.toString(),
             sortOption: sortOption.toString(),
             ascending: isSortAlphabeticOrder.toString(),
             batchSize: batchSize.toString()
         });
+
+        if(growthHabit)
+            params.set('growthHabit', growthHabit);
+        if(duration)
+            params.set('duration',duration);
         if (toxicity)
             params.set('toxicity', toxicity);
         if(flowerColor)
@@ -58,6 +62,8 @@ export class GovPlantsDataService {
             params.set('lifespan', lifespan);
         if(growthRate)
             params.set('growthRate', growthRate);
+        if(humanPalatable !== undefined)
+            params.set('humanPalatable', humanPalatable.toString());
 
         const url = `${this._dataUrl}/search?${params}`;
 

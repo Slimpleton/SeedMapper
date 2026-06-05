@@ -28,7 +28,7 @@ import { IconComponent } from '../icon/icon.component';
 import { toObservable } from '@angular/core/rxjs-interop';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
-export type FilterSelection = { key: string, value: string };
+export type FilterSelection = { key: string, value: string | boolean };
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,9 +58,13 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly lifespans: Lifespan[] = ['Short', 'Moderate', 'Long'];
   protected readonly durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
   protected readonly rates: Rate[] = ['None', 'Slow', 'Moderate', 'Rapid'];
+  protected readonly booleans: boolean[] = [true, false];
 
-  protected readonly growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
-  protected readonly durationEmitter$: BehaviorSubject<Duration> = new BehaviorSubject<Duration>('Any');
+  protected readonly growthHabit = signal<GrowthHabit | undefined>(undefined);
+  private readonly _growthHabit$ = toObservable(this.growthHabit);
+
+  protected readonly duration = signal<Duration | undefined>(undefined);
+  private readonly _duration$ = toObservable(this.duration);
 
   protected readonly toxicity = signal<Toxicity | undefined>(undefined);
   private readonly _toxicity$ = toObservable(this.toxicity);
@@ -79,6 +83,9 @@ export class PlantSearchComponent implements OnDestroy {
 
   protected readonly growthRate = signal<Rate | undefined>(undefined);
   private readonly _growthRate$ = toObservable(this.growthRate);
+
+  protected readonly humanPalatable = signal<boolean | undefined>(undefined);
+  private readonly _humanPalatable$ = toObservable(this.humanPalatable);
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
@@ -125,6 +132,7 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly shadeToleranceMenu = viewChild<Menu<string>>('shadeToleranceMenu');
   protected readonly lifespanMenu = viewChild<Menu<string>>('lifespanMenu');
   protected readonly growthRateMenu = viewChild<Menu<string>>('growthRateMenu');
+  protected readonly humanPalatableMenu = viewChild<Menu<string>>('humanPalatableMenu');
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
@@ -151,8 +159,8 @@ export class PlantSearchComponent implements OnDestroy {
   );
 
   private readonly _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
-    this.growthHabitEmitter$,
-    this.durationEmitter$,
+    this._growthHabit$,
+    this._duration$,
     this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
     this._search$,
     this._toxicity$,
@@ -161,14 +169,15 @@ export class PlantSearchComponent implements OnDestroy {
     this._shadeTolerance$,
     this._lifespan$,
     this._growthRate$,
+    this._humanPalatable$,
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
     distinctUntilChanged((a, b) => a.every((v, i) => v === b[i])),
-    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, sortOption, isSortAlphabeticOrder]:
-      [GrowthHabit, Duration, string, string, Toxicity | undefined, Color | undefined, Color | undefined, ShadeTolerance | undefined, Lifespan | undefined, Rate | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
+    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, humanPalatable, sortOption, isSortAlphabeticOrder]:
+      [GrowthHabit | undefined, Duration | undefined, string, string, Toxicity | undefined, Color | undefined, Color | undefined, ShadeTolerance | undefined, Lifespan | undefined, Rate | undefined, boolean | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, sortOption, isSortAlphabeticOrder)
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, humanPalatable, sortOption, isSortAlphabeticOrder)
         .pipe(finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
@@ -268,31 +277,40 @@ export class PlantSearchComponent implements OnDestroy {
     return this.sortOptions.includes(value as SortOption);
   }
 
-  protected getFilterItem(key: string, value: string): FilterSelection { return <FilterSelection>{ key, value }; }
+  protected getFilterItem(key: string, value: string | boolean): FilterSelection { return <FilterSelection>{ key, value }; }
 
   protected onFilterItemSelected(item: FilterSelection): void {
-    if (item.key == 'duration')
-      this.changeDuration(item.value);
+    console.log(item);
+    if (item.key == 'duration') {
+      this.duration.update(signalUpdate(item.value as Duration));
+    }
     else if (item.key == 'growthHabit') {
-      this.changeGrowthHabit(item.value);
+      this.growthHabit.update(signalUpdate(item.value as GrowthHabit));
     }
     else if (item.key == 'toxicity') {
-      this.toxicity.set(item.value as Toxicity);
+      this.toxicity.update(signalUpdate(item.value as Toxicity));
     }
     else if (item.key == 'flowerColor') {
-      this.flowerColor.set(item.value as Color);
+      this.flowerColor.update(signalUpdate(item.value as Color));
     }
     else if (item.key == 'foliageColor') {
-      this.foliageColor.set(item.value as Color);
+      this.foliageColor.update(signalUpdate(item.value as Color));
     }
     else if (item.key == 'shadeTolerance') {
-      this.shadeTolerance.set(item.value as ShadeTolerance);
+      this.shadeTolerance.update(signalUpdate(item.value as ShadeTolerance));
     }
     else if (item.key == 'lifespan') {
-      this.lifespan.set(item.value as Lifespan);
+      this.lifespan.update(signalUpdate(item.value as Lifespan));
     }
-    else if (item.key == 'growthRate'){
-      this.growthRate.set(item.value as Rate);
+    else if (item.key == 'growthRate') {
+      this.growthRate.update(signalUpdate(item.value as Rate));
+    }
+    else if (item.key == 'humanPalatable') {
+      this.humanPalatable.update(signalUpdate(item.value as boolean));
+    }
+
+    function signalUpdate<T>(newVal: T): (value: T | undefined) => T | undefined {
+      return (val) => val === newVal ? undefined : newVal;
     }
   }
 
@@ -305,22 +323,9 @@ export class PlantSearchComponent implements OnDestroy {
     }
   }
 
-  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.toxicity, this.flowerColor, this.foliageColor, this.shadeTolerance, this.lifespan, this.growthRate];
+  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.growthHabit, this.duration, this.toxicity, this.flowerColor, this.foliageColor, this.shadeTolerance, this.lifespan, this.growthRate, this.humanPalatable];
   public clearFilters(): void {
-    this.changeDuration('Any');
-    this.changeGrowthHabit('Any');
-    this.filterSignals.forEach(signal => {
-      signal.set(undefined);
-    });
-  }
-
-  public changeGrowthHabit(habit: string): void {
-    this.growthHabitEmitter$.next(habit as GrowthHabit);
-  }
-
-  public changeDuration(duration: string): void {
-    console.log(duration);
-    this.durationEmitter$.next(duration as Duration);
+    this.filterSignals.forEach(signal => signal.set(undefined));
   }
 
   public handleNameInput(name: string | undefined): void {

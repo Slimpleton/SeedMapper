@@ -167,6 +167,10 @@ h1 {
     width: fit-content;
 }
 
+.clear-btn:hover {
+    background: var(--grass-green);
+}
+
 [ngMenu] {
     margin: 0;
     width: fit-content;
@@ -221,6 +225,6 @@ h1 {
 }
 
 [ngMenuTrigger]:hover,
-[ngMenuItem]:not(.chosen-item)[data-active='true'] {
+[ngMenuItem][data-active='true'] {
     background: var(--grass-green);
 }

@@ -51,13 +51,13 @@ namespace Backend.Controllers
 
         [HttpGet("plantdata/search")]
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption,
-        [FromQuery] bool ascending, [FromQuery] int batchSize, 
+        [FromQuery] bool ascending, [FromQuery] int batchSize,
         [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit,
         [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, [FromQuery] Toxicity? toxicity,
-        [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor, 
+        [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor,
         [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? foliageColor,
-        [FromQuery] ShadeTolerance? shadeTolerance, [FromQuery]Lifespan? lifespan,
-        [FromQuery] Rate? growthRate,
+        [FromQuery] ShadeTolerance? shadeTolerance, [FromQuery] Lifespan? lifespan,
+        [FromQuery] Rate? growthRate, [FromQuery] bool? humanPalatable,
         CancellationToken cancellationToken)
         {
             Response.Headers.Append("Content-Encoding", "gzip");
@@ -80,10 +80,10 @@ namespace Backend.Controllers
 
                 IEnumerable<PlantData> filtered = FileService.GetSortedPlants(sortOption, ascending);
                 filtered = filtered.Where(countyPlants.Contains);
-                if (growthHabit != null && growthHabit != GrowthHabit.Any)
+                if (growthHabit is not null)
                     filtered = filtered.Where(x => x.GrowthHabit.Contains((GrowthHabit)growthHabit));
 
-                if (duration is not null and not Duration.Any)
+                if (duration is not null)
                     filtered = duration is Duration.AN or Duration.Annual
                         ? filtered.Where(x => x.Duration.Contains(Duration.AN) || x.Duration.Contains(Duration.Annual))
                         : filtered.Where(x => x.Duration.Contains((Duration)duration));
@@ -97,14 +97,17 @@ namespace Backend.Controllers
                 if (foliageColor is not null)
                     filtered = filtered.Where(x => x.FoliageColor == foliageColor);
 
-                if(shadeTolerance is not null)
+                if (shadeTolerance is not null)
                     filtered = filtered.Where(x => x.ShadeTolerance == shadeTolerance);
-                
-                if(lifespan is not null)
+
+                if (lifespan is not null)
                     filtered = filtered.Where(x => x.Lifespan == lifespan);
 
-                if(growthRate is not null)
-                    filtered = filtered.Where( x => x.GrowthRate == growthRate);
+                if (growthRate is not null)
+                    filtered = filtered.Where(x => x.GrowthRate == growthRate);
+
+                if (humanPalatable is not null)
+                    filtered = filtered.Where(x => x.PalatableHuman == humanPalatable);
 
                 if (!String.IsNullOrWhiteSpace(searchString))
                     filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
