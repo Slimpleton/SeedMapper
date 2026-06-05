@@ -3,7 +3,7 @@
         <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
             [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar" (focus)="searchBar.select()">
         <div class="row">
-            <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #filterTrigger="ngMenuTrigger"
+            <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #filterTrigger="ngMenuTrigger" [class.chosen-item]="anyActiveFilters()"
                 [menu]="filterMenu()">{{'FILTERS' |
                 transloco}}</button>
             <ng-template [cdkConnectedOverlayOpen]="filterTrigger.expanded()"

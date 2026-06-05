@@ -159,7 +159,7 @@ h1 {
 }
 
 .img-btn {
-  border: solid .1em var(--wood-brown);
+  border: none;
   z-index: 2;
   width: 5em;
   top: 0;
@@ -167,7 +167,6 @@ h1 {
   background-color: transparent;
   position: absolute;
   padding: 0;
-  border-radius: .5em;
 }
 
 .img-btn-prev {

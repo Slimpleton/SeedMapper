@@ -205,8 +205,8 @@ h1 {
     border-bottom-right-radius: .5em;
 }
 
-[ngMenuItem].chosen-item {
-    cursor: default;
+.chosen-item {
+    cursor: pointer;
     background-color: var(--wood-light-brown);
 }
 

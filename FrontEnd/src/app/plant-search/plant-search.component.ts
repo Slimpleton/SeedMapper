@@ -327,6 +327,8 @@ export class PlantSearchComponent implements OnDestroy {
   public clearFilters(): void {
     this.filterSignals.forEach(signal => signal.set(undefined));
   }
+  
+  public anyActiveFilters(): boolean { return this.filterSignals.some((x) => x() !== undefined)}
 
   public handleNameInput(name: string | undefined): void {
     if (name) this._countyRenavigate$.next(name);
