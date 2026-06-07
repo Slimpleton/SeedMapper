@@ -4,9 +4,7 @@
             [alt]="'APP_ICON' | transloco" />
         <h2 class="title">{{'TITLE' | transloco}}</h2>
     </div>
-
-    <!-- TODO language swap icon btn / dropdown here -->
-
+    
     <nav class="link-container" [attr.aria-label]="'NAVIGATION' | transloco">
         <a class="text" [routerLink]="''" routerLinkActive #searchLink="routerLinkActive"
             [routerLinkActiveOptions]="{ exact: false }" [attr.aria-current]="searchLink.isActive ? 'page' : null">
@@ -15,6 +13,10 @@
         <a class="text" [routerLink]="Route.aboutRoute" routerLinkActive #aboutLink="routerLinkActive"
             [attr.aria-current]="aboutLink.isActive ? 'page' : null">{{'ABOUT' | transloco}}</a>
     </nav>
+
+    <!-- TODO language swap icon btn / dropdown here  use new angular/menu? -->
+    <!-- <img src="/assets/language-translate-svgrepo-com.svg" alt="'TRANSLATION_LANGUAGE_SELECTION' | transloco'" [attr.aria-label]="'TRANSLATION_LANGUAGE_SELECTION' | transloco'" class="app-icon"> -->
+
 </header>
 <main>
     <router-outlet></router-outlet>

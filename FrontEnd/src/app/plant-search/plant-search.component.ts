@@ -90,7 +90,9 @@ export class PlantSearchComponent implements OnDestroy {
 
   protected readonly droughtTolerance = signal<Level | undefined>(undefined);
   private readonly _droughtTolerance$ = toObservable(this.droughtTolerance);
-  
+
+  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.growthHabit, this.duration, this.toxicity, this.flowerColor, this.foliageColor, 
+    this.shadeTolerance, this.lifespan, this.growthRate, this.humanPalatable, this.droughtTolerance];
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
@@ -105,6 +107,7 @@ export class PlantSearchComponent implements OnDestroy {
     this.sortOptionDirection.update((val) => val == 'Z-A' ? 'A-Z' : 'Z-A');
     this._isSortOptionAlphabeticOrderEmitter$.next(this.sortOptionDirection() === 'A-Z');
   }
+
 
   protected sortOptions: SortOption[] = ['commonName', 'scientificName'];
   protected readonly sortOptionsEmitter$: BehaviorSubject<SortOption> = new BehaviorSubject<SortOption>('commonName');
@@ -212,8 +215,6 @@ export class PlantSearchComponent implements OnDestroy {
       }
     });
 
-
-
     this._fullyFilteredNativePlants.subscribe((plants) => this.filteredDataBatch.emit(plants));
 
     this._positionService.countyEmitter$
@@ -287,7 +288,6 @@ export class PlantSearchComponent implements OnDestroy {
   protected getFilterItem(key: string, value: string | boolean): FilterSelection { return <FilterSelection>{ key, value }; }
 
   protected onFilterItemSelected(item: FilterSelection): void {
-    console.log(item);
     if (item.key == 'duration') {
       this.duration.update(signalUpdate(item.value as Duration));
     }
@@ -315,7 +315,7 @@ export class PlantSearchComponent implements OnDestroy {
     else if (item.key == 'humanPalatable') {
       this.humanPalatable.update(signalUpdate(item.value as boolean));
     }
-    else if(item.key === 'droughtTolerance'){
+    else if (item.key === 'droughtTolerance') {
       this.droughtTolerance.update(signalUpdate(item.value as Level));
     }
 
@@ -333,14 +333,11 @@ export class PlantSearchComponent implements OnDestroy {
     }
   }
 
-  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.growthHabit, this.duration, this.toxicity, this.flowerColor, this.foliageColor, this.shadeTolerance, 
-    this.lifespan, this.growthRate, this.humanPalatable, this.droughtTolerance];
-    
   public clearFilters(): void {
     this.filterSignals.forEach(signal => signal.set(undefined));
   }
-  
-  public anyActiveFilters(): boolean { return this.filterSignals.some((x) => x() !== undefined)}
+
+  public anyActiveFilters(): boolean { return this.filterSignals.some((x) => x() !== undefined) }
 
   public handleNameInput(name: string | undefined): void {
     if (name) this._countyRenavigate$.next(name);

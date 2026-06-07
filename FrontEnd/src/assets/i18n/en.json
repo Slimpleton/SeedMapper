@@ -18,7 +18,6 @@
         "SCIENTIFICNAME": "Scientific Name"
     },
     "GROWTH_HABITS": {
-        "ANY": "-- Growth Habits -- ",
         "GRAMINOID": "Grasslike",
         "SHRUB": "Shrub",
         "SUBSHRUB": "Subshrub",
@@ -54,7 +53,6 @@
     "SHAPE_AND_ORIENTATION": "Shape & Orientation",
     "NO_COUNTRIES_FOUND": "No countries found",
     "DURATIONS": {
-        "ANY": "-- Durations --",
         "AN": "Annual",
         "ANNUAL": "Annual",
         "PERENNIAL": "Perennial",
@@ -125,5 +123,6 @@
         "LOW":"Low",
         "MEDIUM":"Medium",
         "HIGH":"High"
-    }
+    },
+    "TRANSLATION_LANGUAGE_SELECTION":"Languages"
 }

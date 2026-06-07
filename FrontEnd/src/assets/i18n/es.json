@@ -1,0 +1,127 @@
+{
+    "TITLE": "Qué Crece Nativo Aquí",
+    "ABOUT": "Acerca de",
+    "SEARCH": "Buscar",
+    "APP_ICON": "El logotipo de la aplicación, un símbolo de plántula brotando",
+    "NAVIGATION": "Barra de Navegación Principal",
+    "LOADING": "CARGANDO...",
+    "COUNTY_PLACEHOLDER": "Buscar Condados",
+    "FILTERS": "Filtros",
+    "SORT": "Ordenar",
+    "CLEAR": "Limpiar",
+    "IMAGES": "Imágenes",
+    "NO_IMAGES": "No Hay Imágenes",
+    "PREVIOUS_IMG": "Imagen Anterior",
+    "NEXT_IMG": "Imagen Siguiente",
+    "SORT_OPTIONS": {
+        "COMMONNAME": "Nombre Común",
+        "SCIENTIFICNAME": "Nombre Científico"
+    },
+    "GROWTH_HABITS": {
+        "GRAMINOID": "Similar a Gramíneas",
+        "SHRUB": "Arbusto",
+        "SUBSHRUB": "Subarbusto",
+        "TREE": "Árbol",
+        "VINE": "Enredadera",
+        "NONVASCULAR": "No Vascular",
+        "FORB/HERB": "Hierba/Forb",
+        "FORBHERB": "Hierba/Forb"
+    },
+    "TOXICITY": "Toxicidad",
+    "TOXICITIES": {
+        "NONE": "Ninguna",
+        "SLIGHT": "Leve",
+        "MODERATE": "Moderada",
+        "SEVERE": "Severa"
+    },
+    "GROWTH_RATE": "Tasa de Crecimiento",
+    "FLOWER_COLOR": "Colores de Flor",
+    "INATURALIST_OBSERVATION_LINK": "Enlace de iNaturalist a observaciones de {{plantCommonName}} {{plantTaxonId}}, se abre en nueva pestaña",
+    "USDA_PROFILE_LINK": "Perfil USDA para {{plantCommonName}} ({{plantAcceptedSymbol}}), se abre en nueva pestaña",
+    "COUNTY_SEARCH_HINT": "Escribe para buscar condados...",
+    "COUNTY_NO_RESULTS": "No se encontraron condados",
+    "GROWTH_HABIT": "Hábitos de Crecimiento",
+    "SHADE_TOLERANCE": "Tolerancia a la Sombra",
+    "SHADE_TOLERANCES": {
+        "TOLERANT": "Tolerante",
+        "INTERMEDIATE": "Intermedio",
+        "INTOLERANT": "Intolerante"
+    },
+    "DURATION": "Duración",
+    "ACTIVE_GROWTH_PERIOD": "Temporadas de Crecimiento Activo",
+    "SHAPE_AND_ORIENTATION": "Forma y Orientación",
+    "NO_COUNTRIES_FOUND": "No se encontraron países",
+    "DURATIONS": {
+        "AN": "Anual",
+        "ANNUAL": "Anual",
+        "PERENNIAL": "Perenne",
+        "BIENNIAL": "Bienal"
+    },
+    "COUNTY_MAP": {
+        "CHOOSE_COUNTY": "¡Elige un condado!",
+        "COUNTY_SELECTED": "Condado Seleccionado:"
+    },
+    "NATIVE_PLANTS_IN": "Plantas Nativas en ",
+    "SEARCHBAR_PLACEHOLDER": "ej. Lupinus agardhianus, Apache plume,...,",
+    "PLANT_OVERVIEW": "Resumen de la Planta",
+    "BACK": "Regresar",
+    "NATIVE_REGION_MAP": "Mapa de Región Nativa",
+    "NATIVE_REGION_MAP_PLANT_LABEL": "Mapa de Región Nativa para {{plantCommonName}}",
+    "PLANT_OVERVIEW_HEADER": "{{plantCommonName}} también conocida como {{plantScientificName}}",
+    "PLANT_OVERVIEW_NATIVE_REGION_HEADER": "Regiones Nativas",
+    "PLANT_TILE_COMPONENT": {
+        "PICTURE_ALT_TEXT": "Una imagen de {{commonName}} ({{scientificName}}), familia {{family}}",
+        "PICTURE_CAPTION": ""
+    },
+    "ABOUT_COMPONENT": {
+        "HEADER": "Por qué \"Qué Crece Nativo Aquí\"",
+        "GARDEN_HEADER": "Fotos del Jardín",
+        "MATUREPOPPY_ALT": "Dos arbustos de amapola californiana sin flores de dos años uno al lado del otro en una pequeña jardinera empotrada",
+        "GUERRILAGARDENPARKPOPPY_ALT": "Dos pequeñas amapolas californianas sin flores brotan de la corteza en un parque público",
+        "POPPYWITHBUMPER_ALT": "Un pequeño jardín de amapolas californianas sin flores junto a un parachoques blanco con rasguños rojos",
+        "ME": "Quién soy \"Yo\"",
+        "ME_CONTENT": "Actualmente trabajando para SOTA Cloud como desarrollador, usando este proyecto para mejorar mis habilidades. Me inspiré en mi pequeño jardín de flores nativas que cultivé de manera guerrillera de mi arrendador. Espero inspirarte a cultivar jardines guerrilleros de forma efectiva con mi mapeo de regiones nativas para impulsar el cambio ambiental :)",
+        "CONTENT": "Lo que comenzó como un proyecto personal para entregar información sobre plantas nativas rápidamente evolucionó en una solución compleja construida para ofrecer los resultados más rápidos posibles usando la API de geolocalización nativa y SSR. Inspirado en el rendimiento de McMaster-Carr, esperaba entregar información pública sobre plantas a personas con velocidades de internet más bajas. Por favor disfruta el fruto de mi esfuerzo."
+    },
+    "COLORS": {
+        "BLACK": "Negro",
+        "BLUE": "Azul",
+        "BROWN": "Marrón",
+        "GREEN": "Verde",
+        "ORANGE": "Naranja",
+        "PURPLE": "Morado",
+        "RED": "Rojo",
+        "WHITE": "Blanco",
+        "YELLOW": "Amarillo",
+        "DARK GREEN": "Verde Oscuro",
+        "GRAY-GREEN": "Verde Grisáceo",
+        "WHITE-GRAY": "Blanco Grisáceo",
+        "YELLOW-GREEN": "Verde Amarillento"
+    },
+    "FOLIAGE_COLOR": "Color del Follaje",
+    "HUMAN_PALATABLE": "Comestible para Humanos",
+    "LIFESPAN": "Vida Útil",
+    "DROUGHT_TOLERANCE": "Tolerancia a la Sequía",
+    "LIFESPANS": {
+        "SHORT": "Corta",
+        "LONG": "Larga",
+        "MODERATE": "Moderada"
+    },
+    "RATES": {
+        "NONE": "Ninguna",
+        "SLOW": "Lento",
+        "MODERATE": "Moderado",
+        "RAPID": "Rápido"
+    },
+    "BOOLEAN": {
+        "TRUE": "Verdadero",
+        "FALSE": "Falso"
+    },
+    "LEVELS": {
+        "NONE": "Ninguno",
+        "LOW": "Bajo",
+        "MEDIUM": "Medio",
+        "HIGH": "Alto"
+    },
+    "TRANSLATION_LANGUAGE_SELECTION": "Idiomas"
+}

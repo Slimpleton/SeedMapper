@@ -153,9 +153,10 @@
                             <div class="menu" ngMenu #droughtToleranceMenu="ngMenu" id="drought-tolerance-menu">
                                 <ng-template ngMenuContent>
                                     @for(level of levels; track level){
-                                        <div class="submenu-item" [value]="getFilterItem('droughtTolerance',level)" ngMenuItem [class.chosen-item]="droughtTolerance() === level"> 
-                                            <span class="label">{{'LEVELS.' + level | uppercase | transloco}}</span>
-                                        </div>
+                                    <div class="submenu-item" [value]="getFilterItem('droughtTolerance',level)"
+                                        ngMenuItem [class.chosen-item]="droughtTolerance() === level">
+                                        <span class="label">{{'LEVELS.' + level | uppercase | transloco}}</span>
+                                    </div>
                                     }
                                 </ng-template>
                             </div>
