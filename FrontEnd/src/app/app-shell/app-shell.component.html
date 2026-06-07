@@ -4,7 +4,7 @@
             [alt]="'APP_ICON' | transloco" />
         <h2 class="title">{{'TITLE' | transloco}}</h2>
     </div>
-    
+
     <nav class="link-container" [attr.aria-label]="'NAVIGATION' | transloco">
         <a class="text" [routerLink]="''" routerLinkActive #searchLink="routerLinkActive"
             [routerLinkActiveOptions]="{ exact: false }" [attr.aria-current]="searchLink.isActive ? 'page' : null">
@@ -14,8 +14,27 @@
             [attr.aria-current]="aboutLink.isActive ? 'page' : null">{{'ABOUT' | transloco}}</a>
     </nav>
 
-    <!-- TODO language swap icon btn / dropdown here  use new angular/menu? -->
-    <!-- <img src="/assets/language-translate-svgrepo-com.svg" alt="'TRANSLATION_LANGUAGE_SELECTION' | transloco'" [attr.aria-label]="'TRANSLATION_LANGUAGE_SELECTION' | transloco'" class="app-icon"> -->
+    <button class="menu-trigger-btn" ngMenuTrigger #languageMenuTrigger #languageSelectTrigger="ngMenuTrigger"
+        [menu]="languageMenu()">
+        <img class="language-swap-icon" [attr.width]="32" [attr.height]="32"
+            src="/assets/language-translate-svgrepo-com.svg" alt="'TRANSLATION_LANGUAGE_SELECTION' | transloco"
+            [attr.aria-label]="'TRANSLATION_LANGUAGE_SELECTION' | transloco" class="app-icon" />
+    </button>
+    <ng-template [cdkConnectedOverlayOpen]="languageSelectTrigger.expanded()"
+        [cdkConnectedOverlay]="{origin: languageMenuTrigger, usePopover:'inline'}" [cdkConnectedOverlayPositions]="[
+    {originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 4},
+  ]" cdkAttachPopoverAsChild>
+        <div class="menu" id="lang-menu" ngMenu #languageMenu="ngMenu" (itemSelected)="swapLanguage($event)">
+            <ng-template ngMenuContent>
+                @for(lang of availableLangs; track lang){
+                <div class="menu-item" [id]="lang + '-menu'" ngMenuItem [value]="lang" [class.chosen-item]="lang == translate.getActiveLang()" >
+                    <span class="label">{{'LANGUAGES.' + lang | uppercase | transloco}}</span>
+                </div>
+                }
+            </ng-template>
+        </div>
+
+    </ng-template>
 
 </header>
 <main>

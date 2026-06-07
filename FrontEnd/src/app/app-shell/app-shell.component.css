@@ -17,6 +17,7 @@ a:visited {
 
 .title-container {
     place-items: center;
+    flex-grow: 1;
 }
 
 .title {
@@ -44,5 +45,68 @@ h2 {
     width: calc(100% - 2 * var(--nav-bar--width-padding));
     font-size: 1.2em;
     align-items: center;
+    background-color: var(--wood-light-brown);
+}
+
+[ngMenuTrigger],
+[ngMenu]{
+    background-color: var(--grass-light-green);
+}
+
+[ngMenuTrigger]{
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    padding: none;
+    border-radius: 0.5em;
+    border: .15em solid var(--wood-dark-brown);
+    width: fit-content;
+}
+
+[ngMenu] {
+    margin: 0;
+    width: fit-content;
+    box-sizing: border-box;
+    border-radius: 0.5em;
+    border: .15em solid var(--wood-dark-brown);
+    font-weight: bold;
+}
+
+[ngMenu][data-visible='false'] {
+    display: none;
+}
+
+[ngMenuItem] {
+    outline: none;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em;
+    font-size: 0.875em;
+    justify-content: space-between;
+}
+
+[ngMenuItem]:first-of-type {
+    border-top-left-radius: .5em;
+    border-top-right-radius: .5em;
+}
+
+[ngMenuItem]:last-of-type {
+    border-bottom-left-radius: .5em;
+    border-bottom-right-radius: .5em;
+}
+
+[ngMenuTrigger]:hover,
+[ngMenuItem][data-active='true'] {
+    background: var(--grass-green);
+}
+
+.menu-trigger-btn{
+    margin-left:.5em;
+}
+
+.chosen-item {
+    cursor: pointer;
     background-color: var(--wood-light-brown);
 }

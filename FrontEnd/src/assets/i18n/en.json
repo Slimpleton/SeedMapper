@@ -124,5 +124,9 @@
         "MEDIUM":"Medium",
         "HIGH":"High"
     },
-    "TRANSLATION_LANGUAGE_SELECTION":"Languages"
+    "TRANSLATION_LANGUAGE_SELECTION":"Languages",
+    "LANGUAGES":{
+        "EN":"English",
+        "ES":"Spanish"
+    }
 }

@@ -12,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withIncrementalHydration()),
     provideZonelessChangeDetection(), provideTransloco({
         config: { 
-          availableLangs: ['en'],
+          availableLangs: ['en','es'],
           defaultLang: 'en',
           // Remove this option if your application doesn't support changing language in runtime.
           reRenderOnLangChange: true,
