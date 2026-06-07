@@ -104,6 +104,7 @@
     "FOLIAGE_COLOR": "Foliage Color",
     "HUMAN_PALATABLE":"Human-Palatable",
     "LIFESPAN":"Lifespan",
+    "DROUGHT_TOLERANCE":"Drought Tolerance",
     "LIFESPANS":{
         "SHORT":"Short",
         "LONG":"Long",
@@ -118,5 +119,11 @@
     "BOOLEAN":{
         "TRUE":"True",
         "FALSE":"False"
+    },
+    "LEVELS":{
+        "NONE":"None",
+        "LOW":"Low",
+        "MEDIUM":"Medium",
+        "HIGH":"High"
     }
 }

@@ -3,8 +3,8 @@
         <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
             [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar" (focus)="searchBar.select()">
         <div class="row">
-            <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #filterTrigger="ngMenuTrigger" [class.chosen-item]="anyActiveFilters()"
-                [menu]="filterMenu()">{{'FILTERS' |
+            <button class="menu-trigger-btn" ngMenuTrigger #filterMenuTrigger #filterTrigger="ngMenuTrigger"
+                [class.chosen-item]="anyActiveFilters()" [menu]="filterMenu()">{{'FILTERS' |
                 transloco}}</button>
             <ng-template [cdkConnectedOverlayOpen]="filterTrigger.expanded()"
                 [cdkConnectedOverlay]="{origin: filterMenuTrigger, usePopover: 'inline'}"
@@ -54,8 +54,7 @@
                                 <ng-template ngMenuContent>
                                     @for(growthHabitValue of growthHabits; track growthHabitValue){
                                     <div ngMenuItem [value]="getFilterItem('growthHabit', growthHabitValue)"
-                                        class="submenu-item"
-                                        [class.chosen-item]="growthHabit() === growthHabitValue">
+                                        class="submenu-item" [class.chosen-item]="growthHabit() === growthHabitValue">
                                         <span class="label">{{'GROWTH_HABITS.' + growthHabitValue | uppercase |
                                             transloco}}</span>
 
@@ -140,6 +139,30 @@
 
                         <div role="separator" aria-orientation="horizontal" class="separator"></div>
 
+                        <div class="menu-item" ngMenuItem value="droughtTolerance" #droughtToleranceItem
+                            [submenu]="droughtToleranceMenu()" [class.chosen-item]="droughtTolerance() !== undefined">
+                            <span class="label"> {{ 'DROUGHT_TOLERANCE' | transloco }}</span>
+                            <app-icon class="menu-arrow" stroke="white" name="arrow"></app-icon>
+                        </div>
+
+                        <ng-template [cdkConnectedOverlayOpen]="filterMenu.visible()"
+                            [cdkConnectedOverlay]="{origin: droughtToleranceItem, usePopover: 'inline'}"
+                            [cdkConnectedOverlayPositions]="[
+          {originX: 'end', originY: 'top', overlayY: 'top', overlayX: 'start', offsetX: 6},
+        ]" cdkAttachPopoverAsChild>
+                            <div class="menu" ngMenu #droughtToleranceMenu="ngMenu" id="drought-tolerance-menu">
+                                <ng-template ngMenuContent>
+                                    @for(level of levels; track level){
+                                        <div class="submenu-item" [value]="getFilterItem('droughtTolerance',level)" ngMenuItem [class.chosen-item]="droughtTolerance() === level"> 
+                                            <span class="label">{{'LEVELS.' + level | uppercase | transloco}}</span>
+                                        </div>
+                                    }
+                                </ng-template>
+                            </div>
+                        </ng-template>
+
+                        <div role="separator" aria-orientation="horizontal" class="separator"></div>
+
                         <div class="menu-item" ngMenuItem value="shadeTolerance" #shadeToleranceItem
                             [submenu]="shadeToleranceMenu()" [class.chosen-item]="shadeTolerance() !== undefined">
                             <span class="label">{{'SHADE_TOLERANCE' | transloco}}</span>
@@ -184,7 +207,7 @@
                                 <ng-template ngMenuContent>
                                     @for(life of lifespans; track life){
                                     <div class="submenu-item" ngMenuItem [value]="getFilterItem('lifespan', life)"
-                                       [class.chosen-item]="lifespan()===life">
+                                        [class.chosen-item]="lifespan()===life">
                                         <span class="label">{{'LIFESPANS.' + life | uppercase |
                                             transloco}}</span>
                                     </div>
@@ -210,7 +233,7 @@
                                 <ng-template ngMenuContent>
                                     @for(rate of rates; track rate){
                                     <div class="submenu-item" ngMenuItem [value]="getFilterItem('growthRate', rate)"
-                                       [class.chosen-item]="growthRate() === rate">
+                                        [class.chosen-item]="growthRate() === rate">
                                         <span class="label">{{'RATES.' + rate | uppercase | transloco}}</span>
                                     </div>
                                     }
@@ -236,8 +259,8 @@
                             <div class="menu" ngMenu #humanPalatableMenu="ngMenu" id="human-palatable-menu">
                                 <ng-template ngMenuContent>
                                     @for(bool of booleans; track bool){
-                                    <div class="submenu-item" ngMenuItem
-                                        [value]="getFilterItem('humanPalatable', bool)" [class.chosen-item]="humanPalatable() === bool">
+                                    <div class="submenu-item" ngMenuItem [value]="getFilterItem('humanPalatable', bool)"
+                                        [class.chosen-item]="humanPalatable() === bool">
                                         <span class="label">{{'BOOLEAN.' + bool | uppercase | transloco}}</span>
                                     </div>
                                     }

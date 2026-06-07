@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, Signal, WritableSignal } from '@angular/core';
-import { Color, combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, Lifespan, PlantData, Rate, ShadeTolerance, Toxicity } from '../models/gov/models';
+import { Color, combineCountyFIP, CountyCSVItem, Duration, GrowthHabit, Level, Lifespan, PlantData, Rate, ShadeTolerance, Toxicity } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
@@ -59,6 +59,7 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly durations: Duration[] = ['Annual', 'Perennial', 'Biennial'];
   protected readonly rates: Rate[] = ['None', 'Slow', 'Moderate', 'Rapid'];
   protected readonly booleans: boolean[] = [true, false];
+  protected readonly levels: Level[] = ['None', 'Low', 'Medium', 'High'];
 
   protected readonly growthHabit = signal<GrowthHabit | undefined>(undefined);
   private readonly _growthHabit$ = toObservable(this.growthHabit);
@@ -86,6 +87,10 @@ export class PlantSearchComponent implements OnDestroy {
 
   protected readonly humanPalatable = signal<boolean | undefined>(undefined);
   private readonly _humanPalatable$ = toObservable(this.humanPalatable);
+
+  protected readonly droughtTolerance = signal<Level | undefined>(undefined);
+  private readonly _droughtTolerance$ = toObservable(this.droughtTolerance);
+  
 
   private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
@@ -133,6 +138,7 @@ export class PlantSearchComponent implements OnDestroy {
   protected readonly lifespanMenu = viewChild<Menu<string>>('lifespanMenu');
   protected readonly growthRateMenu = viewChild<Menu<string>>('growthRateMenu');
   protected readonly humanPalatableMenu = viewChild<Menu<string>>('humanPalatableMenu');
+  protected readonly droughtToleranceMenu = viewChild<Menu<string>>('droughtToleranceMenu');
 
   private readonly _countyRenavigate$ = new Subject<string>();
   private readonly _validCountyRenavigate$: Observable<CountyCSVItem> =
@@ -170,14 +176,15 @@ export class PlantSearchComponent implements OnDestroy {
     this._lifespan$,
     this._growthRate$,
     this._humanPalatable$,
+    this._droughtTolerance$,
     this.sortOptionsEmitter$,
     this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
     distinctUntilChanged((a, b) => a.every((v, i) => v === b[i])),
-    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, humanPalatable, sortOption, isSortAlphabeticOrder]:
-      [GrowthHabit | undefined, Duration | undefined, string, string, Toxicity | undefined, Color | undefined, Color | undefined, ShadeTolerance | undefined, Lifespan | undefined, Rate | undefined, boolean | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
+    switchMap(([growthHabit, duration, combinedFIP, searchString, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, humanPalatable, droughtTolerance, sortOption, isSortAlphabeticOrder]:
+      [GrowthHabit | undefined, Duration | undefined, string, string, Toxicity | undefined, Color | undefined, Color | undefined, ShadeTolerance | undefined, Lifespan | undefined, Rate | undefined, boolean | undefined, Level | undefined, SortOption, boolean]): Observable<Readonly<PlantData>[]> => {
       this.filterInProgress$.next(true);
-      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, humanPalatable, sortOption, isSortAlphabeticOrder)
+      return this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, duration, toxicity, flowerColor, foliageColor, shadeTolerance, lifespan, growthRate, humanPalatable, droughtTolerance, sortOption, isSortAlphabeticOrder)
         .pipe(finalize(() => { this.filterInProgress$.next(false); }));
     }),
     takeUntil(this._destroy$)
@@ -308,6 +315,9 @@ export class PlantSearchComponent implements OnDestroy {
     else if (item.key == 'humanPalatable') {
       this.humanPalatable.update(signalUpdate(item.value as boolean));
     }
+    else if(item.key === 'droughtTolerance'){
+      this.droughtTolerance.update(signalUpdate(item.value as Level));
+    }
 
     function signalUpdate<T>(newVal: T): (value: T | undefined) => T | undefined {
       return (val) => val === newVal ? undefined : newVal;
@@ -323,7 +333,9 @@ export class PlantSearchComponent implements OnDestroy {
     }
   }
 
-  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.growthHabit, this.duration, this.toxicity, this.flowerColor, this.foliageColor, this.shadeTolerance, this.lifespan, this.growthRate, this.humanPalatable];
+  private readonly filterSignals: WritableSignal<unknown | undefined>[] = [this.growthHabit, this.duration, this.toxicity, this.flowerColor, this.foliageColor, this.shadeTolerance, 
+    this.lifespan, this.growthRate, this.humanPalatable, this.droughtTolerance];
+    
   public clearFilters(): void {
     this.filterSignals.forEach(signal => signal.set(undefined));
   }
