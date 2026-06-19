@@ -53,7 +53,8 @@ namespace Backend.Controllers
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery] SortOption sortOption,
         [FromQuery] bool ascending, [FromQuery] int batchSize,
         [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit,
-        [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration, [FromQuery] Toxicity? toxicity,
+        [FromQuery, ModelBinder(BinderType = typeof(DurationModelBinder))] Duration? duration,
+        [FromQuery] Toxicity? toxicity,
         [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? flowerColor,
         [FromQuery, ModelBinder(BinderType = typeof(ColorModelBinder))] Color? foliageColor,
         [FromQuery] ShadeTolerance? shadeTolerance, [FromQuery] Lifespan? lifespan,
@@ -71,7 +72,7 @@ namespace Backend.Controllers
             await using (gzip.ConfigureAwait(false))
             {
 
-                int secondaryBatchSize = 250;
+                int secondaryBatchSize = 150;
                 // Get county plants as a HashSet for O(1) lookups
                 HashSet<PlantData>? countyPlants = FileService.GetPlantsByLocation(combinedFIP);
                 if (countyPlants == null)

@@ -36,7 +36,7 @@
     },
     "GROWTH_RATE":"Growth Rate",
 
-    "FLOWER_COLOR": "Flower Colors",
+    "FLOWER_COLOR": "Flower Color",
     "INATURALIST_OBSERVATION_LINK": "INaturalist link to observations for {{plantCommonName}} {{plantTaxonId}}, opens in new tab",
     "USDA_PROFILE_LINK": "USDA profile for {{plantCommonName}} ({{plantAcceptedSymbol}}), opens in new tab",
     "COUNTY_SEARCH_HINT": "Type to search counties...",
