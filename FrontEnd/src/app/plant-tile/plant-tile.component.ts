@@ -103,18 +103,6 @@ export class PlantTileComponent {
   ) {
   }
 
-
-  public get growthHabitKeys(): string[] {
-    if (!this.plant?.growthHabit || this.plant.growthHabit.length === 0) {
-      return [];
-    }
-    return [...this.plant.growthHabit].map(x => 'GROWTH_HABITS.' + x.toUpperCase());
-  }
-
-  public get plantDuration(): string {
-    return [...this.plant.duration].join(', ');
-  }
-
   public openInfoPage() {
     this._router.navigate(['plant/raw/' + this.plant.acceptedSymbol], { state: <PlantOverviewRouteData>{ plant: this.plant } });
   }

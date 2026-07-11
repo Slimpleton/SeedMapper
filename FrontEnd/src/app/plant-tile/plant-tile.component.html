@@ -58,8 +58,8 @@
     {
 
     <span class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
-        @for (key of growthHabitKeys; track key; let last = $last) {
-        {{ key | transloco }}@if (!last) {, }
+        @for (key of plant.growthHabit; track key; let last = $last) {
+        {{ 'GROWTH_HABITS.' + key | uppercase | transloco }}@if (!last) {, }
         }
     </span> }
 
@@ -72,7 +72,10 @@
     }
 
     @if(plant.duration !== null){
-    <span class="result-property" id="duration-{{plant.acceptedSymbol}}">{{plantDuration}}
+    <span class="result-property" id="duration-{{plant.acceptedSymbol}}">
+        @for(key of plant.duration; track key; let last = $last) {
+        {{ 'DURATIONS.' + key | uppercase| transloco }}@if (!last) {, }
+        }
     </span>
     }
 
