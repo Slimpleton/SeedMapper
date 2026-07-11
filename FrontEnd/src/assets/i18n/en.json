@@ -35,7 +35,13 @@
         "SEVERE": "Severe"
     },
     "GROWTH_RATE":"Growth Rate",
-
+    "SEASONS":{
+        "WINTER": "Winter",
+        "SPRING": "Spring",
+        "SUMMER": "Summer",
+        "FALL": "Fall",
+        "YEAR ROUND": "Year Round"
+    },
     "FLOWER_COLOR": "Flower Color",
     "INATURALIST_OBSERVATION_LINK": "INaturalist link to observations for {{plantCommonName}} {{plantTaxonId}}, opens in new tab",
     "USDA_PROFILE_LINK": "USDA profile for {{plantCommonName}} ({{plantAcceptedSymbol}}), opens in new tab",

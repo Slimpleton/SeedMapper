@@ -34,6 +34,13 @@
         "MODERATE": "Moderada",
         "SEVERE": "Severa"
     },
+       "SEASONS":{
+        "WINTER": "Invierno",
+        "SPRING": "Primavera",
+        "SUMMER": "Verano",
+        "FALL": "Otoño",
+        "YEAR ROUND": "Todo el Año"
+    },
     "GROWTH_RATE": "Tasa de Crecimiento",
     "FLOWER_COLOR": "Colores de Flor",
     "INATURALIST_OBSERVATION_LINK": "Enlace de iNaturalist a observaciones de {{plantCommonName}} {{plantTaxonId}}, se abre en nueva pestaña",

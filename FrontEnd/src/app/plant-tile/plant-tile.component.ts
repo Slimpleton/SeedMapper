@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, ElementRef, Inject, inject, Input, PLATFORM_ID, signal, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
-import { isPlatformBrowser, TitleCasePipe } from '@angular/common';
+import { isPlatformBrowser, TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Router } from '@angular/router';
@@ -14,7 +14,7 @@ import { LoaderComponent } from '../loader/loader.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-tile',
-  imports: [TitleCasePipe, TranslocoPipe, IconComponent, TooltipDirective, LoaderComponent],
+  imports: [TitleCasePipe, TranslocoPipe, IconComponent, TooltipDirective, LoaderComponent, UpperCasePipe],
   templateUrl: './plant-tile.component.html',
   styleUrl: './plant-tile.component.css',
   standalone: true

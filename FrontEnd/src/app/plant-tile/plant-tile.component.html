@@ -65,7 +65,9 @@
 
     @if(plant.activeGrowthPeriod.length > 0){
     <span class="result-property" id="active-season-{{plant.acceptedSymbol}}">
-        {{ plant.activeGrowthPeriod.join(', ') }}
+        @for(key of plant.activeGrowthPeriod; track key; let last = $last) {
+        {{ 'SEASONS.' + key | uppercase | transloco }}@if (!last) {, }
+        }
     </span>
     }
 
